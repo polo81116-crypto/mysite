@@ -3,7 +3,7 @@ import { Award, Bean, ChevronRight, Coffee, Filter, MapPin, Minus, Plus, Shoppin
 import { motion } from "framer-motion";
 
 const shopeeUrl = "https://shopee.tw/caobancoffee?categoryId=100629&entryPoint=ShopByPDP&itemId=49107641936&upstream=search";
-const orderApiUrl = "https://script.google.com/macros/s/AKfycbzi4yk2yF-ToxEQaQu1L6yESPenavgVvch2kOC9NtT-DZXCgDbx6qW8TUVNwzp4rmGxAA/exec";
+const orderApiUrl = "https://script.google.com/macros/s/AKfycbzfN28njwcJeZssEQV5HJnZ7Z9Z-dPmIVP0WNLBZNQz7VUG9VewI6hl29-0ivpJ_DiPQA/exec";
 const sevenElevenStoresJsonUrl = "https://raw.githubusercontent.com/Cojad/taiwan-7Eleven-store/master/stores.json";
 
 const categories = [
