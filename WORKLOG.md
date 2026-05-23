@@ -6,9 +6,24 @@ This file tracks project changes, deployment notes, and version updates.
 
 ### Current Version
 
-- Latest commit: `d178e38 Send order email notifications`
-- Previous deployed frontend update: `bf37aef Require checkout contact fields`
+- Latest commit: `8c7054b Preserve MyShip phone leading zero`
+- Previous backend updates:
+  - `7eb9b96 Prevent duplicate MyShip exports`
+  - `8792cbc Add MyShip import sheet export`
+  - `fc4635d Style order notification emails`
+  - `d178e38 Send order email notifications`
+- Previous frontend update: `bf37aef Require checkout contact fields`
 - Repository: `https://github.com/polo81116-crypto/mysite.git`
+
+### Current Shipping Export Status
+
+- MyShip export sheet generation is handled by `google-apps-script/order-backend.gs`.
+- New orders are written to:
+  - `Orders`
+  - MyShip import tab, configured as `CONFIG.MYSHIP_SHEET_NAME`
+- Duplicate shipment prevention is active through `Orders.myship_exported_at`.
+- Pickup phone numbers are written as text so leading zeroes are preserved.
+- Latest backend file must be pasted into Google Apps Script and redeployed before the live Web App uses these updates.
 
 ### Order Email Notification Status
 
