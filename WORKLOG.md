@@ -89,6 +89,36 @@ https://script.google.com/macros/s/AKfycbzfN28njwcJeZssEQV5HJnZ7Z9Z-dPmIVP0WNLBZ
 - `google-apps-script/order-backend.gs` syntax check passed after the HTML email update.
 - Manual Apps Script redeploy is required before live orders use the new email design.
 
+### MyShip Import Format
+
+- Reference file found in the workspace:
+
+```txt
+賣貨便_訂單匯入 (2).xlsm
+```
+
+- Template workbook sheets:
+  - `訂單匯入`
+  - `填寫說明`
+
+- Required import columns identified from the template:
+  - `＊取件人姓名`
+  - `＊取件人手機`
+  - `＊取件門市`
+  - `* 溫層`
+  - `＊商品`
+  - `＊訂單金額`
+  - `＊運費金額`
+  - `買家下訂日期`
+  - `商品備註`
+  - `其他資訊(FB/LINE/IG帳號)`
+
+- Updated `google-apps-script/order-backend.gs` so each successful order now also appends a row to a Google Sheet tab named `訂單匯入`.
+- `訂單匯入` columns A:J are set to text format to preserve phone numbers and 7-ELEVEN store IDs.
+- Added `rebuildMyShipImportSheet()` to rebuild the import sheet from existing `Orders` rows using `raw_payload`.
+- Apps Script syntax check passed after the MyShip export update.
+- Manual Apps Script redeploy is required before live orders generate `訂單匯入` rows.
+
 ## 2026-05-23
 
 ### Checkout Validation

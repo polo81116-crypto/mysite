@@ -14,6 +14,7 @@
 const CONFIG = {
   SPREADSHEET_ID: "1H_hP3TLB4PQb2rVRD-iqn71z7-sPc0pOgtttX4r39v4",
   ORDERS_SHEET_NAME: "Orders",
+  MYSHIP_SHEET_NAME: "\u8a02\u55ae\u532f\u5165",
   LOGS_SHEET_NAME: "ErrorLogs",
   ADMIN_EMAIL: "CAOBANCOFFEE@GMAIL.COM",
 };
@@ -47,6 +48,19 @@ const ORDER_HEADERS = [
   "raw_payload",
 ];
 
+const MYSHIP_HEADERS = [
+  "\uff0a\u53d6\u4ef6\u4eba\u59d3\u540d",
+  "\uff0a\u53d6\u4ef6\u4eba\u624b\u6a5f",
+  "\uff0a\u53d6\u4ef6\u9580\u5e02",
+  "* \u6eab\u5c64",
+  "\uff0a\u5546\u54c1",
+  "\uff0a\u8a02\u55ae\u91d1\u984d",
+  "\uff0a\u904b\u8cbb\u91d1\u984d",
+  "\u8cb7\u5bb6\u4e0b\u8a02\u65e5\u671f",
+  "\u5546\u54c1\u5099\u8a3b",
+  "\u5176\u4ed6\u8cc7\u8a0a(FB/LINE/IG\u5e33\u865f)",
+];
+
 function setupProperties() {
   PropertiesService.getScriptProperties().setProperties({
     SPREADSHEET_ID: CONFIG.SPREADSHEET_ID,
@@ -76,6 +90,7 @@ function doPost(e) {
 
     const sheet = getOrCreateSheet(getSpreadsheet(), CONFIG.ORDERS_SHEET_NAME, ORDER_HEADERS);
     sheet.appendRow(buildOrderRow(orderId, createdAt, payload));
+    appendMyShipImportRow(orderId, createdAt, payload);
 
     sendOrderEmails(orderId, createdAt, payload);
 
@@ -190,6 +205,74 @@ function buildOrderRow(orderId, createdAt, payload) {
     cleanText(payload.myshipRemark),
     JSON.stringify(payload),
   ];
+}
+
+function appendMyShipImportRow(orderId, createdAt, payload) {
+  const sheet = getOrCreateSheet(getSpreadsheet(), CONFIG.MYSHIP_SHEET_NAME, MYSHIP_HEADERS);
+  prepareMyShipSheet(sheet);
+  sheet.appendRow(buildMyShipImportRow(orderId, createdAt, payload));
+}
+
+function rebuildMyShipImportSheet() {
+  const spreadsheet = getSpreadsheet();
+  const ordersSheet = spreadsheet.getSheetByName(CONFIG.ORDERS_SHEET_NAME);
+
+  if (!ordersSheet || ordersSheet.getLastRow() < 2) {
+    throw new Error("No orders found.");
+  }
+
+  const values = ordersSheet.getDataRange().getValues();
+  const headers = values[0];
+  const rawPayloadIndex = headers.indexOf("raw_payload");
+  const orderIdIndex = headers.indexOf("order_id");
+  const createdAtIndex = headers.indexOf("created_at");
+
+  if (rawPayloadIndex === -1) {
+    throw new Error("Orders sheet is missing raw_payload.");
+  }
+
+  const sheet = getOrCreateSheet(spreadsheet, CONFIG.MYSHIP_SHEET_NAME, MYSHIP_HEADERS);
+  sheet.clearContents();
+  sheet.appendRow(MYSHIP_HEADERS);
+  prepareMyShipSheet(sheet);
+
+  values.slice(1).forEach((row) => {
+    const rawPayload = row[rawPayloadIndex];
+    if (!rawPayload) return;
+
+    const payload = JSON.parse(rawPayload);
+    const orderId = row[orderIdIndex] || createOrderId();
+    const createdAt = row[createdAtIndex] || "";
+    sheet.appendRow(buildMyShipImportRow(orderId, createdAt, payload));
+  });
+
+  return sheet.getLastRow() - 1;
+}
+
+function buildMyShipImportRow(orderId, createdAt, payload) {
+  const shippingFee = amountNumber(payload.shippingFee);
+  const total = amountNumber(payload.totalNumber || payload.total);
+  const orderAmount = Math.max(total - shippingFee, 0);
+  const itemText = truncateText(cleanText(payload.itemSummary || payload.items), 200);
+  const itemNote = truncateText(cleanText(payload.myshipRemark || payload.note || orderId), 200);
+
+  return [
+    truncateText(cleanText(payload.recipient), 10),
+    normalizePhone(payload.phone),
+    getStoreId(payload),
+    "\u5e38\u6eab",
+    itemText,
+    String(orderAmount),
+    String(shippingFee),
+    formatMyShipDate(createdAt || payload.orderTime),
+    itemNote,
+    truncateText(cleanText(payload.socialAccount), 200),
+  ];
+}
+
+function prepareMyShipSheet(sheet) {
+  sheet.setFrozenRows(1);
+  sheet.getRange("A:J").setNumberFormat("@");
 }
 
 function getSpreadsheet() {
@@ -515,6 +598,59 @@ function buildTestPayload(email) {
     socialAccount: "",
     note: "Manual Apps Script test",
   };
+}
+
+function getStoreId(payload) {
+  const explicitStoreId = cleanText(payload.storeId || payload.myshipStoreId);
+  if (explicitStoreId) {
+    return explicitStoreId;
+  }
+
+  const parts = cleanText(payload.pickupStore).split(/\||\uFF5C/).map((part) => part.trim());
+  const numericPart = parts.find((part) => /^\d{6}$/.test(part));
+
+  return numericPart || "";
+}
+
+function normalizePhone(value) {
+  return cleanText(value).replace(/\D/g, "").slice(0, 10);
+}
+
+function amountNumber(value) {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return Math.round(value);
+  }
+
+  const numeric = cleanText(value).replace(/[^\d.-]/g, "");
+  const parsed = Number(numeric);
+
+  return Number.isFinite(parsed) ? Math.round(parsed) : 0;
+}
+
+function formatMyShipDate(value) {
+  if (value instanceof Date) {
+    return Utilities.formatDate(value, "Asia/Taipei", "yyyy/M/d");
+  }
+
+  const text = cleanText(value);
+  if (!text) {
+    return Utilities.formatDate(new Date(), "Asia/Taipei", "yyyy/M/d");
+  }
+
+  const dateText = text.split(" ")[0].replace(/-/g, "/");
+  const parts = dateText.split("/");
+
+  if (parts.length >= 3) {
+    return [parts[0], String(Number(parts[1])), String(Number(parts[2]))].join("/");
+  }
+
+  return Utilities.formatDate(new Date(), "Asia/Taipei", "yyyy/M/d");
+}
+
+function truncateText(value, maxLength) {
+  const text = cleanText(value);
+
+  return text.length > maxLength ? text.slice(0, maxLength) : text;
 }
 
 function createOrderId() {
