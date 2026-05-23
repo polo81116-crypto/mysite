@@ -214,7 +214,7 @@ function buildOrderRow(orderId, createdAt, payload) {
 function appendMyShipImportRow(orderId, createdAt, payload) {
   const sheet = getOrCreateSheet(getSpreadsheet(), CONFIG.MYSHIP_SHEET_NAME, MYSHIP_HEADERS);
   prepareMyShipSheet(sheet);
-  sheet.appendRow(buildMyShipImportRow(orderId, createdAt, payload));
+  appendTextRow(sheet, buildMyShipImportRow(orderId, createdAt, payload), MYSHIP_HEADERS.length);
 }
 
 function rebuildMyShipImportSheet() {
@@ -252,7 +252,7 @@ function rebuildMyShipImportSheet() {
     const payload = JSON.parse(rawPayload);
     const orderId = row[orderIdIndex] || createOrderId();
     const createdAt = row[createdAtIndex] || "";
-    sheet.appendRow(buildMyShipImportRow(orderId, createdAt, payload));
+    appendTextRow(sheet, buildMyShipImportRow(orderId, createdAt, payload), MYSHIP_HEADERS.length);
     markOrderMyShipExported(ordersSheet, rowIndex + 2);
     exportedCount += 1;
   });
@@ -284,6 +284,15 @@ function buildMyShipImportRow(orderId, createdAt, payload) {
 function prepareMyShipSheet(sheet) {
   sheet.setFrozenRows(1);
   sheet.getRange("A:J").setNumberFormat("@");
+}
+
+function appendTextRow(sheet, rowValues, columnCount) {
+  const rowNumber = sheet.getLastRow() + 1;
+  const values = rowValues.slice(0, columnCount).map((value) => cleanText(value));
+  const range = sheet.getRange(rowNumber, 1, 1, columnCount);
+
+  range.setNumberFormat("@");
+  range.setValues([values]);
 }
 
 function markOrderMyShipExported(sheet, rowNumber) {

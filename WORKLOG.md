@@ -130,6 +130,15 @@ https://script.google.com/macros/s/AKfycbzfN28njwcJeZssEQV5HJnZ7Z9Z-dPmIVP0WNLBZ
   - If a re-export is genuinely needed, run `resetMyShipExportStatus("ORDER_ID")`, then run `rebuildMyShipImportSheet()`.
 - Apps Script syntax check passed after the duplicate shipment prevention update.
 
+### MyShip Phone Number Formatting
+
+- Updated `訂單匯入` row writing to preserve leading zeroes in pickup phone numbers.
+- Replaced direct `appendRow()` for MyShip rows with text-first range writing:
+  - Set row number format to text.
+  - Write all A:J values as strings with `setValues()`.
+- This prevents Google Sheets from converting values like `0912345678` into numbers.
+- Apps Script syntax check passed after the phone formatting update.
+
 ## 2026-05-23
 
 ### Checkout Validation
