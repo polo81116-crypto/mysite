@@ -89,6 +89,21 @@ Imgea/ChatGPT2.jpg
 - Updated product `shopee-medium-dark-1lb` / `中深焙推薦 一磅裝` to use the local image.
 - `npm.cmd run build` passed after the product image update.
 
+- Added half-pound medium-dark product visual asset:
+
+```txt
+public/images/medium-dark-half-lb.jpg
+```
+
+- Source file in workspace:
+
+```txt
+Imgea/ChatGPT3.jpg
+```
+
+- Updated product `shopee-medium-dark-half-lb` / `中深焙推薦 半磅裝` to use the local image.
+- `npm.cmd run build` passed after the half-pound product image update.
+
 ### Product Image Layout Update
 
 - Enlarged product list image column from `96px` to `180px`.
