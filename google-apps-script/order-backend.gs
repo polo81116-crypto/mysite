@@ -13,41 +13,52 @@
 
 const CONFIG = {
   SPREADSHEET_ID: "1H_hP3TLB4PQb2rVRD-iqn71z7-sPc0pOgtttX4r39v4",
-  ORDERS_SHEET_NAME: "Orders",
+  SPREADSHEET_NAME: "\u5b98\u7db2\u4e0b\u55ae\u8cc7\u6599",
+  ORDERS_SHEET_NAME: "\u5b98\u7db2\u4e0b\u55ae\u8cc7\u6599",
+  LEGACY_ORDERS_SHEET_NAME: "Orders",
   MYSHIP_SHEET_NAME: "\u8a02\u55ae\u532f\u5165",
   LOGS_SHEET_NAME: "ErrorLogs",
   ADMIN_EMAIL: "CAOBANCOFFEE@GMAIL.COM",
 };
 
 const ORDER_HEADERS = [
-  "order_id",
-  "created_at",
-  "recipient",
-  "phone",
-  "email",
-  "pickup_store",
-  "store_id",
-  "store_name",
-  "store_address",
-  "items",
-  "item_summary",
-  "subtotal",
-  "discount",
-  "shipping_fee",
-  "total",
-  "tax_id",
-  "company_title",
-  "social_account",
-  "note",
-  "myship_recipient_name",
-  "myship_recipient_phone",
-  "myship_store_id",
-  "myship_store_name",
-  "myship_store_address",
-  "myship_remark",
-  "myship_exported_at",
-  "raw_payload",
+  "\u8a02\u55ae\u7de8\u865f",
+  "\u5efa\u7acb\u6642\u9593",
+  "\u6536\u4ef6\u4eba\u59d3\u540d",
+  "\u6536\u4ef6\u4eba\u624b\u6a5f",
+  "\u96fb\u5b50\u90f5\u4ef6",
+  "\u8d85\u5546\u9580\u5e02",
+  "\u9580\u5e02\u5e97\u865f",
+  "\u9580\u5e02\u540d\u7a31",
+  "\u9580\u5e02\u5730\u5740",
+  "\u5546\u54c1\u660e\u7d30",
+  "\u5546\u54c1\u6458\u8981",
+  "\u5c0f\u8a08",
+  "\u6298\u6263",
+  "\u904b\u8cbb",
+  "\u7e3d\u91d1\u984d",
+  "\u7d71\u4e00\u7de8\u865f",
+  "\u516c\u53f8\u62ac\u982d",
+  "\u793e\u7fa4\u5e33\u865f",
+  "\u8a02\u55ae\u5099\u8a3b",
+  "\u8ce3\u8ca8\u4fbf\u6536\u4ef6\u4eba",
+  "\u8ce3\u8ca8\u4fbf\u624b\u6a5f",
+  "\u8ce3\u8ca8\u4fbf\u9580\u5e02\u4ee3\u865f",
+  "\u8ce3\u8ca8\u4fbf\u9580\u5e02\u540d\u7a31",
+  "\u8ce3\u8ca8\u4fbf\u9580\u5e02\u5730\u5740",
+  "\u8ce3\u8ca8\u4fbf\u5099\u8a3b",
+  "\u8ce3\u8ca8\u4fbf\u532f\u51fa\u6642\u9593",
+  "\u539f\u59cb\u8cc7\u6599",
+  "\u662f\u5426\u5df2\u51fa\u8ca8",
 ];
+
+const ORDER_COLUMN = {
+  ORDER_ID: "\u8a02\u55ae\u7de8\u865f",
+  CREATED_AT: "\u5efa\u7acb\u6642\u9593",
+  RAW_PAYLOAD: "\u539f\u59cb\u8cc7\u6599",
+  SHIPPED: "\u662f\u5426\u5df2\u51fa\u8ca8",
+  MYSHIP_EXPORTED_AT: "\u8ce3\u8ca8\u4fbf\u532f\u51fa\u6642\u9593",
+};
 
 const MYSHIP_HEADERS = [
   "\uff0a\u53d6\u4ef6\u4eba\u59d3\u540d",
@@ -89,11 +100,15 @@ function doPost(e) {
     const orderId = createOrderId();
     const createdAt = Utilities.formatDate(new Date(), "Asia/Taipei", "yyyy/MM/dd HH:mm:ss");
 
-    const sheet = getOrCreateSheet(getSpreadsheet(), CONFIG.ORDERS_SHEET_NAME, ORDER_HEADERS);
+    const spreadsheet = getSpreadsheet();
+    const sheet = getOrdersSheet(spreadsheet);
     const orderRow = buildOrderRow(orderId, createdAt, payload);
     sheet.appendRow(orderRow);
     appendMyShipImportRow(orderId, createdAt, payload);
-    markOrderMyShipExported(sheet, sheet.getLastRow());
+    const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+    const shippedIndex = ensureOrderColumn(sheet, headers, ORDER_COLUMN.SHIPPED);
+    const exportedAtIndex = ensureOrderColumn(sheet, headers, ORDER_COLUMN.MYSHIP_EXPORTED_AT);
+    markOrderMyShipExported(sheet, sheet.getLastRow(), shippedIndex, exportedAtIndex);
 
     sendOrderEmails(orderId, createdAt, payload);
 
@@ -208,6 +223,7 @@ function buildOrderRow(orderId, createdAt, payload) {
     cleanText(payload.myshipRemark),
     "",
     JSON.stringify(payload),
+    "\u672a\u51fa\u8ca8",
   ];
 }
 
@@ -219,7 +235,7 @@ function appendMyShipImportRow(orderId, createdAt, payload) {
 
 function rebuildMyShipImportSheet() {
   const spreadsheet = getSpreadsheet();
-  const ordersSheet = spreadsheet.getSheetByName(CONFIG.ORDERS_SHEET_NAME);
+  const ordersSheet = getOrdersSheet(spreadsheet);
 
   if (!ordersSheet || ordersSheet.getLastRow() < 2) {
     throw new Error("No orders found.");
@@ -227,10 +243,11 @@ function rebuildMyShipImportSheet() {
 
   const values = ordersSheet.getDataRange().getValues();
   const headers = values[0];
-  const rawPayloadIndex = headers.indexOf("raw_payload");
-  const orderIdIndex = headers.indexOf("order_id");
-  const createdAtIndex = headers.indexOf("created_at");
-  const exportedAtIndex = ensureOrderColumn(ordersSheet, headers, "myship_exported_at");
+  const rawPayloadIndex = headers.indexOf(ORDER_COLUMN.RAW_PAYLOAD);
+  const orderIdIndex = headers.indexOf(ORDER_COLUMN.ORDER_ID);
+  const createdAtIndex = headers.indexOf(ORDER_COLUMN.CREATED_AT);
+  const shippedIndex = ensureOrderColumn(ordersSheet, headers, ORDER_COLUMN.SHIPPED);
+  const exportedAtIndex = ensureOrderColumn(ordersSheet, headers, ORDER_COLUMN.MYSHIP_EXPORTED_AT);
 
   if (rawPayloadIndex === -1) {
     throw new Error("Orders sheet is missing raw_payload.");
@@ -253,7 +270,7 @@ function rebuildMyShipImportSheet() {
     const orderId = row[orderIdIndex] || createOrderId();
     const createdAt = row[createdAtIndex] || "";
     appendTextRow(sheet, buildMyShipImportRow(orderId, createdAt, payload), MYSHIP_HEADERS.length);
-    markOrderMyShipExported(ordersSheet, rowIndex + 2);
+    markOrderMyShipExported(ordersSheet, rowIndex + 2, shippedIndex, exportedAtIndex);
     exportedCount += 1;
   });
 
@@ -295,16 +312,15 @@ function appendTextRow(sheet, rowValues, columnCount) {
   range.setValues([values]);
 }
 
-function markOrderMyShipExported(sheet, rowNumber) {
-  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-  const exportedAtIndex = ensureOrderColumn(sheet, headers, "myship_exported_at");
+function markOrderMyShipExported(sheet, rowNumber, shippedIndex, exportedAtIndex) {
   const exportedAt = Utilities.formatDate(new Date(), "Asia/Taipei", "yyyy/MM/dd HH:mm:ss");
 
+  sheet.getRange(rowNumber, shippedIndex + 1).setValue("\u5df2\u51fa\u8ca8");
   sheet.getRange(rowNumber, exportedAtIndex + 1).setValue(exportedAt);
 }
 
 function resetMyShipExportStatus(orderId) {
-  const sheet = getSpreadsheet().getSheetByName(CONFIG.ORDERS_SHEET_NAME);
+  const sheet = getOrdersSheet(getSpreadsheet());
 
   if (!sheet) {
     throw new Error("Orders sheet not found.");
@@ -312,8 +328,9 @@ function resetMyShipExportStatus(orderId) {
 
   const values = sheet.getDataRange().getValues();
   const headers = values[0];
-  const orderIdIndex = headers.indexOf("order_id");
-  const exportedAtIndex = ensureOrderColumn(sheet, headers, "myship_exported_at");
+  const orderIdIndex = headers.indexOf(ORDER_COLUMN.ORDER_ID);
+  const shippedIndex = ensureOrderColumn(sheet, headers, ORDER_COLUMN.SHIPPED);
+  const exportedAtIndex = ensureOrderColumn(sheet, headers, ORDER_COLUMN.MYSHIP_EXPORTED_AT);
 
   if (orderIdIndex === -1) {
     throw new Error("Orders sheet is missing order_id.");
@@ -321,6 +338,7 @@ function resetMyShipExportStatus(orderId) {
 
   for (let index = 1; index < values.length; index += 1) {
     if (cleanText(values[index][orderIdIndex]) === cleanText(orderId)) {
+      sheet.getRange(index + 1, shippedIndex + 1).setValue("\u672a\u51fa\u8ca8");
       sheet.getRange(index + 1, exportedAtIndex + 1).clearContent();
       return orderId;
     }
@@ -338,6 +356,7 @@ function ensureOrderColumn(sheet, headers, columnName) {
 
   index = headers.length;
   sheet.getRange(1, index + 1).setValue(columnName);
+  headers.push(columnName);
 
   return index;
 }
@@ -351,7 +370,9 @@ function getSpreadsheet() {
     throw new Error("Please set SPREADSHEET_ID first.");
   }
 
-  return SpreadsheetApp.openById(spreadsheetId);
+  const spreadsheet = SpreadsheetApp.openById(spreadsheetId);
+  ensureSpreadsheetName(spreadsheet);
+  return spreadsheet;
 }
 
 function getOrCreateSheet(spreadsheet, sheetName, headers) {
@@ -363,6 +384,40 @@ function getOrCreateSheet(spreadsheet, sheetName, headers) {
   }
 
   return sheet;
+}
+
+function getOrdersSheet(spreadsheet) {
+  ensureSpreadsheetName(spreadsheet);
+
+  let sheet = spreadsheet.getSheetByName(CONFIG.ORDERS_SHEET_NAME);
+  const legacySheet = spreadsheet.getSheetByName(CONFIG.LEGACY_ORDERS_SHEET_NAME);
+
+  if (!sheet && legacySheet) {
+    legacySheet.setName(CONFIG.ORDERS_SHEET_NAME);
+    sheet = legacySheet;
+  }
+
+  if (!sheet) {
+    sheet = spreadsheet.insertSheet(CONFIG.ORDERS_SHEET_NAME);
+  }
+
+  ensureOrderSheetHeaders(sheet);
+  return sheet;
+}
+
+function ensureSpreadsheetName(spreadsheet) {
+  if (typeof spreadsheet.setName === "function" && spreadsheet.getName() !== CONFIG.SPREADSHEET_NAME) {
+    spreadsheet.setName(CONFIG.SPREADSHEET_NAME);
+  }
+}
+
+function ensureOrderSheetHeaders(sheet) {
+  if (sheet.getMaxColumns() < ORDER_HEADERS.length) {
+    sheet.insertColumnsAfter(sheet.getMaxColumns(), ORDER_HEADERS.length - sheet.getMaxColumns());
+  }
+
+  sheet.getRange(1, 1, 1, ORDER_HEADERS.length).setValues([ORDER_HEADERS]);
+  sheet.setFrozenRows(1);
 }
 
 function sendOrderEmails(orderId, createdAt, payload) {
@@ -627,7 +682,7 @@ function testWriteOrder() {
   const payload = buildTestPayload("test@example.com");
   const orderId = createOrderId();
   const createdAt = Utilities.formatDate(new Date(), "Asia/Taipei", "yyyy/MM/dd HH:mm:ss");
-  const sheet = getOrCreateSheet(getSpreadsheet(), CONFIG.ORDERS_SHEET_NAME, ORDER_HEADERS);
+  const sheet = getOrdersSheet(getSpreadsheet());
 
   sheet.appendRow(buildOrderRow(orderId, createdAt, payload));
 

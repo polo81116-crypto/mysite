@@ -6,12 +6,16 @@ This file tracks project changes, deployment notes, and version updates.
 
 ### Current Version
 
-- Latest commit: `8c7054b Preserve MyShip phone leading zero`
+- Latest commit: `5f2b54a Update half-pound product image`
 - Previous backend updates:
   - `7eb9b96 Prevent duplicate MyShip exports`
   - `8792cbc Add MyShip import sheet export`
   - `fc4635d Style order notification emails`
   - `d178e38 Send order email notifications`
+- Previous frontend image/layout updates:
+  - `8589daf Enlarge product image display`
+  - `26dc4f5 Update one-pound product image`
+  - `0797414 Add Coffee Review award image`
 - Previous frontend update: `bf37aef Require checkout contact fields`
 - Repository: `https://github.com/polo81116-crypto/mysite.git`
 
@@ -19,11 +23,25 @@ This file tracks project changes, deployment notes, and version updates.
 
 - MyShip export sheet generation is handled by `google-apps-script/order-backend.gs`.
 - New orders are written to:
-  - `Orders`
+  - `官網下單資料`
   - MyShip import tab, configured as `CONFIG.MYSHIP_SHEET_NAME`
-- Duplicate shipment prevention is active through `Orders.myship_exported_at`.
+- Duplicate shipment prevention is active through `官網下單資料.賣貨便匯出時間`.
 - Pickup phone numbers are written as text so leading zeroes are preserved.
 - Latest backend file must be pasted into Google Apps Script and redeployed before the live Web App uses these updates.
+
+### Order Sheet Localization
+
+- Renamed the order sheet tab from `Orders` to `官網下單資料`.
+- Renamed the spreadsheet file title to `官網下單資料`.
+- Converted order sheet headers from English to Chinese.
+- Added a visible status column:
+  - `是否已出貨`
+- The shipment status now displays as:
+  - `未出貨`
+  - `已出貨`
+- The technical export timestamp remains in:
+  - `賣貨便匯出時間`
+- Existing export and rebuild logic now uses the localized sheet and column names.
 
 ### Store Data Auto Update
 
