@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 const shopeeUrl = "https://shopee.tw/caobancoffee?categoryId=100629&entryPoint=ShopByPDP&itemId=49107641936&upstream=search";
 const orderApiUrl = "https://script.google.com/macros/s/AKfycbzfN28njwcJeZssEQV5HJnZ7Z9Z-dPmIVP0WNLBZNQz7VUG9VewI6hl29-0ivpJ_DiPQA/exec";
-const sevenElevenStoresJsonUrl = "https://raw.githubusercontent.com/Cojad/taiwan-7Eleven-store/master/stores.json";
+const sevenElevenStoresJsonUrl = `${import.meta.env.BASE_URL}stores.json`;
 
 const categories = [
   {

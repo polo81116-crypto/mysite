@@ -25,6 +25,35 @@ This file tracks project changes, deployment notes, and version updates.
 - Pickup phone numbers are written as text so leading zeroes are preserved.
 - Latest backend file must be pasted into Google Apps Script and redeployed before the live Web App uses these updates.
 
+### Store Data Auto Update
+
+- Updated frontend store lookup source from external raw GitHub URL to local deployed JSON:
+
+```txt
+public/stores.json
+```
+
+- Added GitHub Actions workflow:
+
+```txt
+.github/workflows/update-stores.yml
+```
+
+- Schedule:
+  - Runs every day at 14:00 Asia/Taipei.
+  - Cron: `0 6 * * *` UTC.
+
+- Workflow behavior:
+  - Downloads the latest source data from `Cojad/taiwan-7Eleven-store`.
+  - Validates the JSON.
+  - Replaces `public/stores.json` only when valid.
+  - Commits and pushes changes only if the store data changed.
+  - The push triggers the existing GitHub Pages deploy workflow.
+
+- Initial `public/stores.json` downloaded and validated.
+- Current initial store count: `7292`.
+- `npm.cmd run build` passed after switching to local store data.
+
 ### Order Email Notification Status
 
 - Backend script updated:
