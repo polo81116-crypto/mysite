@@ -89,6 +89,13 @@ Imgea/ChatGPT2.jpg
 - Updated product `shopee-medium-dark-1lb` / `中深焙推薦 一磅裝` to use the local image.
 - `npm.cmd run build` passed after the product image update.
 
+### Product Image Layout Update
+
+- Enlarged product list image column from `96px` to `180px`.
+- Updated product image rendering from cropped `object-cover` to full `object-contain`.
+- Added white background and padding to product images so portrait product cards display completely.
+- `npm.cmd run build` passed after the layout update.
+
 ### Order Email Notification Status
 
 - Backend script updated:

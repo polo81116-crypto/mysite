@@ -609,7 +609,7 @@ export default function CaobanCoffeeHomepage() {
             <div className="rounded-[2rem] border border-white/10 bg-[#3a2518] p-10 text-center text-[#dcc7ad]">此分類目前暫時清空，後續可加入新品項。</div>
           ) : (
             <div className="overflow-hidden rounded-[2rem] bg-[#3a2518] shadow-2xl ring-1 ring-white/10">
-              <div className="hidden grid-cols-[96px_1.4fr_0.9fr_0.8fr_0.8fr] gap-4 border-b border-white/10 bg-white/5 px-6 py-4 text-sm font-bold tracking-[0.15em] text-[#dcc7ad] md:grid"><span>圖片</span><span>品項 / 規格</span><span>分類 / 烘焙</span><span>價格</span><span className="text-right">選購</span></div>
+              <div className="hidden grid-cols-[180px_1.3fr_0.8fr_0.75fr_0.8fr] gap-5 border-b border-white/10 bg-white/5 px-6 py-4 text-sm font-bold tracking-[0.15em] text-[#dcc7ad] md:grid"><span>圖片</span><span>品項 / 規格</span><span>分類 / 烘焙</span><span>價格</span><span className="text-right">選購</span></div>
               <div className="divide-y divide-white/10">
                 {filteredProducts.map((product) => {
                   const selectedPackage = selectedPackages[product.id] || product.packageOptions[0];
@@ -617,8 +617,8 @@ export default function CaobanCoffeeHomepage() {
                   const cartId = makeCartId(product.id, selectedPackage.label, selectedGrind);
                   const quantity = getCartQuantity(product.id);
                   return (
-                    <article key={product.id} className="grid gap-4 px-5 py-5 transition hover:bg-white/5 md:grid-cols-[96px_1.4fr_0.9fr_0.8fr_0.8fr] md:items-center md:px-6">
-                      <img src={product.image} alt={product.name} className="h-24 w-24 rounded-2xl object-cover shadow-lg" />
+                    <article key={product.id} className="grid gap-5 px-5 py-6 transition hover:bg-white/5 md:grid-cols-[180px_1.3fr_0.8fr_0.75fr_0.8fr] md:items-center md:px-6">
+                      <img src={product.image} alt={product.name} className="h-56 w-full rounded-2xl bg-white object-contain p-2 shadow-lg md:h-52 md:w-[180px]" />
                       <div>
                         <div className="mb-2 inline-flex rounded-full bg-[#f3c178]/10 px-3 py-1 text-xs font-bold text-[#f3c178] md:hidden">{product.category}</div>
                         <h3 className="text-xl font-bold">{product.name}</h3>
