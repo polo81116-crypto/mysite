@@ -45,6 +45,7 @@ const ORDER_HEADERS = [
   "myship_store_name",
   "myship_store_address",
   "myship_remark",
+  "myship_exported_at",
   "raw_payload",
 ];
 
@@ -89,8 +90,10 @@ function doPost(e) {
     const createdAt = Utilities.formatDate(new Date(), "Asia/Taipei", "yyyy/MM/dd HH:mm:ss");
 
     const sheet = getOrCreateSheet(getSpreadsheet(), CONFIG.ORDERS_SHEET_NAME, ORDER_HEADERS);
-    sheet.appendRow(buildOrderRow(orderId, createdAt, payload));
+    const orderRow = buildOrderRow(orderId, createdAt, payload);
+    sheet.appendRow(orderRow);
     appendMyShipImportRow(orderId, createdAt, payload);
+    markOrderMyShipExported(sheet, sheet.getLastRow());
 
     sendOrderEmails(orderId, createdAt, payload);
 
@@ -203,6 +206,7 @@ function buildOrderRow(orderId, createdAt, payload) {
     cleanText(payload.myshipStoreName || payload.storeName),
     cleanText(payload.myshipStoreAddress || payload.storeAddress),
     cleanText(payload.myshipRemark),
+    "",
     JSON.stringify(payload),
   ];
 }
@@ -226,6 +230,7 @@ function rebuildMyShipImportSheet() {
   const rawPayloadIndex = headers.indexOf("raw_payload");
   const orderIdIndex = headers.indexOf("order_id");
   const createdAtIndex = headers.indexOf("created_at");
+  const exportedAtIndex = ensureOrderColumn(ordersSheet, headers, "myship_exported_at");
 
   if (rawPayloadIndex === -1) {
     throw new Error("Orders sheet is missing raw_payload.");
@@ -236,17 +241,23 @@ function rebuildMyShipImportSheet() {
   sheet.appendRow(MYSHIP_HEADERS);
   prepareMyShipSheet(sheet);
 
-  values.slice(1).forEach((row) => {
+  let exportedCount = 0;
+  values.slice(1).forEach((row, rowIndex) => {
     const rawPayload = row[rawPayloadIndex];
+    const exportedAt = row[exportedAtIndex];
+
     if (!rawPayload) return;
+    if (cleanText(exportedAt)) return;
 
     const payload = JSON.parse(rawPayload);
     const orderId = row[orderIdIndex] || createOrderId();
     const createdAt = row[createdAtIndex] || "";
     sheet.appendRow(buildMyShipImportRow(orderId, createdAt, payload));
+    markOrderMyShipExported(ordersSheet, rowIndex + 2);
+    exportedCount += 1;
   });
 
-  return sheet.getLastRow() - 1;
+  return exportedCount;
 }
 
 function buildMyShipImportRow(orderId, createdAt, payload) {
@@ -273,6 +284,53 @@ function buildMyShipImportRow(orderId, createdAt, payload) {
 function prepareMyShipSheet(sheet) {
   sheet.setFrozenRows(1);
   sheet.getRange("A:J").setNumberFormat("@");
+}
+
+function markOrderMyShipExported(sheet, rowNumber) {
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  const exportedAtIndex = ensureOrderColumn(sheet, headers, "myship_exported_at");
+  const exportedAt = Utilities.formatDate(new Date(), "Asia/Taipei", "yyyy/MM/dd HH:mm:ss");
+
+  sheet.getRange(rowNumber, exportedAtIndex + 1).setValue(exportedAt);
+}
+
+function resetMyShipExportStatus(orderId) {
+  const sheet = getSpreadsheet().getSheetByName(CONFIG.ORDERS_SHEET_NAME);
+
+  if (!sheet) {
+    throw new Error("Orders sheet not found.");
+  }
+
+  const values = sheet.getDataRange().getValues();
+  const headers = values[0];
+  const orderIdIndex = headers.indexOf("order_id");
+  const exportedAtIndex = ensureOrderColumn(sheet, headers, "myship_exported_at");
+
+  if (orderIdIndex === -1) {
+    throw new Error("Orders sheet is missing order_id.");
+  }
+
+  for (let index = 1; index < values.length; index += 1) {
+    if (cleanText(values[index][orderIdIndex]) === cleanText(orderId)) {
+      sheet.getRange(index + 1, exportedAtIndex + 1).clearContent();
+      return orderId;
+    }
+  }
+
+  throw new Error("Order not found: " + orderId);
+}
+
+function ensureOrderColumn(sheet, headers, columnName) {
+  let index = headers.indexOf(columnName);
+
+  if (index !== -1) {
+    return index;
+  }
+
+  index = headers.length;
+  sheet.getRange(1, index + 1).setValue(columnName);
+
+  return index;
 }
 
 function getSpreadsheet() {

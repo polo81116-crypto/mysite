@@ -119,6 +119,17 @@ https://script.google.com/macros/s/AKfycbzfN28njwcJeZssEQV5HJnZ7Z9Z-dPmIVP0WNLBZ
 - Apps Script syntax check passed after the MyShip export update.
 - Manual Apps Script redeploy is required before live orders generate `訂單匯入` rows.
 
+### Duplicate Shipment Prevention
+
+- Added `myship_exported_at` to the `Orders` sheet.
+- When a new order is appended to `訂單匯入`, the related `Orders` row is immediately marked with an export timestamp.
+- `rebuildMyShipImportSheet()` now exports only rows where `myship_exported_at` is empty.
+- Added `resetMyShipExportStatus(orderId)` for exceptional cases where an order must be exported again.
+- Operational rule:
+  - If `myship_exported_at` has a timestamp, do not ship/export that order again.
+  - If a re-export is genuinely needed, run `resetMyShipExportStatus("ORDER_ID")`, then run `rebuildMyShipImportSheet()`.
+- Apps Script syntax check passed after the duplicate shipment prevention update.
+
 ## 2026-05-23
 
 ### Checkout Validation
