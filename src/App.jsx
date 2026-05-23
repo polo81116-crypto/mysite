@@ -275,6 +275,7 @@ export default function CaobanCoffeeHomepage() {
   const [storeDataStatus, setStoreDataStatus] = useState("loading");
   const [showOrderConfirm, setShowOrderConfirm] = useState(false);
   const [orderSubmitStatus, setOrderSubmitStatus] = useState("idle");
+  const [checkoutErrors, setCheckoutErrors] = useState({});
 
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const cartSubtotal = useMemo(() => cart.reduce((sum, item) => sum + item.price * item.quantity, 0), [cart]);
@@ -332,6 +333,27 @@ export default function CaobanCoffeeHomepage() {
 
   function handleCheckoutForm(field, value) {
     setCheckoutForm((current) => ({ ...current, [field]: value }));
+    setCheckoutErrors((current) => {
+      if (!current[field]) return current;
+      const next = { ...current };
+      delete next[field];
+      return next;
+    });
+  }
+
+  function validateCheckoutForm() {
+    const requiredFields = [
+      ["recipient", "請填寫收件人姓名"],
+      ["phone", "請填寫手機號碼"],
+      ["email", "請填寫 Email"],
+      ["pickupStore", "請選擇或填寫超商門市"],
+    ];
+    const errors = Object.fromEntries(
+      requiredFields.filter(([field]) => !checkoutForm[field].trim()).map(([field, message]) => [field, message])
+    );
+
+    setCheckoutErrors(errors);
+    return Object.keys(errors).length === 0;
   }
 
   function handlePackageChange(productId, selectedLabel) {
@@ -392,6 +414,7 @@ export default function CaobanCoffeeHomepage() {
 
   function openOrderConfirm() {
     if (cart.length === 0) return;
+    if (!validateCheckoutForm()) return;
     setOrderSubmitStatus("idle");
     setShowOrderConfirm(true);
   }
@@ -674,16 +697,20 @@ export default function CaobanCoffeeHomepage() {
             <div className="mt-8 rounded-3xl bg-white/10 p-6">
               <p className="mb-4 text-sm font-bold tracking-[0.2em] text-[#f3c178]">收件與發票資訊</p>
               <div className="space-y-4">
-                <input type="text" placeholder="收件人姓名" value={checkoutForm.recipient} onChange={(event) => handleCheckoutForm("recipient", event.target.value)} className="w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-white placeholder:text-[#e8d7bf] outline-none" />
-                <input type="text" placeholder="手機號碼" value={checkoutForm.phone} onChange={(event) => handleCheckoutForm("phone", event.target.value)} className="w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-white placeholder:text-[#e8d7bf] outline-none" />
-                <input type="email" placeholder="Email" value={checkoutForm.email} onChange={(event) => handleCheckoutForm("email", event.target.value)} className="w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-white placeholder:text-[#e8d7bf] outline-none" />
+                <input type="text" required aria-invalid={Boolean(checkoutErrors.recipient)} placeholder="收件人姓名（必填）" value={checkoutForm.recipient} onChange={(event) => handleCheckoutForm("recipient", event.target.value)} className={`w-full rounded-2xl border bg-white/10 px-4 py-3 text-white placeholder:text-[#e8d7bf] outline-none ${checkoutErrors.recipient ? "border-[#ffb4a8]" : "border-white/20"}`} />
+                {checkoutErrors.recipient && <p className="-mt-2 text-sm font-bold text-[#ffcfca]">{checkoutErrors.recipient}</p>}
+                <input type="text" required aria-invalid={Boolean(checkoutErrors.phone)} placeholder="手機號碼（必填）" value={checkoutForm.phone} onChange={(event) => handleCheckoutForm("phone", event.target.value)} className={`w-full rounded-2xl border bg-white/10 px-4 py-3 text-white placeholder:text-[#e8d7bf] outline-none ${checkoutErrors.phone ? "border-[#ffb4a8]" : "border-white/20"}`} />
+                {checkoutErrors.phone && <p className="-mt-2 text-sm font-bold text-[#ffcfca]">{checkoutErrors.phone}</p>}
+                <input type="email" required aria-invalid={Boolean(checkoutErrors.email)} placeholder="Email（必填）" value={checkoutForm.email} onChange={(event) => handleCheckoutForm("email", event.target.value)} className={`w-full rounded-2xl border bg-white/10 px-4 py-3 text-white placeholder:text-[#e8d7bf] outline-none ${checkoutErrors.email ? "border-[#ffb4a8]" : "border-white/20"}`} />
+                {checkoutErrors.email && <p className="-mt-2 text-sm font-bold text-[#ffcfca]">{checkoutErrors.email}</p>}
                 <div className="rounded-2xl border border-white/15 bg-white/10 p-4">
                   <div><p className="font-bold text-[#f3c178]">超商門市</p><p className="mt-1 text-xs leading-6 text-[#fff1df]">可輸入門市名稱、店號、城市或地址關鍵字，系統會搜尋全台 7-11 門市資料並自動帶入地址。</p><p className="mt-1 text-xs leading-6 text-[#f3c178]">{storeDataStatus === "loading" ? "門市資料載入中…" : storeDataStatus === "ready" ? `已載入 ${remoteStores.length.toLocaleString("zh-TW")} 間門市資料` : "目前使用備用門市清單，若查不到可改用更多關鍵字搜尋。"}</p></div>
                   <input type="text" placeholder="搜尋門市名稱 / 店號 / 地址，例如：勤美、台中、西區" value={storeKeyword} onChange={(event) => setStoreKeyword(event.target.value)} className="mt-4 w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-white placeholder:text-[#e8d7bf] outline-none" />
                   <div className="mt-3 max-h-56 space-y-2 overflow-y-auto rounded-2xl bg-black/10 p-3">
                     {filteredStores.length === 0 ? (<p className="px-3 py-2 text-sm text-[#fff1df]">目前找不到符合的門市，請換店名、店號、路名或縣市關鍵字搜尋。</p>) : filteredStores.map((store) => (<button key={store.id} type="button" onClick={() => selectStore(store)} className="w-full rounded-xl bg-white/10 px-4 py-3 text-left transition hover:bg-[#f3c178] hover:text-[#2a1a10]"><span className="block text-sm font-bold">{store.name}｜{store.id}</span><span className="mt-1 block text-xs leading-5">{store.address}</span></button>))}
                   </div>
-                  <input type="text" placeholder="已選門市 / 店號 / 地址" value={checkoutForm.pickupStore} onChange={(event) => handleCheckoutForm("pickupStore", event.target.value)} className="mt-3 w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-white placeholder:text-[#e8d7bf] outline-none" />
+                  <input type="text" required aria-invalid={Boolean(checkoutErrors.pickupStore)} placeholder="已選門市 / 店號 / 地址（必填）" value={checkoutForm.pickupStore} onChange={(event) => handleCheckoutForm("pickupStore", event.target.value)} className={`mt-3 w-full rounded-2xl border bg-white/10 px-4 py-3 text-white placeholder:text-[#e8d7bf] outline-none ${checkoutErrors.pickupStore ? "border-[#ffb4a8]" : "border-white/20"}`} />
+                  {checkoutErrors.pickupStore && <p className="mt-2 text-sm font-bold text-[#ffcfca]">{checkoutErrors.pickupStore}</p>}
                 </div>
                 <div className="rounded-2xl border border-white/15 bg-white/10 p-4"><p className="text-sm font-bold text-[#f3c178]">發票資訊</p><p className="mt-1 text-xs leading-6 text-[#fff1df]">目前是免用統一發票，有需要的請留下統一編號及抬頭，會隨貨附上。</p></div>
                 <div className="grid gap-4 md:grid-cols-2"><input type="text" placeholder="統一編號" value={checkoutForm.taxId} onChange={(event) => handleCheckoutForm("taxId", event.target.value)} className="w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-white placeholder:text-[#e8d7bf] outline-none" /><input type="text" placeholder="公司抬頭" value={checkoutForm.companyTitle} onChange={(event) => handleCheckoutForm("companyTitle", event.target.value)} className="w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-white placeholder:text-[#e8d7bf] outline-none" /></div>

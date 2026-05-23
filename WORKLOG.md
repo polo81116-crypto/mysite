@@ -4,6 +4,16 @@ This file tracks project changes, deployment notes, and version updates.
 
 ## 2026-05-23
 
+### Checkout Validation
+
+- Made checkout fields required before opening the order confirmation modal:
+  - recipient
+  - phone
+  - email
+  - pickup store
+- Added inline validation messages and required input attributes.
+- `npm.cmd run build` passed after the validation update.
+
 ### Backend connection
 
 - Updated the frontend order endpoint in `src/App.jsx`.
