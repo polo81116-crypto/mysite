@@ -4,20 +4,18 @@
  * Setup:
  * 1. Create a Google Sheet.
  * 2. Paste this file into Apps Script.
- * 3. Set CONFIG.SPREADSHEET_ID.
- * 4. Optional: set CONFIG.ADMIN_EMAIL.
- * 5. Run setupProperties() once.
- * 6. Deploy as Web app:
+ * 3. Run setupProperties() once.
+ * 4. Deploy as Web app:
  *    - Execute as: Me
  *    - Who has access: Anyone
- * 7. Paste the deployed /exec URL into orderApiUrl in src/App.jsx.
+ * 5. Paste the deployed /exec URL into orderApiUrl in src/App.jsx.
  */
 
 const CONFIG = {
   SPREADSHEET_ID: "1H_hP3TLB4PQb2rVRD-iqn71z7-sPc0pOgtttX4r39v4",
   ORDERS_SHEET_NAME: "Orders",
   LOGS_SHEET_NAME: "ErrorLogs",
-  ADMIN_EMAIL: "",
+  ADMIN_EMAIL: "CAOBANCOFFEE@GMAIL.COM",
 };
 
 const ORDER_HEADERS = [
@@ -79,7 +77,7 @@ function doPost(e) {
     const sheet = getOrCreateSheet(getSpreadsheet(), CONFIG.ORDERS_SHEET_NAME, ORDER_HEADERS);
     sheet.appendRow(buildOrderRow(orderId, createdAt, payload));
 
-    notifyAdmin(orderId, createdAt, payload);
+    sendOrderEmails(orderId, createdAt, payload);
 
     return jsonResponse({
       ok: true,
@@ -206,34 +204,6 @@ function getSpreadsheet() {
   return SpreadsheetApp.openById(spreadsheetId);
 }
 
-function testWriteOrder() {
-  const payload = {
-    recipient: "Test User",
-    phone: "0912345678",
-    email: "test@example.com",
-    pickupStore: "Test Store",
-    storeId: "TEST001",
-    storeName: "Test Store",
-    storeAddress: "Test Address",
-    items: "Test Item x1",
-    itemSummary: "Test Item x1",
-    subtotal: "$100",
-    discount: "$0",
-    shippingFee: "$0",
-    total: "$100",
-    totalNumber: 100,
-    note: "Manual Apps Script test",
-  };
-
-  const orderId = createOrderId();
-  const createdAt = Utilities.formatDate(new Date(), "Asia/Taipei", "yyyy/MM/dd HH:mm:ss");
-  const sheet = getOrCreateSheet(getSpreadsheet(), CONFIG.ORDERS_SHEET_NAME, ORDER_HEADERS);
-
-  sheet.appendRow(buildOrderRow(orderId, createdAt, payload));
-
-  return orderId;
-}
-
 function getOrCreateSheet(spreadsheet, sheetName, headers) {
   const sheet = spreadsheet.getSheetByName(sheetName) || spreadsheet.insertSheet(sheetName);
 
@@ -245,6 +215,50 @@ function getOrCreateSheet(spreadsheet, sheetName, headers) {
   return sheet;
 }
 
+function sendOrderEmails(orderId, createdAt, payload) {
+  notifyCustomer(orderId, createdAt, payload);
+  notifyAdmin(orderId, createdAt, payload);
+}
+
+function notifyCustomer(orderId, createdAt, payload) {
+  const email = cleanText(payload.email);
+
+  if (!email) {
+    return;
+  }
+
+  const subject = "Caoban Coffee order confirmation: " + orderId;
+  const body = [
+    "Hello " + cleanText(payload.recipient) + ",",
+    "",
+    "Thank you for your order. We have received your order details below.",
+    "",
+    "Order ID: " + orderId,
+    "Order time: " + createdAt,
+    "Recipient: " + cleanText(payload.recipient),
+    "Phone: " + cleanText(payload.phone),
+    "Email: " + cleanText(payload.email),
+    "Pickup store: " + cleanText(payload.pickupStore),
+    "",
+    "Items:",
+    cleanText(payload.items),
+    "",
+    "Subtotal: " + cleanText(payload.subtotal),
+    "Discount: " + cleanText(payload.discount),
+    "Shipping fee: " + cleanText(payload.shippingFee),
+    "Total: " + cleanText(payload.total || payload.totalNumber),
+    "",
+    "Note:",
+    cleanText(payload.note) || "None",
+    "",
+    "We will prepare and ship your order as soon as possible.",
+    "",
+    "Caoban Coffee",
+  ].join("\n");
+
+  MailApp.sendEmail(email, subject, body);
+}
+
 function notifyAdmin(orderId, createdAt, payload) {
   const email =
     PropertiesService.getScriptProperties().getProperty("ADMIN_EMAIL") ||
@@ -254,21 +268,32 @@ function notifyAdmin(orderId, createdAt, payload) {
     return;
   }
 
-  const subject = "New order: " + orderId;
+  const subject = "New order, prepare shipment: " + orderId;
   const body = [
+    "A new order has been received. Please prepare shipment.",
+    "",
     "Order ID: " + orderId,
-    "Created at: " + createdAt,
+    "Order time: " + createdAt,
     "Recipient: " + cleanText(payload.recipient),
     "Phone: " + cleanText(payload.phone),
     "Email: " + cleanText(payload.email),
     "Pickup store: " + cleanText(payload.pickupStore),
-    "Total: " + cleanText(payload.total || payload.totalNumber),
+    "Store ID: " + cleanText(payload.storeId),
+    "Store name: " + cleanText(payload.storeName),
+    "Store address: " + cleanText(payload.storeAddress),
     "",
     "Items:",
     cleanText(payload.items),
     "",
-    "Note:",
-    cleanText(payload.note),
+    "Subtotal: " + cleanText(payload.subtotal),
+    "Discount: " + cleanText(payload.discount),
+    "Shipping fee: " + cleanText(payload.shippingFee),
+    "Total: " + cleanText(payload.total || payload.totalNumber),
+    "",
+    "Tax ID: " + cleanText(payload.taxId),
+    "Company title: " + cleanText(payload.companyTitle),
+    "Social account: " + cleanText(payload.socialAccount),
+    "Note: " + (cleanText(payload.note) || "None"),
   ].join("\n");
 
   MailApp.sendEmail(email, subject, body);
@@ -292,6 +317,50 @@ function logError(error, e) {
   } catch (loggingError) {
     console.error(loggingError);
   }
+}
+
+function testWriteOrder() {
+  const payload = buildTestPayload("test@example.com");
+  const orderId = createOrderId();
+  const createdAt = Utilities.formatDate(new Date(), "Asia/Taipei", "yyyy/MM/dd HH:mm:ss");
+  const sheet = getOrCreateSheet(getSpreadsheet(), CONFIG.ORDERS_SHEET_NAME, ORDER_HEADERS);
+
+  sheet.appendRow(buildOrderRow(orderId, createdAt, payload));
+
+  return orderId;
+}
+
+function testSendOrderEmails() {
+  const payload = buildTestPayload(CONFIG.ADMIN_EMAIL);
+  const orderId = createOrderId();
+  const createdAt = Utilities.formatDate(new Date(), "Asia/Taipei", "yyyy/MM/dd HH:mm:ss");
+
+  sendOrderEmails(orderId, createdAt, payload);
+
+  return orderId;
+}
+
+function buildTestPayload(email) {
+  return {
+    recipient: "Test User",
+    phone: "0912345678",
+    email,
+    pickupStore: "Test Store | TEST001 | Test Address",
+    storeId: "TEST001",
+    storeName: "Test Store",
+    storeAddress: "Test Address",
+    items: "Test Item x1",
+    itemSummary: "Test Item x1",
+    subtotal: "$100",
+    discount: "$0",
+    shippingFee: "$0",
+    total: "$100",
+    totalNumber: 100,
+    taxId: "",
+    companyTitle: "",
+    socialAccount: "",
+    note: "Manual Apps Script test",
+  };
 }
 
 function createOrderId() {

@@ -14,6 +14,14 @@ This file tracks project changes, deployment notes, and version updates.
 - Added inline validation messages and required input attributes.
 - `npm.cmd run build` passed after the validation update.
 
+### Email Notifications
+
+- Updated `google-apps-script/order-backend.gs` to send email after a successful order write.
+- Customer receives an order confirmation email at the submitted checkout email address.
+- Store admin receives a shipment notification at `CAOBANCOFFEE@GMAIL.COM`.
+- Added `testSendOrderEmails()` for authorizing and testing Apps Script email sending.
+- Apps Script syntax check passed after the email update.
+
 ### Backend connection
 
 - Updated the frontend order endpoint in `src/App.jsx`.
