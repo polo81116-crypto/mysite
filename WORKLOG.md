@@ -104,6 +104,20 @@ https://script.google.com/macros/s/AKfycbzfN28njwcJeZssEQV5HJnZ7Z9Z-dPmIVP0WNLBZ
 - `google-apps-script/order-backend.gs` syntax check passed after the HTML email update.
 - Manual Apps Script redeploy is required before live orders use the new email design.
 
+### Email Label Localization
+
+- Updated customer and admin email labels from English to Traditional Chinese.
+- Localized:
+  - email subjects
+  - plain text fallback labels
+  - HTML card titles
+  - order status labels
+  - customer/store/payment/additional information section labels
+- Static Chinese text is written with Unicode escape sequences in Apps Script to avoid local encoding corruption.
+- Submitted customer/order data remains unchanged and displays normally.
+- Apps Script syntax check passed after the email localization update.
+- Manual Apps Script redeploy is required before live emails use the localized labels.
+
 ### MyShip Import Format
 
 - Reference file found in the workspace:
