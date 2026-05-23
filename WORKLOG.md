@@ -72,6 +72,23 @@ Imgea/ChatGPT Image 1.png
 - Updated the `Coffee Review 榮獲資訊` carousel slide to use the same local image.
 - `npm.cmd run build` passed after the image integration.
 
+### Product Image Update
+
+- Added one-pound medium-dark product visual asset:
+
+```txt
+public/images/medium-dark-1lb.jpg
+```
+
+- Source file in workspace:
+
+```txt
+Imgea/ChatGPT2.jpg
+```
+
+- Updated product `shopee-medium-dark-1lb` / `中深焙推薦 一磅裝` to use the local image.
+- `npm.cmd run build` passed after the product image update.
+
 ### Order Email Notification Status
 
 - Backend script updated:

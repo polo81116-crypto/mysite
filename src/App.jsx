@@ -6,6 +6,7 @@ const shopeeUrl = "https://shopee.tw/caobancoffee?categoryId=100629&entryPoint=S
 const orderApiUrl = "https://script.google.com/macros/s/AKfycbzfN28njwcJeZssEQV5HJnZ7Z9Z-dPmIVP0WNLBZNQz7VUG9VewI6hl29-0ivpJ_DiPQA/exec";
 const sevenElevenStoresJsonUrl = `${import.meta.env.BASE_URL}stores.json`;
 const coffeeReviewAwardImage = `${import.meta.env.BASE_URL}images/coffee-review-award.png`;
+const mediumDarkOnePoundImage = `${import.meta.env.BASE_URL}images/medium-dark-1lb.jpg`;
 
 const categories = [
   {
@@ -70,7 +71,7 @@ const products = [
     packageOptions: commercialOnePoundOptions,
     grindOptions: ["一磅（咖啡原豆）", "2.5 磨粉 / 義式", "3 磨粉 / 摩卡壺", "8 磨粉 / 手沖（推薦）", "9 磨粉 / 法壓"],
     weight: "一磅裝 / 454g",
-    image: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?auto=format&fit=crop&w=900&q=80",
+    image: mediumDarkOnePoundImage,
   },
   {
     id: "shopee-medium-dark-half-lb",
