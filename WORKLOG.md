@@ -54,6 +54,24 @@ public/stores.json
 - Current initial store count: `7292`.
 - `npm.cmd run build` passed after switching to local store data.
 
+### Coffee Review Award Image
+
+- Added Coffee Review award visual asset:
+
+```txt
+public/images/coffee-review-award.png
+```
+
+- Source file in workspace:
+
+```txt
+Imgea/ChatGPT Image 1.png
+```
+
+- Updated `CoffeeReviewAwardCard` to show the award image inside the Coffee Review section.
+- Updated the `Coffee Review 榮獲資訊` carousel slide to use the same local image.
+- `npm.cmd run build` passed after the image integration.
+
 ### Order Email Notification Status
 
 - Backend script updated:

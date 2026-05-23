@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 const shopeeUrl = "https://shopee.tw/caobancoffee?categoryId=100629&entryPoint=ShopByPDP&itemId=49107641936&upstream=search";
 const orderApiUrl = "https://script.google.com/macros/s/AKfycbzfN28njwcJeZssEQV5HJnZ7Z9Z-dPmIVP0WNLBZNQz7VUG9VewI6hl29-0ivpJ_DiPQA/exec";
 const sevenElevenStoresJsonUrl = `${import.meta.env.BASE_URL}stores.json`;
+const coffeeReviewAwardImage = `${import.meta.env.BASE_URL}images/coffee-review-award.png`;
 
 const categories = [
   {
@@ -128,7 +129,7 @@ const emptyProductCategories = ["單一極致產區", "Coffee Review評分豆"];
 const infoSlides = [
   { title: "本月行事曆", image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1600&q=80" },
   { title: "商品組合特惠", image: "https://images.unsplash.com/photo-1517705008128-361805f42e86?auto=format&fit=crop&w=1600&q=80" },
-  { title: "Coffee Review 榮獲資訊", image: "https://images.unsplash.com/photo-1459755486867-b55449bb39ff?auto=format&fit=crop&w=1600&q=80" },
+  { title: "Coffee Review 榮獲資訊", image: coffeeReviewAwardImage },
 ];
 
 const convenienceStores = [
@@ -233,6 +234,9 @@ function CoffeeReviewAwardCard() {
     <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#1f120b] via-[#5b351d] to-[#c08a49] p-8 text-white shadow-2xl ring-1 ring-[#d8c1a1] md:p-12">
       <div className="absolute -right-20 -top-20 h-52 w-52 rounded-full bg-[#f3c178]/20 blur-3xl" />
       <div className="relative z-10">
+        <div className="mb-8 overflow-hidden rounded-[2rem] border border-[#f3c178]/30 bg-black/20 shadow-2xl">
+          <img src={coffeeReviewAwardImage} alt="Coffee Review 高分評鑑榮耀" className="h-auto w-full object-cover" />
+        </div>
         <div className="flex items-center gap-4">
           <div className="flex h-20 w-20 items-center justify-center rounded-full border border-[#f3c178]/60 bg-[#f3c178]/10 shadow-xl">
             <Award className="h-10 w-10 text-[#f3c178]" />
