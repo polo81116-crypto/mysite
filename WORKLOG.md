@@ -2,6 +2,93 @@
 
 This file tracks project changes, deployment notes, and version updates.
 
+## 2026-05-24
+
+### Current Version
+
+- Latest commit: `d178e38 Send order email notifications`
+- Previous deployed frontend update: `bf37aef Require checkout contact fields`
+- Repository: `https://github.com/polo81116-crypto/mysite.git`
+
+### Order Email Notification Status
+
+- Backend script updated:
+
+```txt
+google-apps-script/order-backend.gs
+```
+
+- Email behavior after a successful order:
+  - Customer receives an order confirmation at the checkout email address.
+  - Store admin receives a shipment notification at `CAOBANCOFFEE@GMAIL.COM`.
+  - Both emails include order ID, recipient, phone, email, pickup store, item details, total, and note.
+
+- Test helper added:
+
+```txt
+testSendOrderEmails()
+```
+
+- Purpose:
+  - Authorize `MailApp`.
+  - Send a test email to confirm Apps Script mail permissions.
+
+### Required Manual Apps Script Deployment
+
+The email notification update is in the repository, but it will not run on live orders until Google Apps Script is updated manually.
+
+Steps:
+
+1. Open the Google Apps Script project.
+2. Replace the script content with `google-apps-script/order-backend.gs`.
+3. Save the script.
+4. Run `testSendOrderEmails()` once.
+5. Complete Google authorization for email sending.
+6. Confirm `CAOBANCOFFEE@GMAIL.COM` receives the test email.
+7. Deploy a new Web App version.
+8. Keep the Web App URL connected in `src/App.jsx`.
+
+### Current Connected Services
+
+- Google Sheet ID:
+
+```txt
+1H_hP3TLB4PQb2rVRD-iqn71z7-sPc0pOgtttX4r39v4
+```
+
+- Current frontend Apps Script Web App URL:
+
+```txt
+https://script.google.com/macros/s/AKfycbzfN28njwcJeZssEQV5HJnZ7Z9Z-dPmIVP0WNLBZNQz7VUG9VewI6hl29-0ivpJ_DiPQA/exec
+```
+
+### Notes
+
+- Frontend checkout required fields are already deployed:
+  - recipient
+  - phone
+  - email
+  - pickup store
+- The frontend still uses `fetch(..., { mode: "no-cors" })`, so order success must be verified through:
+  - Google Sheet `Orders` tab
+  - Apps Script `Executions`
+  - customer/admin email inboxes after the mail deployment is complete
+
+### Email Template Update
+
+- Updated Apps Script emails from plain text only to styled HTML emails.
+- Both customer and admin notifications now include:
+  - branded coffee color palette
+  - order header card
+  - customer information section
+  - item detail section
+  - payment summary section
+  - additional information section
+- Plain text fallback remains available for email clients that do not render HTML.
+- Static template text is kept ASCII-safe in Apps Script to avoid local encoding corruption; submitted Chinese customer/order data is still rendered in the email.
+- `google-apps-script/order-backend.gs` syntax check passed after the HTML email update.
+- Manual Apps Script redeploy is required before live orders use the new email design.
+
 ## 2026-05-23
 
 ### Checkout Validation

@@ -228,7 +228,30 @@ function notifyCustomer(orderId, createdAt, payload) {
   }
 
   const subject = "Caoban Coffee order confirmation: " + orderId;
-  const body = [
+  const body = buildCustomerTextEmail(orderId, createdAt, payload);
+  const htmlBody = buildCustomerHtmlEmail(orderId, createdAt, payload);
+
+  MailApp.sendEmail(email, subject, body, { htmlBody });
+}
+
+function notifyAdmin(orderId, createdAt, payload) {
+  const email =
+    PropertiesService.getScriptProperties().getProperty("ADMIN_EMAIL") ||
+    CONFIG.ADMIN_EMAIL;
+
+  if (!email) {
+    return;
+  }
+
+  const subject = "New order, prepare shipment: " + orderId;
+  const body = buildAdminTextEmail(orderId, createdAt, payload);
+  const htmlBody = buildAdminHtmlEmail(orderId, createdAt, payload);
+
+  MailApp.sendEmail(email, subject, body, { htmlBody });
+}
+
+function buildCustomerTextEmail(orderId, createdAt, payload) {
+  return [
     "Hello " + cleanText(payload.recipient) + ",",
     "",
     "Thank you for your order. We have received your order details below.",
@@ -255,21 +278,10 @@ function notifyCustomer(orderId, createdAt, payload) {
     "",
     "Caoban Coffee",
   ].join("\n");
-
-  MailApp.sendEmail(email, subject, body);
 }
 
-function notifyAdmin(orderId, createdAt, payload) {
-  const email =
-    PropertiesService.getScriptProperties().getProperty("ADMIN_EMAIL") ||
-    CONFIG.ADMIN_EMAIL;
-
-  if (!email) {
-    return;
-  }
-
-  const subject = "New order, prepare shipment: " + orderId;
-  const body = [
+function buildAdminTextEmail(orderId, createdAt, payload) {
+  return [
     "A new order has been received. Please prepare shipment.",
     "",
     "Order ID: " + orderId,
@@ -295,8 +307,150 @@ function notifyAdmin(orderId, createdAt, payload) {
     "Social account: " + cleanText(payload.socialAccount),
     "Note: " + (cleanText(payload.note) || "None"),
   ].join("\n");
+}
 
-  MailApp.sendEmail(email, subject, body);
+function buildCustomerHtmlEmail(orderId, createdAt, payload) {
+  return buildOrderHtmlEmail({
+    preheader: "Your Caoban Coffee order has been received.",
+    eyebrow: "ORDER CONFIRMATION",
+    title: "Thank you for your order",
+    intro: "We have received your order and will prepare it with care.",
+    orderId,
+    createdAt,
+    payload,
+    actionLabel: "Order received",
+    showStoreDetails: false,
+  });
+}
+
+function buildAdminHtmlEmail(orderId, createdAt, payload) {
+  return buildOrderHtmlEmail({
+    preheader: "A new order is ready for shipment preparation.",
+    eyebrow: "NEW ORDER",
+    title: "Prepare shipment",
+    intro: "A customer has placed a new order. Please confirm the details below.",
+    orderId,
+    createdAt,
+    payload,
+    actionLabel: "Shipment required",
+    showStoreDetails: true,
+  });
+}
+
+function buildOrderHtmlEmail(options) {
+  const payload = options.payload;
+  const recipientRows = [
+    ["Recipient", payload.recipient],
+    ["Phone", payload.phone],
+    ["Email", payload.email],
+    ["Pickup store", payload.pickupStore],
+  ];
+  const storeRows = options.showStoreDetails
+    ? [
+        ["Store ID", payload.storeId],
+        ["Store name", payload.storeName],
+        ["Store address", payload.storeAddress],
+      ]
+    : [];
+  const summaryRows = [
+    ["Subtotal", payload.subtotal],
+    ["Discount", payload.discount],
+    ["Shipping fee", payload.shippingFee],
+    ["Total", payload.total || payload.totalNumber],
+  ];
+  const extraRows = [
+    ["Tax ID", payload.taxId],
+    ["Company title", payload.companyTitle],
+    ["Social account", payload.socialAccount],
+    ["Note", cleanText(payload.note) || "None"],
+  ];
+
+  return [
+    '<div style="display:none;max-height:0;overflow:hidden;color:#f6efe4;">',
+    escapeHtml(options.preheader),
+    "</div>",
+    '<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f6efe4;margin:0;padding:32px 12px;font-family:Arial,Helvetica,sans-serif;color:#2a1a10;">',
+    "<tr><td align=\"center\">",
+    '<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:680px;background:#fff8ec;border-radius:28px;overflow:hidden;border:1px solid #dccbb2;box-shadow:0 18px 50px rgba(42,26,16,0.16);">',
+    '<tr><td style="background:#2a1a10;padding:34px 32px;color:#fff8ec;">',
+    '<div style="font-size:12px;letter-spacing:3px;font-weight:700;color:#f3c178;">' + escapeHtml(options.eyebrow) + "</div>",
+    '<h1 style="margin:10px 0 8px;font-size:30px;line-height:1.2;color:#fff8ec;">' + escapeHtml(options.title) + "</h1>",
+    '<p style="margin:0;font-size:15px;line-height:1.7;color:#ead8bf;">' + escapeHtml(options.intro) + "</p>",
+    "</td></tr>",
+    '<tr><td style="padding:28px 32px 8px;">',
+    '<table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr>',
+    '<td style="padding:14px 16px;background:#efe2cf;border-radius:16px;"><div style="font-size:12px;color:#8a603b;font-weight:700;">ORDER ID</div><div style="margin-top:5px;font-size:17px;font-weight:800;">' + escapeHtml(options.orderId) + "</div></td>",
+    '<td style="width:12px;"></td>',
+    '<td style="padding:14px 16px;background:#efe2cf;border-radius:16px;"><div style="font-size:12px;color:#8a603b;font-weight:700;">STATUS</div><div style="margin-top:5px;font-size:17px;font-weight:800;">' + escapeHtml(options.actionLabel) + "</div></td>",
+    "</tr></table>",
+    '<div style="margin-top:12px;font-size:13px;color:#66513f;">Order time: ' + escapeHtml(options.createdAt) + "</div>",
+    "</td></tr>",
+    sectionHtml("Customer", recipientRows),
+    options.showStoreDetails ? sectionHtml("Store details", storeRows) : "",
+    itemsHtml(payload.items),
+    sectionHtml("Payment summary", summaryRows, true),
+    sectionHtml("Additional information", extraRows),
+    '<tr><td style="padding:8px 32px 32px;">',
+    '<div style="border-top:1px solid #dccbb2;padding-top:18px;font-size:13px;line-height:1.7;color:#66513f;">Caoban Coffee<br>This email was generated automatically from the order system.</div>',
+    "</td></tr>",
+    "</table>",
+    "</td></tr>",
+    "</table>",
+  ].join("");
+}
+
+function sectionHtml(title, rows, emphasizeLastRow) {
+  const rowHtml = rows
+    .filter((row) => cleanText(row[1]))
+    .map((row, index, filteredRows) => {
+      const isLast = emphasizeLastRow && index === filteredRows.length - 1;
+      const valueStyle = isLast ? "font-size:22px;font-weight:900;color:#2a1a10;" : "font-weight:700;color:#2a1a10;";
+      return [
+        '<tr><td style="padding:10px 0;border-bottom:1px solid #efe2cf;color:#8a603b;font-size:13px;">',
+        escapeHtml(row[0]),
+        '</td><td align="right" style="padding:10px 0;border-bottom:1px solid #efe2cf;',
+        valueStyle,
+        '">',
+        escapeHtml(row[1]),
+        "</td></tr>",
+      ].join("");
+    })
+    .join("");
+
+  return [
+    '<tr><td style="padding:20px 32px 0;">',
+    '<h2 style="margin:0 0 10px;font-size:18px;color:#5a341d;">' + escapeHtml(title) + "</h2>",
+    '<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#ffffff;border-radius:18px;padding:6px 16px;border:1px solid #efe2cf;">',
+    rowHtml,
+    "</table>",
+    "</td></tr>",
+  ].join("");
+}
+
+function itemsHtml(items) {
+  const lines = cleanText(items).split("\n").filter(Boolean);
+  const itemRows = lines.length > 0 ? lines : ["No item details"];
+  const html = itemRows
+    .map((line) => '<div style="padding:12px 0;border-bottom:1px solid #efe2cf;font-size:14px;line-height:1.6;color:#2a1a10;">' + escapeHtml(line) + "</div>")
+    .join("");
+
+  return [
+    '<tr><td style="padding:20px 32px 0;">',
+    '<h2 style="margin:0 0 10px;font-size:18px;color:#5a341d;">Items</h2>',
+    '<div style="background:#ffffff;border-radius:18px;padding:6px 16px;border:1px solid #efe2cf;">',
+    html,
+    "</div>",
+    "</td></tr>",
+  ].join("");
+}
+
+function escapeHtml(value) {
+  return cleanText(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 function logError(error, e) {
