@@ -6,7 +6,9 @@ This file tracks project changes, deployment notes, and version updates.
 
 ### Current Version
 
-- Latest commit: `606dd11 Add COD notice to checkout`
+- Latest synced site commit: `33e4a17 Update site assets and documentation`
+- Checkout minimum update commit: `cedd285 Add checkout minimum order validation`
+- Previous closeout commit: `956ba42 Update worklog and close out the day`
 - Previous backend updates:
   - `7eb9b96 Prevent duplicate MyShip exports`
   - `8792cbc Add MyShip import sheet export`
@@ -18,8 +20,35 @@ This file tracks project changes, deployment notes, and version updates.
   - `0797414 Add Coffee Review award image`
 - Previous frontend update: `bf37aef Require checkout contact fields`
 - Repository: `https://github.com/polo81116-crypto/mysite.git`
-- Local working changes: print-sheet generation, sales reports, and grouped formula-blend products in the "配方豆專區" category are added.
-- Working tree note: `src/App.jsx` now includes the 7-11 cash-on-delivery checkout notice; GitHub Pages deployment for `606dd11` is the latest site version.
+- Local working changes: none after final sync.
+- Working tree note: `src/App.jsx` now includes the 7-11 cash-on-delivery checkout notice and minimum checkout total validation; GitHub `main` is synced through `33e4a17`.
+
+### Checkout Minimum
+
+- Added a minimum checkout total:
+  - `100`
+- Checkout is blocked when the cart total is below the minimum.
+- The checkout sidebar now shows how much remains before the customer can place the order.
+- The guard is enforced before opening the order confirmation modal and again before submitting the order payload.
+- Pushed to GitHub as:
+  - `cedd285 Add checkout minimum order validation`
+
+### Final GitHub Sync
+
+- Committed and pushed all remaining workspace updates to GitHub:
+  - `33e4a17 Update site assets and documentation`
+- Included updates:
+  - README updates
+  - Apps Script backend updates
+  - `index.html` metadata updates
+  - image source files under `Imgea/`
+  - exported inventory/schema/worklog files under `exports/`
+  - `public/robots.txt`
+  - `public/sitemap.xml`
+  - `賣貨便_訂單匯入 (2).xlsm`
+- Verification:
+  - `npm.cmd run build` passed.
+  - `git status --short` was clean after push.
 
 ### Shipment Slip And Sales Reports
 
@@ -79,8 +108,8 @@ This file tracks project changes, deployment notes, and version updates.
 ### End Of Day
 
 - Today's work is complete.
-- Remaining untracked files in the workspace were not modified.
-- Future updates can continue from the current `WORKLOG.md` baseline.
+- All current workspace changes were committed and pushed.
+- Future updates can continue from `main` after `33e4a17`.
 
 ### Store Data Auto Update
 
