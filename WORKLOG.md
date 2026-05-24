@@ -6,7 +6,7 @@ This file tracks project changes, deployment notes, and version updates.
 
 ### Current Version
 
-- Latest commit: `75044b5 Restore formula blend half-pound product`
+- Latest commit: `606dd11 Add COD notice to checkout`
 - Previous backend updates:
   - `7eb9b96 Prevent duplicate MyShip exports`
   - `8792cbc Add MyShip import sheet export`
@@ -19,7 +19,7 @@ This file tracks project changes, deployment notes, and version updates.
 - Previous frontend update: `bf37aef Require checkout contact fields`
 - Repository: `https://github.com/polo81116-crypto/mysite.git`
 - Local working changes: print-sheet generation, sales reports, and grouped formula-blend products in the "配方豆專區" category are added.
-- Working tree note: `src/App.jsx` has been restored and the formula-blend section now contains both the 454g and 227g grouped products; GitHub Pages deployment for `75044b5` completed successfully.
+- Working tree note: `src/App.jsx` now includes the 7-11 cash-on-delivery checkout notice; GitHub Pages deployment for `606dd11` is the latest site version.
 
 ### Shipment Slip And Sales Reports
 
@@ -68,6 +68,19 @@ This file tracks project changes, deployment notes, and version updates.
 - The technical export timestamp remains in:
   - `鞈?疏靘踹?箸??
 - Existing export and rebuild logic now uses the localized sheet and column names.
+
+### Checkout COD Notice
+
+- Added a clear checkout reminder that 7-11 MyShip is cash on delivery.
+- The reminder appears in the checkout sidebar and again in the order confirmation modal.
+- Pushed to GitHub as:
+  - `606dd11 Add COD notice to checkout`
+
+### End Of Day
+
+- Today's work is complete.
+- Remaining untracked files in the workspace were not modified.
+- Future updates can continue from the current `WORKLOG.md` baseline.
 
 ### Store Data Auto Update
 
