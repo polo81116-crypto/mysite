@@ -18,6 +18,30 @@ This file tracks project changes, deployment notes, and version updates.
   - `0797414 Add Coffee Review award image`
 - Previous frontend update: `bf37aef Require checkout contact fields`
 - Repository: `https://github.com/polo81116-crypto/mysite.git`
+- Local working changes: print-sheet generation, sales reports, and a new formula-blend product category are added, but not pushed yet because GitHub authentication still needs verification.
+
+### Shipment Slip And Sales Reports
+
+- Added a print-ready sheet for each order:
+  - `出貨單列印`
+- Added sales report sheets:
+  - `商品銷售排名`
+  - `月銷明細`
+- Frontend now sends structured `lineItems` so the backend can calculate rankings and monthly quantities reliably.
+- The backend also keeps appending new orders to the print sheet on submission.
+- `rebuildAllReports()` can be run in Apps Script to regenerate the print sheet and sales reports from `官網下單資料`.
+- GitHub push is pending because the repo currently needs verification / authentication.
+
+### Formula Blend Category
+
+- Added a new product category:
+  - `配方豆專區`
+- Added four products with prices:
+  - `350`
+  - `400`
+  - `450`
+  - `500`
+- Updated the frontend validation to expect the extra category and product count.
 
 ### Current Shipping Export Status
 

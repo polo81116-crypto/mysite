@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Google Apps Script order backend for the coffee shop frontend.
  *
  * Setup:
@@ -16,6 +16,9 @@ const CONFIG = {
   SPREADSHEET_NAME: "\u5b98\u7db2\u4e0b\u55ae\u8cc7\u6599",
   ORDERS_SHEET_NAME: "\u5b98\u7db2\u4e0b\u55ae\u8cc7\u6599",
   LEGACY_ORDERS_SHEET_NAME: "Orders",
+  PRINT_SHEET_NAME: "\u51fa\u8ca8\u55ae\u5217\u5370",
+  SALES_RANKING_SHEET_NAME: "\u5546\u54c1\u92b7\u552e\u6392\u540d",
+  MONTHLY_SALES_SHEET_NAME: "\u6708\u92b7\u660e\u7d30",
   MYSHIP_SHEET_NAME: "\u8a02\u55ae\u532f\u5165",
   LOGS_SHEET_NAME: "ErrorLogs",
   ADMIN_EMAIL: "CAOBANCOFFEE@GMAIL.COM",
@@ -73,6 +76,41 @@ const MYSHIP_HEADERS = [
   "\u5176\u4ed6\u8cc7\u8a0a(FB/LINE/IG\u5e33\u865f)",
 ];
 
+const PRINT_HEADERS = [
+  "\u8a02\u55ae\u7de8\u865f",
+  "\u5efa\u7acb\u6642\u9593",
+  "\u6536\u4ef6\u4eba\u59d3\u540d",
+  "\u6536\u4ef6\u4eba\u624b\u6a5f",
+  "\u8d85\u5546\u9580\u5e02",
+  "\u5546\u54c1\u660e\u7d30",
+  "\u5c0f\u8a08",
+  "\u6298\u6263",
+  "\u904b\u8cbb",
+  "\u7e3d\u91d1\u984d",
+  "\u8a02\u55ae\u5099\u8a3b",
+  "\u662f\u5426\u5df2\u51fa\u8ca8",
+  "\u8ce3\u8ca8\u4fbf\u532f\u51fa\u6642\u9593",
+];
+
+const SALES_RANKING_HEADERS = [
+  "\u6392\u540d",
+  "\u5546\u54c1\u540d\u7a31",
+  "\u898f\u683c",
+  "\u78e8\u7c89",
+  "\u7d2f\u8a08\u6578\u91cf",
+  "\u7d2f\u8a08\u92b7\u552e\u984d",
+  "\u8a02\u55ae\u7b46\u6578",
+];
+
+const MONTHLY_SALES_HEADERS = [
+  "\u6708\u4efd",
+  "\u5546\u54c1\u540d\u7a31",
+  "\u898f\u683c",
+  "\u78e8\u7c89",
+  "\u6578\u91cf",
+  "\u92b7\u552e\u984d",
+];
+
 function setupProperties() {
   PropertiesService.getScriptProperties().setProperties({
     SPREADSHEET_ID: CONFIG.SPREADSHEET_ID,
@@ -105,6 +143,12 @@ function doPost(e) {
     const orderRow = buildOrderRow(orderId, createdAt, payload);
     sheet.appendRow(orderRow);
     appendMyShipImportRow(orderId, createdAt, payload);
+    appendShipmentPrintRow(orderId, createdAt, payload);
+    try {
+      refreshSalesReports();
+    } catch (reportError) {
+      logError(reportError, e);
+    }
     const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
     const shippedIndex = ensureOrderColumn(sheet, headers, ORDER_COLUMN.SHIPPED);
     const exportedAtIndex = ensureOrderColumn(sheet, headers, ORDER_COLUMN.MYSHIP_EXPORTED_AT);
@@ -227,10 +271,195 @@ function buildOrderRow(orderId, createdAt, payload) {
   ];
 }
 
+function buildShipmentPrintRow(orderId, createdAt, payload, shippedStatus, exportedAt) {
+  return [
+    cleanText(orderId),
+    cleanText(createdAt),
+    cleanText(payload.recipient),
+    cleanText(payload.phone),
+    cleanText(payload.pickupStore),
+    cleanText(payload.items),
+    cleanText(payload.subtotal),
+    cleanText(payload.discount),
+    cleanText(payload.shippingFee),
+    cleanText(payload.total || payload.totalNumber),
+    cleanText(payload.note),
+    cleanText(shippedStatus || "\u672a\u51fa\u8ca8"),
+    cleanText(exportedAt),
+  ];
+}
+
 function appendMyShipImportRow(orderId, createdAt, payload) {
   const sheet = getOrCreateSheet(getSpreadsheet(), CONFIG.MYSHIP_SHEET_NAME, MYSHIP_HEADERS);
   prepareMyShipSheet(sheet);
   appendTextRow(sheet, buildMyShipImportRow(orderId, createdAt, payload), MYSHIP_HEADERS.length);
+}
+
+function appendShipmentPrintRow(orderId, createdAt, payload) {
+  const sheet = getOrCreateSheet(getSpreadsheet(), CONFIG.PRINT_SHEET_NAME, PRINT_HEADERS);
+  prepareShipmentPrintSheet(sheet);
+  const rowNumber = sheet.getLastRow() + 1;
+  appendTextRow(sheet, buildShipmentPrintRow(orderId, createdAt, payload), PRINT_HEADERS.length);
+  sheet.getRange(rowNumber, 1, 1, PRINT_HEADERS.length).setWrap(true);
+}
+
+function rebuildShipmentPrintSheet() {
+  const spreadsheet = getSpreadsheet();
+  const ordersSheet = getOrdersSheet(spreadsheet);
+
+  if (!ordersSheet || ordersSheet.getLastRow() < 2) {
+    throw new Error("No orders found.");
+  }
+
+  const values = ordersSheet.getDataRange().getValues();
+  const headers = values[0];
+  const rawPayloadIndex = headers.indexOf(ORDER_COLUMN.RAW_PAYLOAD);
+  const orderIdIndex = headers.indexOf(ORDER_COLUMN.ORDER_ID);
+  const createdAtIndex = headers.indexOf(ORDER_COLUMN.CREATED_AT);
+  const shippedIndex = ensureOrderColumn(ordersSheet, headers, ORDER_COLUMN.SHIPPED);
+  const exportedAtIndex = ensureOrderColumn(ordersSheet, headers, ORDER_COLUMN.MYSHIP_EXPORTED_AT);
+
+  if (rawPayloadIndex === -1) {
+    throw new Error("Orders sheet is missing raw_payload.");
+  }
+
+  const sheet = getOrCreateSheet(spreadsheet, CONFIG.PRINT_SHEET_NAME, PRINT_HEADERS);
+  sheet.clearContents();
+  sheet.appendRow(PRINT_HEADERS);
+  prepareShipmentPrintSheet(sheet);
+
+  values.slice(1).forEach((row) => {
+    const rawPayload = row[rawPayloadIndex];
+    if (!rawPayload) return;
+
+    let payload;
+    try {
+      payload = JSON.parse(rawPayload);
+    } catch (error) {
+      return;
+    }
+
+    const orderId = row[orderIdIndex] || createOrderId();
+    const createdAt = row[createdAtIndex] || "";
+    const shippedStatus = cleanText(row[shippedIndex]) || "\u672a\u51fa\u8ca8";
+    const exportedAt = cleanText(row[exportedAtIndex]);
+    appendTextRow(
+      sheet,
+      buildShipmentPrintRow(orderId, createdAt, payload, shippedStatus, exportedAt),
+      PRINT_HEADERS.length
+    );
+  });
+
+  sheet.getDataRange().setWrap(true);
+
+  return sheet.getLastRow() - 1;
+}
+
+function refreshSalesReports() {
+  const spreadsheet = getSpreadsheet();
+  const ordersSheet = getOrdersSheet(spreadsheet);
+
+  if (!ordersSheet || ordersSheet.getLastRow() < 2) {
+    writeSalesRankingSheet(spreadsheet, []);
+    writeMonthlySalesSheet(spreadsheet, []);
+    return { rankingCount: 0, monthlyCount: 0 };
+  }
+
+  const values = ordersSheet.getDataRange().getValues();
+  const headers = values[0];
+  const rawPayloadIndex = headers.indexOf(ORDER_COLUMN.RAW_PAYLOAD);
+  const orderIdIndex = headers.indexOf(ORDER_COLUMN.ORDER_ID);
+  const createdAtIndex = headers.indexOf(ORDER_COLUMN.CREATED_AT);
+
+  if (rawPayloadIndex === -1) {
+    throw new Error("Orders sheet is missing raw_payload.");
+  }
+
+  const rankingMap = new Map();
+  const monthlyMap = new Map();
+
+  values.slice(1).forEach((row) => {
+    const rawPayload = row[rawPayloadIndex];
+    if (!rawPayload) return;
+
+    let payload;
+    try {
+      payload = JSON.parse(rawPayload);
+    } catch (error) {
+      return;
+    }
+
+    const orderMonth = formatOrderMonth(row[createdAtIndex] || payload.orderTime || "");
+    const lineItems = extractOrderLineItems(payload);
+
+    lineItems.forEach((item) => {
+      const salesKey = buildSalesKey(item);
+      const rankingItem = rankingMap.get(salesKey) || {
+        name: item.name,
+        packageLabel: item.packageLabel,
+        grindLabel: item.grindLabel,
+        quantity: 0,
+        amount: 0,
+        orderIds: new Set(),
+      };
+      rankingItem.quantity += item.quantity;
+      rankingItem.amount += item.lineTotal;
+      rankingItem.orderIds.add(cleanText(row[orderIdIndex] || ""));
+      rankingMap.set(salesKey, rankingItem);
+
+      const monthlyKey = `${orderMonth}__${salesKey}`;
+      const monthlyItem = monthlyMap.get(monthlyKey) || {
+        month: orderMonth,
+        name: item.name,
+        packageLabel: item.packageLabel,
+        grindLabel: item.grindLabel,
+        quantity: 0,
+        amount: 0,
+      };
+      monthlyItem.quantity += item.quantity;
+      monthlyItem.amount += item.lineTotal;
+      monthlyMap.set(monthlyKey, monthlyItem);
+    });
+  });
+
+  const rankingRows = Array.from(rankingMap.values())
+    .sort((a, b) => b.quantity - a.quantity || b.amount - a.amount || a.name.localeCompare(b.name, "zh-Hant"))
+    .map((item, index) => [
+      String(index + 1),
+      item.name,
+      buildItemSpecLabel(item.packageLabel, item.grindLabel),
+      item.packageLabel || "",
+      String(item.quantity),
+      String(item.amount),
+      String(item.orderIds.size),
+    ]);
+
+  const monthlyRows = Array.from(monthlyMap.values())
+    .sort((a, b) => a.month.localeCompare(b.month, "zh-Hant") || b.quantity - a.quantity || a.name.localeCompare(b.name, "zh-Hant"))
+    .map((item) => [
+      item.month,
+      item.name,
+      item.packageLabel || "",
+      item.grindLabel || "",
+      String(item.quantity),
+      String(item.amount),
+    ]);
+
+  writeSalesRankingSheet(spreadsheet, rankingRows);
+  writeMonthlySalesSheet(spreadsheet, monthlyRows);
+
+  return { rankingCount: rankingRows.length, monthlyCount: monthlyRows.length };
+}
+
+function rebuildAllReports() {
+  const printCount = rebuildShipmentPrintSheet();
+  const stats = refreshSalesReports();
+
+  return {
+    printCount,
+    rankingCount: stats.rankingCount,
+    monthlyCount: stats.monthlyCount,
+  };
 }
 
 function rebuildMyShipImportSheet() {
@@ -303,6 +532,38 @@ function prepareMyShipSheet(sheet) {
   sheet.getRange("A:J").setNumberFormat("@");
 }
 
+function prepareShipmentPrintSheet(sheet) {
+  sheet.setFrozenRows(1);
+  sheet.getRange(1, 1, Math.max(sheet.getLastRow(), 1), PRINT_HEADERS.length).setWrap(true);
+  sheet.getRange("A:M").setNumberFormat("@");
+}
+
+function writeSalesRankingSheet(spreadsheet, rows) {
+  const sheet = getOrCreateSheet(spreadsheet, CONFIG.SALES_RANKING_SHEET_NAME, SALES_RANKING_HEADERS);
+  sheet.clearContents();
+  sheet.appendRow(SALES_RANKING_HEADERS);
+  sheet.setFrozenRows(1);
+  if (rows.length > 0) {
+    appendTextRow(sheet, rows[0], SALES_RANKING_HEADERS.length);
+    for (let index = 1; index < rows.length; index += 1) {
+      appendTextRow(sheet, rows[index], SALES_RANKING_HEADERS.length);
+    }
+  }
+}
+
+function writeMonthlySalesSheet(spreadsheet, rows) {
+  const sheet = getOrCreateSheet(spreadsheet, CONFIG.MONTHLY_SALES_SHEET_NAME, MONTHLY_SALES_HEADERS);
+  sheet.clearContents();
+  sheet.appendRow(MONTHLY_SALES_HEADERS);
+  sheet.setFrozenRows(1);
+  if (rows.length > 0) {
+    appendTextRow(sheet, rows[0], MONTHLY_SALES_HEADERS.length);
+    for (let index = 1; index < rows.length; index += 1) {
+      appendTextRow(sheet, rows[index], MONTHLY_SALES_HEADERS.length);
+    }
+  }
+}
+
 function appendTextRow(sheet, rowValues, columnCount) {
   const rowNumber = sheet.getLastRow() + 1;
   const values = rowValues.slice(0, columnCount).map((value) => cleanText(value));
@@ -310,6 +571,128 @@ function appendTextRow(sheet, rowValues, columnCount) {
 
   range.setNumberFormat("@");
   range.setValues([values]);
+}
+
+function extractOrderLineItems(payload) {
+  const structuredItems = Array.isArray(payload.lineItems)
+    ? payload.lineItems
+    : Array.isArray(payload.cartItems)
+      ? payload.cartItems
+      : [];
+
+  if (structuredItems.length > 0) {
+    return structuredItems.map(normalizeLineItem).filter(Boolean);
+  }
+
+  const lines = cleanText(payload.items || payload.itemSummary)
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  return lines.map(parseOrderLineItem).filter(Boolean);
+}
+
+function normalizeLineItem(item) {
+  if (!item || typeof item !== "object") {
+    return null;
+  }
+
+  const name = cleanText(item.name || item.productName || item.title);
+  const packageLabel = cleanText(item.packageLabel || item.package || item.size || item.variant);
+  const grindLabel = cleanText(item.grindLabel || item.grind || item.option || "\u4e0d\u9700\u7814\u78e8");
+  const quantity = Math.max(parseInt(item.quantity, 10) || 0, 0);
+  const unitPrice = amountNumber(item.price || item.unitPrice || item.amount);
+  const lineTotal = amountNumber(item.lineTotal || item.total || item.subtotal) || unitPrice * quantity;
+
+  if (!name || quantity <= 0) {
+    return null;
+  }
+
+  return {
+    name,
+    packageLabel,
+    grindLabel,
+    quantity,
+    unitPrice,
+    lineTotal,
+  };
+}
+
+function parseOrderLineItem(line) {
+  const parts = line.split(/[\uFF5C|]/).map((part) => part.trim()).filter(Boolean);
+  const name = cleanText(parts[0]);
+  const packageLabel = cleanText(parts[1]);
+  const grindLabel = cleanText(parts[2] || "\u4e0d\u9700\u7814\u78e8");
+  let quantity = extractInteger(parts[3]);
+  let unitPrice = amountNumber(parts[4]);
+  let lineTotal = amountNumber(parts[5]);
+
+  if (!quantity) {
+    const quantityMatch = line.match(/(\d+)\s*\u4ef6/);
+    if (quantityMatch) {
+      quantity = Number(quantityMatch[1]);
+    }
+  }
+
+  if (!lineTotal && unitPrice && quantity) {
+    lineTotal = unitPrice * quantity;
+  }
+
+  if (!unitPrice && lineTotal && quantity) {
+    unitPrice = Math.round(lineTotal / quantity);
+  }
+
+  if (!name || !quantity) {
+    return null;
+  }
+
+  return {
+    name,
+    packageLabel,
+    grindLabel,
+    quantity,
+    unitPrice,
+    lineTotal: lineTotal || unitPrice * quantity,
+  };
+}
+
+function buildSalesKey(item) {
+  return [cleanText(item.name), cleanText(item.packageLabel), cleanText(item.grindLabel)].join("||");
+}
+
+function buildItemSpecLabel(packageLabel, grindLabel) {
+  const packageText = cleanText(packageLabel);
+  const grindText = cleanText(grindLabel);
+
+  if (packageText && grindText) {
+    return packageText + " / " + grindText;
+  }
+
+  return packageText || grindText || "";
+}
+
+function formatOrderMonth(value) {
+  const text = cleanText(value);
+  if (!text) {
+    return "";
+  }
+
+  const monthMatch = text.match(/^(\d{4})[\/-](\d{1,2})/);
+  if (monthMatch) {
+    return monthMatch[1] + "-" + String(monthMatch[2]).padStart(2, "0");
+  }
+
+  const parsed = new Date(text);
+  if (!isNaN(parsed.getTime())) {
+    return Utilities.formatDate(parsed, "Asia/Taipei", "yyyy-MM");
+  }
+
+  return text.slice(0, 7).replace(/[\/]/g, "-");
+}
+
+function extractInteger(value) {
+  const match = cleanText(value).match(/(\d+)/);
+  return match ? Number(match[1]) : 0;
 }
 
 function markOrderMyShipExported(sheet, rowNumber, shippedIndex, exportedAtIndex) {
@@ -685,6 +1068,9 @@ function testWriteOrder() {
   const sheet = getOrdersSheet(getSpreadsheet());
 
   sheet.appendRow(buildOrderRow(orderId, createdAt, payload));
+  appendMyShipImportRow(orderId, createdAt, payload);
+  appendShipmentPrintRow(orderId, createdAt, payload);
+  refreshSalesReports();
 
   return orderId;
 }
@@ -715,6 +1101,17 @@ function buildTestPayload(email) {
     shippingFee: "$0",
     total: "$100",
     totalNumber: 100,
+    lineItems: [
+      {
+        productId: "test-product",
+        name: "Test Item",
+        packageLabel: "100g",
+        grindLabel: "\u4e0d\u9700\u7814\u78e8",
+        quantity: 1,
+        unitPrice: 100,
+        lineTotal: 100,
+      },
+    ],
     taxId: "",
     companyTitle: "",
     socialAccount: "",
@@ -795,3 +1192,4 @@ function jsonResponse(data) {
     .createTextOutput(JSON.stringify(data))
     .setMimeType(ContentService.MimeType.JSON);
 }
+
