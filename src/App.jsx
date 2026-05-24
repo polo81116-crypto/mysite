@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 
 const shopeeUrl = "https://shopee.tw/caobancoffee?categoryId=100629&entryPoint=ShopByPDP&itemId=49107641936&upstream=search";
 const orderApiUrl = "https://script.google.com/macros/s/AKfycbzfN28njwcJeZssEQV5HJnZ7Z9Z-dPmIVP0WNLBZNQz7VUG9VewI6hl29-0ivpJ_DiPQA/exec";
+const minimumCheckoutTotal = 100;
 const sevenElevenStoresJsonUrl = `${import.meta.env.BASE_URL}stores.json`;
 const coffeeReviewAwardImage = `${import.meta.env.BASE_URL}images/coffee-review-award.png`;
 const mediumDarkOnePoundImage = `${import.meta.env.BASE_URL}images/medium-dark-1lb.jpg`;
@@ -216,6 +217,15 @@ function buildOrderItemsText(cart) {
     .join("\n");
 }
 
+function parsePickupStore(value) {
+  const [storeName = "", storeId = "", storeAddress = ""] = value.split("｜").map((text) => text.trim());
+  return { storeName, storeId, storeAddress };
+}
+
+function isValidStoreId(storeId) {
+  return /^\d{6}$/.test(storeId);
+}
+
 function validateStoreData() {
   const categoryFieldsValid = categories.every((category) => ["title", "subtitle", "description", "image"].every((field) => Boolean(category[field])));
   const productFieldsValid = products.every(
@@ -353,6 +363,8 @@ export default function CaobanCoffeeHomepage() {
   const discountedSubtotal = useMemo(() => Math.round(cartSubtotal * 0.9), [cartSubtotal]);
   const shippingFee = useMemo(() => (cart.length === 0 ? 0 : discountedSubtotal >= 1000 ? 0 : 38), [cart.length, discountedSubtotal]);
   const cartTotal = useMemo(() => discountedSubtotal + shippingFee, [discountedSubtotal, shippingFee]);
+  const isCheckoutBelowMinimum = cart.length > 0 && cartTotal < minimumCheckoutTotal;
+  const checkoutDisabled = cart.length === 0 || isCheckoutBelowMinimum;
   const filteredProducts = selectedProductCategory === "全部商品" ? products : products.filter((product) => product.category === selectedProductCategory);
   const currentSlide = infoSlides[currentInfoSlide];
   const storeSource = remoteStores.length > 0 ? remoteStores : convenienceStores;
@@ -422,6 +434,11 @@ export default function CaobanCoffeeHomepage() {
     const errors = Object.fromEntries(
       requiredFields.filter(([field]) => !checkoutForm[field].trim()).map(([field, message]) => [field, message])
     );
+    const { storeId } = parsePickupStore(checkoutForm.pickupStore);
+
+    if (checkoutForm.pickupStore.trim() && !isValidStoreId(storeId)) {
+      errors.pickupStore = "請從門市清單選擇有效的 7-11 門市，避免賣貨便店號空白";
+    }
 
     setCheckoutErrors(errors);
     return Object.keys(errors).length === 0;
@@ -485,6 +502,7 @@ export default function CaobanCoffeeHomepage() {
 
   function openOrderConfirm() {
     if (cart.length === 0) return;
+    if (cartTotal < minimumCheckoutTotal) return;
     if (!validateCheckoutForm()) return;
     setOrderSubmitStatus("idle");
     setShowOrderConfirm(true);
@@ -494,7 +512,7 @@ export default function CaobanCoffeeHomepage() {
     const items = buildOrderItemsText(cart);
     const lineItems = buildOrderLineItems(cart);
     const itemSummary = cart.map((item) => `${item.name} ${item.packageLabel} ${item.grindLabel} x${item.quantity}`).join("；");
-    const [storeName = "", storeId = "", storeAddress = ""] = checkoutForm.pickupStore.split("｜").map((text) => text.trim());
+    const { storeName, storeId, storeAddress } = parsePickupStore(checkoutForm.pickupStore);
     const orderTime = new Date().toLocaleString("zh-TW", { hour12: false });
     const shippingText = shippingFee === 0 ? "免運" : currency(shippingFee);
     const productNote = `${itemSummary}${checkoutForm.note ? `｜備註：${checkoutForm.note}` : ""}`;
@@ -553,6 +571,7 @@ export default function CaobanCoffeeHomepage() {
 
   async function submitOrder() {
     if (cart.length === 0 || orderSubmitStatus === "submitting") return;
+    if (cartTotal < minimumCheckoutTotal) return;
     try {
       setOrderSubmitStatus("submitting");
       const formBody = new URLSearchParams();
@@ -792,7 +811,8 @@ export default function CaobanCoffeeHomepage() {
               </div>
               <div className="mt-8 border-t border-white/20 pt-5"><div className="flex justify-between text-[#fff1df]"><span>商品數量</span><span>{cartCount} 件</span></div><div className="mt-4 flex justify-between text-[#fff1df]"><span>商品原價</span><span>{currency(cartSubtotal)}</span></div><div className="mt-4 flex justify-between font-bold text-[#7CFFB2]"><span>全館 9 折優惠</span><span>- {currency(cartSubtotal - discountedSubtotal)}</span></div><div className="mt-4 flex justify-between text-[#fff1df]"><span>折扣後小計</span><span>{currency(discountedSubtotal)}</span></div><div className="mt-4 flex justify-between text-[#fff1df]"><span>超商運費</span><span>{shippingFee === 0 ? "免運" : currency(shippingFee)}</span></div><div className="mt-4 border-t border-white/20 pt-4 text-sm leading-7 text-[#fff1df]">7-11 賣貨便每筆訂單運費 38 元，折扣後滿 1,000 元享免運優惠。全館商品目前享 9 折優惠活動。</div><div className="mt-5 flex justify-between text-2xl font-bold"><span>總計</span><span>{currency(cartTotal)}</span></div></div>
             </div>
-            <button type="button" onClick={openOrderConfirm} disabled={cart.length === 0} className={`mt-6 inline-flex w-full items-center justify-center rounded-full px-6 py-4 font-bold transition ${cart.length === 0 ? "cursor-not-allowed bg-white/30 text-white/60" : "bg-white text-[#5a341d] hover:scale-[1.02]"}`}>立即下單</button>
+            {isCheckoutBelowMinimum && <p className="mt-4 rounded-2xl border border-[#ffcfca]/40 bg-[#ffcfca]/10 px-4 py-3 text-sm font-bold leading-6 text-[#ffcfca]">結帳最低消費為 {currency(minimumCheckoutTotal)}，目前還差 {currency(minimumCheckoutTotal - cartTotal)}。</p>}
+            <button type="button" onClick={openOrderConfirm} disabled={checkoutDisabled} className={`mt-6 inline-flex w-full items-center justify-center rounded-full px-6 py-4 font-bold transition ${checkoutDisabled ? "cursor-not-allowed bg-white/30 text-white/60" : "bg-white text-[#5a341d] hover:scale-[1.02]"}`}>立即下單</button>
             <a href={shopeeUrl} target="_blank" rel="noreferrer" className="mt-3 inline-flex w-full items-center justify-center rounded-full border border-white/25 px-6 py-4 font-bold text-white transition hover:bg-white/10">或改到蝦皮商城下單</a>
           </aside>
         </div>
