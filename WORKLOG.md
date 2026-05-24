@@ -6,7 +6,7 @@ This file tracks project changes, deployment notes, and version updates.
 
 ### Current Version
 
-- Latest commit: `60d74a6 Update worklog for half-pound formula blend`
+- Latest commit: `75044b5 Restore formula blend half-pound product`
 - Previous backend updates:
   - `7eb9b96 Prevent duplicate MyShip exports`
   - `8792cbc Add MyShip import sheet export`
@@ -19,7 +19,7 @@ This file tracks project changes, deployment notes, and version updates.
 - Previous frontend update: `bf37aef Require checkout contact fields`
 - Repository: `https://github.com/polo81116-crypto/mysite.git`
 - Local working changes: print-sheet generation, sales reports, and grouped formula-blend products in the "配方豆專區" category are added.
-- Working tree note: `src/App.jsx` has been restored and the formula-blend section now contains both the 454g and 227g grouped products; deployment still needs a successful GitHub Pages run to show on the live site.
+- Working tree note: `src/App.jsx` has been restored and the formula-blend section now contains both the 454g and 227g grouped products; GitHub Pages deployment for `75044b5` completed successfully.
 
 ### Shipment Slip And Sales Reports
 
