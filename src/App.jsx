@@ -100,20 +100,6 @@ const products = [
     image: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=900&q=80",
   },
   {
-    id: "colombia-hopes-estate-wine-sun",
-    category: "精品咖啡豆",
-    name: "哥倫比亞 希望莊園 酒香日曬處理",
-    roast: "淺烘焙",
-    taste: "酒香發酵、莓果甜感、尾韻濃郁，適合喜歡特殊發酵風味的精品咖啡愛好者。",
-    packageOptions: [
-      { label: "100g", price: 160 },
-      { label: "200g", price: 300 },
-    ],
-    grindOptions: ["咖啡原豆", "3 磨粉 / 摩卡壺", "8 磨粉 / 手沖（推薦）", "9 磨粉 / 法壓"],
-    weight: "精品小包裝",
-    image: "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=900&q=80",
-  },
-  {
     id: "ethiopia-yirgacheffe-banko-datatu",
     category: "精品咖啡豆",
     name: "衣索比亞 耶加雪夫 班可 達達圖 G1 水洗",
