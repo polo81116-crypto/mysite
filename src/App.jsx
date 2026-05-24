@@ -103,8 +103,8 @@ const products = [
       { label: "醇厚焦糖", price: 450 },
       { label: "特選黑金", price: 500 },
     ],
-    grindOptions: ["咖啡原豆", "2.5 磨粉 / 義式", "3 磨粉 / 摩卡壺", "8 磨粉 / 手沖（推薦）", "9 磨粉 / 法壓"],
-    weight: "配方豆系列 / 250g",
+    grindOptions: ["一磅(咖啡原豆)", "2.5 磨粉 / 義式", "3 磨粉 / 摩卡壺", "8 磨粉 / 手沖（推薦）", "9 磨粉 / 法壓"],
+    weight: "配方豆系列454g",
     image: "https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=900&q=80",
   },
   {
