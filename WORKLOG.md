@@ -6,7 +6,7 @@ This file tracks project changes, deployment notes, and version updates.
 
 ### Current Version
 
-- Latest commit: `3f711de Update worklog for formula blend category`
+- Latest commit: `81fed55 Add half-pound formula blend grouped product`
 - Previous backend updates:
   - `7eb9b96 Prevent duplicate MyShip exports`
   - `8792cbc Add MyShip import sheet export`
