@@ -1,0 +1,3515 @@
+﻿{
+    "Source":  "C:\\Users\\Z170\\ID\\進銷存.accdb",
+    "Backup":  "C:\\Users\\Z170\\mysite\\backups\\ID\\進銷存-20260524-111528.accdb",
+    "CreatedAt":  "2026-05-24T11:15:32",
+    "Tables":  [
+                   {
+                       "Name":  "名稱自動校正儲存失敗",
+                       "Fields":  [
+                                      {
+                                          "Name":  "物件名稱",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "物件類型",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "失敗原因",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "時間",
+                                          "Type":  8,
+                                          "Size":  8
+                                      }
+                                  ],
+                       "Indexes":  [
+
+                                   ]
+                   },
+                   {
+                       "Name":  "供應商基本資料",
+                       "Fields":  [
+                                      {
+                                          "Name":  "CODE",
+                                          "Type":  4,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "公司名稱",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "公司簡稱",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "聯絡人",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "部署",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "職稱",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "國家",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "住址",
+                                          "Type":  10,
+                                          "Size":  100
+                                      },
+                                      {
+                                          "Name":  "電話",
+                                          "Type":  10,
+                                          "Size":  30
+                                      },
+                                      {
+                                          "Name":  "傳真",
+                                          "Type":  10,
+                                          "Size":  30
+                                      },
+                                      {
+                                          "Name":  "大哥大",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "備註",
+                                          "Type":  12,
+                                          "Size":  0
+                                      },
+                                      {
+                                          "Name":  "區分",
+                                          "Type":  10,
+                                          "Size":  50
+                                      }
+                                  ],
+                       "Indexes":  [
+                                       {
+                                           "Name":  "COUNTRY",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "國家"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "PrimaryKey",
+                                           "Primary":  true,
+                                           "Unique":  true,
+                                           "Fields":  [
+                                                          "CODE"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "公司簡稱",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "公司簡稱"
+                                                      ]
+                                       }
+                                   ]
+                   },
+                   {
+                       "Name":  "客戶地區分類表",
+                       "Fields":  [
+                                      {
+                                          "Name":  "地區編號",
+                                          "Type":  4,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "地區名稱",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "備註",
+                                          "Type":  10,
+                                          "Size":  50
+                                      }
+                                  ],
+                       "Indexes":  [
+                                       {
+                                           "Name":  "PrimaryKey",
+                                           "Primary":  true,
+                                           "Unique":  true,
+                                           "Fields":  [
+                                                          "地區編號"
+                                                      ]
+                                       }
+                                   ]
+                   },
+                   {
+                       "Name":  "客戶訂貨主檔",
+                       "Fields":  [
+                                      {
+                                          "Name":  "識別碼",
+                                          "Type":  4,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "訂貨日期",
+                                          "Type":  8,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "客戶編號",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "客戶簡稱",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "LINE",
+                                          "Type":  1,
+                                          "Size":  1
+                                      },
+                                      {
+                                          "Name":  "電話",
+                                          "Type":  1,
+                                          "Size":  1
+                                      },
+                                      {
+                                          "Name":  "Email",
+                                          "Type":  1,
+                                          "Size":  1
+                                      },
+                                      {
+                                          "Name":  "FB",
+                                          "Type":  1,
+                                          "Size":  1
+                                      },
+                                      {
+                                          "Name":  "傳真",
+                                          "Type":  1,
+                                          "Size":  1
+                                      },
+                                      {
+                                          "Name":  "貨到付款",
+                                          "Type":  1,
+                                          "Size":  1
+                                      },
+                                      {
+                                          "Name":  "匯款金額",
+                                          "Type":  7,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "代收金額",
+                                          "Type":  7,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "備註",
+                                          "Type":  12,
+                                          "Size":  0
+                                      }
+                                  ],
+                       "Indexes":  [
+                                       {
+                                           "Name":  "{FF2DBC7B-1953-49F7-8A70-120D7B137602}",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "客戶編號"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "PrimaryKey",
+                                           "Primary":  true,
+                                           "Unique":  true,
+                                           "Fields":  [
+                                                          "識別碼"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "客戶訂貨主檔客戶編號",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "客戶編號"
+                                                      ]
+                                       }
+                                   ]
+                   },
+                   {
+                       "Name":  "客戶訂貨副檔",
+                       "Fields":  [
+                                      {
+                                          "Name":  "識別碼",
+                                          "Type":  4,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "商品名稱",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "數量",
+                                          "Type":  7,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "單位",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "單價",
+                                          "Type":  5,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "交貨日期",
+                                          "Type":  8,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "缺貨待出",
+                                          "Type":  1,
+                                          "Size":  1
+                                      },
+                                      {
+                                          "Name":  "備註",
+                                          "Type":  12,
+                                          "Size":  0
+                                      }
+                                  ],
+                       "Indexes":  [
+                                       {
+                                           "Name":  "{CA04E5B3-D057-4E8C-99E0-9C9A69E60714}",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "識別碼"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "識別碼",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "識別碼"
+                                                      ]
+                                       }
+                                   ]
+                   },
+                   {
+                       "Name":  "客戶基本資料",
+                       "Fields":  [
+                                      {
+                                          "Name":  "地區編號",
+                                          "Type":  4,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "客戶編號",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "客戶名稱",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "客戶簡稱",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "區分",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "出貨資訊",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "結帳日",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "統一編號",
+                                          "Type":  10,
+                                          "Size":  20
+                                      },
+                                      {
+                                          "Name":  "發票資訊",
+                                          "Type":  10,
+                                          "Size":  100
+                                      },
+                                      {
+                                          "Name":  "發票方式",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "聯絡人1",
+                                          "Type":  10,
+                                          "Size":  30
+                                      },
+                                      {
+                                          "Name":  "大哥大1",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "電郵1",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "分機1",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "聯絡人2",
+                                          "Type":  10,
+                                          "Size":  30
+                                      },
+                                      {
+                                          "Name":  "大哥大2",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "電郵2",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "分機2",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "聯絡人3",
+                                          "Type":  10,
+                                          "Size":  30
+                                      },
+                                      {
+                                          "Name":  "大哥大3",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "電郵3",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "分機3",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "部署",
+                                          "Type":  10,
+                                          "Size":  20
+                                      },
+                                      {
+                                          "Name":  "職稱",
+                                          "Type":  10,
+                                          "Size":  20
+                                      },
+                                      {
+                                          "Name":  "公司電話",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "分機",
+                                          "Type":  4,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "公司傳真",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "公司地址",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "送貨電話1",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "送貨傳真1",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "送貨地址1",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "送貨電話2",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "送貨傳真2",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "送貨地址2",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "大哥大",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "E-MAIL",
+                                          "Type":  12,
+                                          "Size":  0
+                                      },
+                                      {
+                                          "Name":  "列印",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "備註",
+                                          "Type":  12,
+                                          "Size":  0
+                                      },
+                                      {
+                                          "Name":  "發票資訊備註",
+                                          "Type":  12,
+                                          "Size":  0
+                                      },
+                                      {
+                                          "Name":  "銀行資訊備註",
+                                          "Type":  12,
+                                          "Size":  0
+                                      }
+                                  ],
+                       "Indexes":  [
+                                       {
+                                           "Name":  "{089B5840-5B38-4085-9F2E-8B69DB754ECF}",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "地區編號"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "{F764A078-C9C9-4ED6-B1A8-5161DBCC700A}",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "地區編號"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "PrimaryKey",
+                                           "Primary":  true,
+                                           "Unique":  true,
+                                           "Fields":  [
+                                                          "客戶編號"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "列印客戶編號",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "列印",
+                                                          "客戶編號"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "地區編號",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "地區編號"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "客戶名稱",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "客戶名稱"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "客戶基本資料客戶簡稱",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "客戶簡稱"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "客戶基本資料發票方式",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "發票方式"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "客戶編號",
+                                           "Primary":  false,
+                                           "Unique":  true,
+                                           "Fields":  [
+                                                          "客戶編號"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "區分",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "區分"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "區分客戶編號",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "區分",
+                                                          "客戶編號"
+                                                      ]
+                                       }
+                                   ]
+                   },
+                   {
+                       "Name":  "客戶標籤臨時表",
+                       "Fields":  [
+                                      {
+                                          "Name":  "客戶編號",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "客戶名稱",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "聯絡人1",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "公司地址",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "公司電話",
+                                          "Type":  10,
+                                          "Size":  50
+                                      }
+                                  ],
+                       "Indexes":  [
+                                       {
+                                           "Name":  "客戶編號",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "客戶編號"
+                                                      ]
+                                       }
+                                   ]
+                   },
+                   {
+                       "Name":  "借入基本資料",
+                       "Fields":  [
+                                      {
+                                          "Name":  "日期",
+                                          "Type":  8,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "客戶編號",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "商品名稱",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "批號",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "倉庫批號",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "公司-瑞湖",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "協同",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "聖隆",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "八德",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "平鎮",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "平鎮-真空",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "行家",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "處理",
+                                          "Type":  10,
+                                          "Size":  6
+                                      },
+                                      {
+                                          "Name":  "CODE",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "還",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "ZN",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "LY",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "公司-復北",
+                                          "Type":  6,
+                                          "Size":  4
+                                      }
+                                  ],
+                       "Indexes":  [
+                                       {
+                                           "Name":  "{6C0F58DC-63BC-47EC-82CF-38D262D95C01}",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "客戶編號"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "{DCBEC60E-5CCA-406B-B15A-61C4420F30DA}",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "商品名稱"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "日期",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "日期"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "借入基本資料客戶編號",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "客戶編號"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "還",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "還"
+                                                      ]
+                                       }
+                                   ]
+                   },
+                   {
+                       "Name":  "倉庫基本資料表",
+                       "Fields":  [
+                                      {
+                                          "Name":  "倉庫編號",
+                                          "Type":  4,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "倉庫名稱",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "倉庫簡稱",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "倉庫地址",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "倉庫電話",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "倉庫傳真",
+                                          "Type":  10,
+                                          "Size":  50
+                                      }
+                                  ],
+                       "Indexes":  [
+                                       {
+                                           "Name":  "PrimaryKey",
+                                           "Primary":  true,
+                                           "Unique":  true,
+                                           "Fields":  [
+                                                          "倉庫編號"
+                                                      ]
+                                       }
+                                   ]
+                   },
+                   {
+                       "Name":  "庫存待扣一覽表",
+                       "Fields":  [
+                                      {
+                                          "Name":  "日期",
+                                          "Type":  8,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "客戶編號",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "批號",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "公司-瑞湖",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "協同",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "聖隆",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "八德",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "平鎮",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "平鎮-真空",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "行家",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "處理",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "LY",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "ZN",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "公司-復北",
+                                          "Type":  10,
+                                          "Size":  50
+                                      }
+                                  ],
+                       "Indexes":  [
+                                       {
+                                           "Name":  "{110C32FB-378F-41E0-A891-CA5893576E5B}",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "批號"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "日期",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "日期"
+                                                      ]
+                                       }
+                                   ]
+                   },
+                   {
+                       "Name":  "商品基本資料",
+                       "Fields":  [
+                                      {
+                                          "Name":  "商品類別編號",
+                                          "Type":  4,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "商品名稱",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "商品代碼",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "外包裝",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "內容",
+                                          "Type":  7,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "單位",
+                                          "Type":  10,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "安全數量",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "商品發票名稱",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "備註",
+                                          "Type":  12,
+                                          "Size":  0
+                                      }
+                                  ],
+                       "Indexes":  [
+                                       {
+                                           "Name":  "{FBD1786A-5F8D-4CCF-B6E8-D908530DDDAA}",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "商品類別編號"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "PrimaryKey",
+                                           "Primary":  true,
+                                           "Unique":  true,
+                                           "Fields":  [
+                                                          "商品名稱"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "商品名稱",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "商品名稱"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "商品類別編號",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "商品類別編號"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "商品類別編號商品名稱",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "商品類別編號",
+                                                          "商品名稱"
+                                                      ]
+                                       }
+                                   ]
+                   },
+                   {
+                       "Name":  "商品轉換基本資料",
+                       "Fields":  [
+                                      {
+                                          "Name":  "日期",
+                                          "Type":  8,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "商品批號",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "公司-瑞湖1",
+                                          "Type":  7,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "協同1",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "聖隆1",
+                                          "Type":  4,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "八德1",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "平鎮1",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "平鎮-真空1",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "行家1",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "商品名稱",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "批號2",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "公司-瑞湖2",
+                                          "Type":  7,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "協同2",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "聖隆2",
+                                          "Type":  4,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "八德2",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "平鎮2",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "平鎮-真空2",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "行家2",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "處理",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "ZN1",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "LY1",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "ZN2",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "LY2",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "公司-復北1",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "公司-復北2",
+                                          "Type":  6,
+                                          "Size":  4
+                                      }
+                                  ],
+                       "Indexes":  [
+                                       {
+                                           "Name":  "{02E0375F-AA8A-43E5-B697-9F29BECEFFDF}",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "商品名稱"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "{3D5705CC-4879-4B8E-AF48-F84D8AC66E6D}",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "商品批號"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "日期",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "日期"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "資料表1商品編號",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "商品批號"
+                                                      ]
+                                       }
+                                   ]
+                   },
+                   {
+                       "Name":  "商品類別表",
+                       "Fields":  [
+                                      {
+                                          "Name":  "商品類別編號",
+                                          "Type":  4,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "商品類別",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "備註",
+                                          "Type":  10,
+                                          "Size":  50
+                                      }
+                                  ],
+                       "Indexes":  [
+                                       {
+                                           "Name":  "PrimaryKey",
+                                           "Primary":  true,
+                                           "Unique":  true,
+                                           "Fields":  [
+                                                          "商品類別編號"
+                                                      ]
+                                       }
+                                   ]
+                   },
+                   {
+                       "Name":  "商品變更副表",
+                       "Fields":  [
+                                      {
+                                          "Name":  "日期",
+                                          "Type":  8,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "原批號",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "新商品名稱",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "新商品批號",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "公司-瑞湖",
+                                          "Type":  7,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "協同",
+                                          "Type":  7,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "聖隆",
+                                          "Type":  7,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "八德",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "平鎮",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "平鎮-真空",
+                                          "Type":  7,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "行家",
+                                          "Type":  7,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "成本",
+                                          "Type":  7,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "處理",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "ZN",
+                                          "Type":  7,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "LY",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "公司-復北",
+                                          "Type":  7,
+                                          "Size":  8
+                                      }
+                                  ],
+                       "Indexes":  [
+                                       {
+                                           "Name":  "{475614C9-CCFB-4409-95A9-0B694275E24F}",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "原批號"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "新商品名稱",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "新商品名稱"
+                                                      ]
+                                       }
+                                   ]
+                   },
+                   {
+                       "Name":  "商品變更副表1",
+                       "Fields":  [
+                                      {
+                                          "Name":  "日期",
+                                          "Type":  8,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "商品名稱",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "批號",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "公司-瑞湖",
+                                          "Type":  7,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "協同",
+                                          "Type":  7,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "聖隆",
+                                          "Type":  4,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "八德",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "平鎮",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "平鎮-真空",
+                                          "Type":  7,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "行家",
+                                          "Type":  7,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "成本",
+                                          "Type":  7,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "處理",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "ZN",
+                                          "Type":  7,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "LY",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "公司-復北",
+                                          "Type":  7,
+                                          "Size":  8
+                                      }
+                                  ],
+                       "Indexes":  [
+                                       {
+                                           "Name":  "商品變更副表1批號",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "批號"
+                                                      ]
+                                       }
+                                   ]
+                   },
+                   {
+                       "Name":  "國外訂貨基本資料",
+                       "Fields":  [
+                                      {
+                                          "Name":  "日期",
+                                          "Type":  8,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "商品名稱",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "供應商編號",
+                                          "Type":  4,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "預交日",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "數量",
+                                          "Type":  4,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "C\u0026F",
+                                          "Type":  5,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "進倉",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "備註",
+                                          "Type":  12,
+                                          "Size":  0
+                                      }
+                                  ],
+                       "Indexes":  [
+                                       {
+                                           "Name":  "{49775CD4-5822-43B2-98EC-ECA41B9E79D1}",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "供應商編號"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "{4E7A1060-1A9C-43EF-B50F-3BDFECB8DEBF}",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "商品名稱"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "日期",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "日期"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "商品編號",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "商品名稱"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "進倉",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "進倉"
+                                                      ]
+                                       }
+                                   ]
+                   },
+                   {
+                       "Name":  "國際咖啡行情基本資料",
+                       "Fields":  [
+                                      {
+                                          "Name":  "DATE",
+                                          "Type":  8,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "NY1",
+                                          "Type":  7,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "NY2",
+                                          "Type":  7,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "NY3",
+                                          "Type":  7,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "NY4",
+                                          "Type":  7,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "NY5",
+                                          "Type":  7,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "NY6",
+                                          "Type":  7,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "LDN1",
+                                          "Type":  7,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "LDN2",
+                                          "Type":  7,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "LDN3",
+                                          "Type":  7,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "FNC",
+                                          "Type":  7,
+                                          "Size":  8
+                                      }
+                                  ],
+                       "Indexes":  [
+                                       {
+                                           "Name":  "date",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "DATE"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "PrimaryKey",
+                                           "Primary":  true,
+                                           "Unique":  true,
+                                           "Fields":  [
+                                                          "DATE"
+                                                      ]
+                                       }
+                                   ]
+                   },
+                   {
+                       "Name":  "移動基本資料",
+                       "Fields":  [
+                                      {
+                                          "Name":  "日期",
+                                          "Type":  8,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "商品批號",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "公司-瑞湖",
+                                          "Type":  7,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "協同",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "聖隆",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "八德",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "平鎮",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "行家",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "平鎮-真空",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "處理",
+                                          "Type":  10,
+                                          "Size":  6
+                                      },
+                                      {
+                                          "Name":  "ZN",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "LY",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "公司-復北",
+                                          "Type":  6,
+                                          "Size":  4
+                                      }
+                                  ],
+                       "Indexes":  [
+                                       {
+                                           "Name":  "{13606A54-66C9-4C1A-990A-CDDD5D4A7127}",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "商品批號"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "日期",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "日期"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "商品編號",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "商品批號"
+                                                      ]
+                                       }
+                                   ]
+                   },
+                   {
+                       "Name":  "提貨單主資料表",
+                       "Fields":  [
+                                      {
+                                          "Name":  "提貨單號碼",
+                                          "Type":  4,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "日期",
+                                          "Type":  8,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "倉庫",
+                                          "Type":  4,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "寄託人",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "客戶編號",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "送貨地點",
+                                          "Type":  10,
+                                          "Size":  50
+                                      }
+                                  ],
+                       "Indexes":  [
+                                       {
+                                           "Name":  "{FD9C801F-F488-4316-AF65-3323E54A4E3E}",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "客戶編號"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "PrimaryKey",
+                                           "Primary":  true,
+                                           "Unique":  true,
+                                           "Fields":  [
+                                                          "提貨單號碼"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "倉庫",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "倉庫"
+                                                      ]
+                                       }
+                                   ]
+                   },
+                   {
+                       "Name":  "提貨單副資料表",
+                       "Fields":  [
+                                      {
+                                          "Name":  "提貨單號碼",
+                                          "Type":  4,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "商品名稱",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "規格",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "單位",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "數量",
+                                          "Type":  4,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "倉號",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "承運車行",
+                                          "Type":  10,
+                                          "Size":  50
+                                      }
+                                  ],
+                       "Indexes":  [
+                                       {
+                                           "Name":  "{064199D0-7587-4028-B846-A714399005A3}",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "提貨單號碼"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "{D21B9BAC-A42D-4A2D-B25E-2BF08848BFB3}",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "商品名稱"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "提貨單號碼",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "提貨單號碼"
+                                                      ]
+                                       }
+                                   ]
+                   },
+                   {
+                       "Name":  "發票庫存入庫基本表",
+                       "Fields":  [
+                                      {
+                                          "Name":  "商品名稱",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "入庫日期",
+                                          "Type":  8,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "供應商",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "入庫數量",
+                                          "Type":  7,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "入庫單價",
+                                          "Type":  7,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "總金額",
+                                          "Type":  7,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "備註",
+                                          "Type":  10,
+                                          "Size":  255
+                                      }
+                                  ],
+                       "Indexes":  [
+                                       {
+                                           "Name":  "{2BFEEF57-D2A7-45A8-B208-F29A52C082FA}",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "商品名稱"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "{7EEB41C1-0632-4F17-8CAE-AB9FC18C2094}",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "商品名稱"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "商品名稱",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "商品名稱"
+                                                      ]
+                                       }
+                                   ]
+                   },
+                   {
+                       "Name":  "發票庫存出庫基本表",
+                       "Fields":  [
+                                      {
+                                          "Name":  "出庫日期",
+                                          "Type":  8,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "發票號碼",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "LC號碼",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "出庫數量",
+                                          "Type":  7,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "出庫單價",
+                                          "Type":  7,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "總金額",
+                                          "Type":  7,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "備註",
+                                          "Type":  10,
+                                          "Size":  255
+                                      }
+                                  ],
+                       "Indexes":  [
+
+                                   ]
+                   },
+                   {
+                       "Name":  "發票庫存產品名稱副表",
+                       "Fields":  [
+                                      {
+                                          "Name":  "商品名稱",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "銷貨號碼",
+                                          "Type":  10,
+                                          "Size":  10
+                                      },
+                                      {
+                                          "Name":  "發票日期",
+                                          "Type":  8,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "客戶編號",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "發票號碼",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "出庫數量",
+                                          "Type":  4,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "含稅總金額",
+                                          "Type":  4,
+                                          "Size":  4
+                                      }
+                                  ],
+                       "Indexes":  [
+                                       {
+                                           "Name":  "{0CB988AA-A9BF-47F0-AFA2-8C46106C9453}",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "商品名稱"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "{21B44421-C8FC-4472-9384-2FB1CE2F43CD}",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "客戶編號"
+                                                      ]
+                                       }
+                                   ]
+                   },
+                   {
+                       "Name":  "發票庫存產品基本主表",
+                       "Fields":  [
+                                      {
+                                          "Name":  "商品名稱",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "規格",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "期初數量",
+                                          "Type":  4,
+                                          "Size":  4
+                                      }
+                                  ],
+                       "Indexes":  [
+                                       {
+                                           "Name":  "PrimaryKey",
+                                           "Primary":  true,
+                                           "Unique":  true,
+                                           "Fields":  [
+                                                          "商品名稱"
+                                                      ]
+                                       }
+                                   ]
+                   },
+                   {
+                       "Name":  "進貨基本資料",
+                       "Fields":  [
+                                      {
+                                          "Name":  "日期",
+                                          "Type":  8,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "商品名稱",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "批號",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "倉庫批號",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "數量",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "公司-瑞湖",
+                                          "Type":  7,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "協同",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "聖隆",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "八德",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "平鎮",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "平鎮-真空",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "行家",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "供應商名稱",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "進價(C\u0026F)",
+                                          "Type":  5,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "成本",
+                                          "Type":  5,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "處理",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "ZN",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "LY",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "公司-復北",
+                                          "Type":  7,
+                                          "Size":  8
+                                      }
+                                  ],
+                       "Indexes":  [
+                                       {
+                                           "Name":  "{21C004FD-B13D-4E3D-965E-0C0A0C4AF7F2}",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "商品名稱"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "CT",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "八德"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "LU",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "行家"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "LY",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "LY"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "LY1",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "平鎮"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "OF",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "平鎮-真空"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "PrimaryKey",
+                                           "Primary":  true,
+                                           "Unique":  true,
+                                           "Fields":  [
+                                                          "批號"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "SL",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "聖隆"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "SN",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "協同"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "ZN",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "ZN"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "公司-瑞湖",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "公司-瑞湖"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "公司-瑞湖1",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "公司-復北"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "日期",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "日期"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "商品編號",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "商品名稱"
+                                                      ]
+                                       }
+                                   ]
+                   },
+                   {
+                       "Name":  "會計庫存基本主表",
+                       "Fields":  [
+                                      {
+                                          "Name":  "產品名稱",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "期初出庫存數量",
+                                          "Type":  4,
+                                          "Size":  4
+                                      }
+                                  ],
+                       "Indexes":  [
+                                       {
+                                           "Name":  "PrimaryKey",
+                                           "Primary":  true,
+                                           "Unique":  true,
+                                           "Fields":  [
+                                                          "產品名稱"
+                                                      ]
+                                       }
+                                   ]
+                   },
+                   {
+                       "Name":  "會計庫存基本副表",
+                       "Fields":  [
+                                      {
+                                          "Name":  "產品名稱",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "客戶編號",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "發票日期",
+                                          "Type":  8,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "發票號碼",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "發票金額",
+                                          "Type":  4,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "發票數量",
+                                          "Type":  4,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "新增數量",
+                                          "Type":  4,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "數量小計",
+                                          "Type":  4,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "備註",
+                                          "Type":  12,
+                                          "Size":  0
+                                      }
+                                  ],
+                       "Indexes":  [
+                                       {
+                                           "Name":  "{1AB834B6-8C8C-419E-ABFE-ED3E85AF3CC5}",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "產品名稱"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "{DFB09F23-9DA9-4E60-A570-780F8208535B}",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "客戶編號"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "產品名稱",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "產品名稱"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "發票日期",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "發票日期"
+                                                      ]
+                                       }
+                                   ]
+                   },
+                   {
+                       "Name":  "會計產品基本表",
+                       "Fields":  [
+                                      {
+                                          "Name":  "會計產品名稱",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "單位",
+                                          "Type":  10,
+                                          "Size":  255
+                                      }
+                                  ],
+                       "Indexes":  [
+                                       {
+                                           "Name":  "PrimaryKey",
+                                           "Primary":  true,
+                                           "Unique":  true,
+                                           "Fields":  [
+                                                          "會計產品名稱"
+                                                      ]
+                                       }
+                                   ]
+                   },
+                   {
+                       "Name":  "銀行進口還款資料表",
+                       "Fields":  [
+                                      {
+                                          "Name":  "還款日期",
+                                          "Type":  8,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "銀行名稱",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "開立公司",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "種類",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "號碼",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "幣別",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "當時匯率",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "還款本金",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "還款利息",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "備常比率",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "備常金額",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "還請與否",
+                                          "Type":  10,
+                                          "Size":  255
+                                      }
+                                  ],
+                       "Indexes":  [
+                                       {
+                                           "Name":  "PrimaryKey",
+                                           "Primary":  true,
+                                           "Unique":  true,
+                                           "Fields":  [
+                                                          "號碼"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "還款日期",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "還款日期"
+                                                      ]
+                                       }
+                                   ]
+                   },
+                   {
+                       "Name":  "銷貨表",
+                       "Fields":  [
+                                      {
+                                          "Name":  "銷貨號碼",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "日期",
+                                          "Type":  8,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "客戶編號",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "客戶簡稱",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "倉庫",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "發票方式",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "商品名稱",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "批號",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "數量",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "單價",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "處理1",
+                                          "Type":  10,
+                                          "Size":  50
+                                      }
+                                  ],
+                       "Indexes":  [
+                                       {
+                                           "Name":  "銷貨號碼",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "銷貨號碼"
+                                                      ]
+                                       }
+                                   ]
+                   },
+                   {
+                       "Name":  "銷貨基本主檔",
+                       "Fields":  [
+                                      {
+                                          "Name":  "銷貨號碼",
+                                          "Type":  10,
+                                          "Size":  10
+                                      },
+                                      {
+                                          "Name":  "日期",
+                                          "Type":  8,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "客戶編號",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "表單種類",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "貨運公司",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "倉庫",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "送貨地點",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "處理",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "備註",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "發票方式",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "發票種類",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "發票號碼",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "發票日期",
+                                          "Type":  8,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "發票種類-2",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "發票號碼-2",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "發票日期-2",
+                                          "Type":  8,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "發票公司",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "發票公司-2",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "此單是否或到付款",
+                                          "Type":  1,
+                                          "Size":  1
+                                      }
+                                  ],
+                       "Indexes":  [
+                                       {
+                                           "Name":  "PrimaryKey",
+                                           "Primary":  true,
+                                           "Unique":  true,
+                                           "Fields":  [
+                                                          "銷貨號碼"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "日期",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "日期"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "表單種類",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "表單種類"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "客戶基本資料銷貨基本主檔",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "客戶編號"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "客戶編號",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "客戶編號"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "貨運公司",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "貨運公司"
+                                                      ]
+                                       }
+                                   ]
+                   },
+                   {
+                       "Name":  "銷貨基本副檔",
+                       "Fields":  [
+                                      {
+                                          "Name":  "銷貨號碼",
+                                          "Type":  10,
+                                          "Size":  15
+                                      },
+                                      {
+                                          "Name":  "商品名稱",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "數量",
+                                          "Type":  7,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "單價",
+                                          "Type":  5,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "處理",
+                                          "Type":  10,
+                                          "Size":  6
+                                      },
+                                      {
+                                          "Name":  "沖銷金額",
+                                          "Type":  5,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "調撥處理",
+                                          "Type":  10,
+                                          "Size":  6
+                                      },
+                                      {
+                                          "Name":  "消帳日期",
+                                          "Type":  8,
+                                          "Size":  8
+                                      }
+                                  ],
+                       "Indexes":  [
+                                       {
+                                           "Name":  "{3FBEB1D8-B947-4C12-B2C9-A6A2A4EBFEB4}",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "商品名稱"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "處理",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "處理"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "銷貨基本副檔商品編號",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "商品名稱"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "銷貨號碼",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "銷貨號碼"
+                                                      ]
+                                       }
+                                   ]
+                   },
+                   {
+                       "Name":  "銷貨會計發票副表",
+                       "Fields":  [
+                                      {
+                                          "Name":  "銷貨號碼",
+                                          "Type":  10,
+                                          "Size":  15
+                                      },
+                                      {
+                                          "Name":  "商品名稱",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "數量",
+                                          "Type":  7,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "單位",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "單價",
+                                          "Type":  7,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "小計",
+                                          "Type":  7,
+                                          "Size":  8
+                                      }
+                                  ],
+                       "Indexes":  [
+                                       {
+                                           "Name":  "{0630A299-0D2F-49DE-80C9-22FC2F69C927}",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "銷貨號碼"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "{41FA0D9D-55EC-4114-BC27-F9D16AADFBD8}",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "商品名稱"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "{520612A2-01C7-4C99-8CD7-CA8E4088ABDE}",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "商品名稱"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "銷貨號碼",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "銷貨號碼"
+                                                      ]
+                                       }
+                                   ]
+                   },
+                   {
+                       "Name":  "銷貨會計發票副表-2",
+                       "Fields":  [
+                                      {
+                                          "Name":  "銷貨號碼",
+                                          "Type":  10,
+                                          "Size":  15
+                                      },
+                                      {
+                                          "Name":  "商品名稱",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "數量",
+                                          "Type":  7,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "單位",
+                                          "Type":  10,
+                                          "Size":  255
+                                      },
+                                      {
+                                          "Name":  "單價",
+                                          "Type":  7,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "小計",
+                                          "Type":  7,
+                                          "Size":  8
+                                      }
+                                  ],
+                       "Indexes":  [
+                                       {
+                                           "Name":  "{39A49DD9-B489-46D2-91B5-2A957B564DF6}",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "商品名稱"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "{CE2D1D71-622B-4C40-9D01-78B9E3DFE9CE}",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "商品名稱"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "{DD022C60-AEA8-4C61-AEF5-E841779A49A8}",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "銷貨號碼"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "銷貨號碼",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "銷貨號碼"
+                                                      ]
+                                       }
+                                   ]
+                   },
+                   {
+                       "Name":  "歷史資料基本表",
+                       "Fields":  [
+                                      {
+                                          "Name":  "客戶地區",
+                                          "Type":  4,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "銷貨號碼",
+                                          "Type":  10,
+                                          "Size":  10
+                                      },
+                                      {
+                                          "Name":  "客戶編號",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "客戶簡稱",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "日期",
+                                          "Type":  8,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "商品編號",
+                                          "Type":  4,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "商品名稱",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "批號",
+                                          "Type":  10,
+                                          "Size":  50
+                                      },
+                                      {
+                                          "Name":  "數量",
+                                          "Type":  6,
+                                          "Size":  4
+                                      },
+                                      {
+                                          "Name":  "單價",
+                                          "Type":  5,
+                                          "Size":  8
+                                      },
+                                      {
+                                          "Name":  "小計",
+                                          "Type":  5,
+                                          "Size":  8
+                                      }
+                                  ],
+                       "Indexes":  [
+                                       {
+                                           "Name":  "{6F9F82B9-9409-48C8-824A-CE92F7C0BC29}",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "客戶編號"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "日期",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "日期"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "客戶編號",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "客戶編號"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "客戶簡稱",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "客戶簡稱"
+                                                      ]
+                                       },
+                                       {
+                                           "Name":  "銷貨明細表銷貨號碼",
+                                           "Primary":  false,
+                                           "Unique":  false,
+                                           "Fields":  [
+                                                          "銷貨號碼"
+                                                      ]
+                                       }
+                                   ]
+                   }
+               ],
+    "Relations":  [
+                      {
+                          "Name":  "{02E0375F-AA8A-43E5-B697-9F29BECEFFDF}",
+                          "Table":  "商品基本資料",
+                          "ForeignTable":  "商品轉換基本資料",
+                          "Fields":  [
+                                         {
+                                             "Name":  "商品名稱",
+                                             "ForeignName":  "商品名稱"
+                                         }
+                                     ]
+                      },
+                      {
+                          "Name":  "{0630A299-0D2F-49DE-80C9-22FC2F69C927}",
+                          "Table":  "銷貨基本主檔",
+                          "ForeignTable":  "銷貨會計發票副表",
+                          "Fields":  [
+                                         {
+                                             "Name":  "銷貨號碼",
+                                             "ForeignName":  "銷貨號碼"
+                                         }
+                                     ]
+                      },
+                      {
+                          "Name":  "{064199D0-7587-4028-B846-A714399005A3}",
+                          "Table":  "提貨單主資料表",
+                          "ForeignTable":  "提貨單副資料表",
+                          "Fields":  [
+                                         {
+                                             "Name":  "提貨單號碼",
+                                             "ForeignName":  "提貨單號碼"
+                                         }
+                                     ]
+                      },
+                      {
+                          "Name":  "{089B5840-5B38-4085-9F2E-8B69DB754ECF}",
+                          "Table":  "客戶地區分類表",
+                          "ForeignTable":  "客戶基本資料",
+                          "Fields":  [
+                                         {
+                                             "Name":  "地區編號",
+                                             "ForeignName":  "地區編號"
+                                         }
+                                     ]
+                      },
+                      {
+                          "Name":  "{0CB988AA-A9BF-47F0-AFA2-8C46106C9453}",
+                          "Table":  "發票庫存產品基本主表",
+                          "ForeignTable":  "發票庫存產品名稱副表",
+                          "Fields":  [
+                                         {
+                                             "Name":  "商品名稱",
+                                             "ForeignName":  "商品名稱"
+                                         }
+                                     ]
+                      },
+                      {
+                          "Name":  "{110C32FB-378F-41E0-A891-CA5893576E5B}",
+                          "Table":  "進貨基本資料",
+                          "ForeignTable":  "庫存待扣一覽表",
+                          "Fields":  [
+                                         {
+                                             "Name":  "批號",
+                                             "ForeignName":  "批號"
+                                         }
+                                     ]
+                      },
+                      {
+                          "Name":  "{13606A54-66C9-4C1A-990A-CDDD5D4A7127}",
+                          "Table":  "進貨基本資料",
+                          "ForeignTable":  "移動基本資料",
+                          "Fields":  [
+                                         {
+                                             "Name":  "批號",
+                                             "ForeignName":  "商品批號"
+                                         }
+                                     ]
+                      },
+                      {
+                          "Name":  "{1AB834B6-8C8C-419E-ABFE-ED3E85AF3CC5}",
+                          "Table":  "會計庫存基本主表",
+                          "ForeignTable":  "會計庫存基本副表",
+                          "Fields":  [
+                                         {
+                                             "Name":  "產品名稱",
+                                             "ForeignName":  "產品名稱"
+                                         }
+                                     ]
+                      },
+                      {
+                          "Name":  "{21B44421-C8FC-4472-9384-2FB1CE2F43CD}",
+                          "Table":  "客戶基本資料",
+                          "ForeignTable":  "發票庫存產品名稱副表",
+                          "Fields":  [
+                                         {
+                                             "Name":  "客戶編號",
+                                             "ForeignName":  "客戶編號"
+                                         }
+                                     ]
+                      },
+                      {
+                          "Name":  "{21C004FD-B13D-4E3D-965E-0C0A0C4AF7F2}",
+                          "Table":  "商品基本資料",
+                          "ForeignTable":  "進貨基本資料",
+                          "Fields":  [
+                                         {
+                                             "Name":  "商品名稱",
+                                             "ForeignName":  "商品名稱"
+                                         }
+                                     ]
+                      },
+                      {
+                          "Name":  "{2BFEEF57-D2A7-45A8-B208-F29A52C082FA}",
+                          "Table":  "發票庫存產品基本主表",
+                          "ForeignTable":  "發票庫存入庫基本表",
+                          "Fields":  [
+                                         {
+                                             "Name":  "商品名稱",
+                                             "ForeignName":  "商品名稱"
+                                         }
+                                     ]
+                      },
+                      {
+                          "Name":  "{39A49DD9-B489-46D2-91B5-2A957B564DF6}",
+                          "Table":  "發票庫存產品基本主表",
+                          "ForeignTable":  "銷貨會計發票副表-2",
+                          "Fields":  [
+                                         {
+                                             "Name":  "商品名稱",
+                                             "ForeignName":  "商品名稱"
+                                         }
+                                     ]
+                      },
+                      {
+                          "Name":  "{3B160F1C-810F-4D5C-8E91-F1E230E489A7}",
+                          "Table":  "商品基本資料",
+                          "ForeignTable":  "商品變更副表",
+                          "Fields":  [
+                                         {
+                                             "Name":  "商品名稱",
+                                             "ForeignName":  "新商品名稱"
+                                         }
+                                     ]
+                      },
+                      {
+                          "Name":  "{3D5705CC-4879-4B8E-AF48-F84D8AC66E6D}",
+                          "Table":  "進貨基本資料",
+                          "ForeignTable":  "商品轉換基本資料",
+                          "Fields":  [
+                                         {
+                                             "Name":  "批號",
+                                             "ForeignName":  "商品批號"
+                                         }
+                                     ]
+                      },
+                      {
+                          "Name":  "{3FBEB1D8-B947-4C12-B2C9-A6A2A4EBFEB4}",
+                          "Table":  "進貨基本資料",
+                          "ForeignTable":  "銷貨基本副檔",
+                          "Fields":  [
+                                         {
+                                             "Name":  "批號",
+                                             "ForeignName":  "商品名稱"
+                                         }
+                                     ]
+                      },
+                      {
+                          "Name":  "{41FA0D9D-55EC-4114-BC27-F9D16AADFBD8}",
+                          "Table":  "發票庫存產品基本主表",
+                          "ForeignTable":  "銷貨會計發票副表",
+                          "Fields":  [
+                                         {
+                                             "Name":  "商品名稱",
+                                             "ForeignName":  "商品名稱"
+                                         }
+                                     ]
+                      },
+                      {
+                          "Name":  "{45F9551B-A26A-49FF-8E54-20CAB7741DFA}",
+                          "Table":  "倉庫基本資料表",
+                          "ForeignTable":  "提貨單主資料表",
+                          "Fields":  [
+                                         {
+                                             "Name":  "倉庫編號",
+                                             "ForeignName":  "倉庫"
+                                         }
+                                     ]
+                      },
+                      {
+                          "Name":  "{475614C9-CCFB-4409-95A9-0B694275E24F}",
+                          "Table":  "進貨基本資料",
+                          "ForeignTable":  "商品變更副表",
+                          "Fields":  [
+                                         {
+                                             "Name":  "批號",
+                                             "ForeignName":  "原批號"
+                                         }
+                                     ]
+                      },
+                      {
+                          "Name":  "{49775CD4-5822-43B2-98EC-ECA41B9E79D1}",
+                          "Table":  "供應商基本資料",
+                          "ForeignTable":  "國外訂貨基本資料",
+                          "Fields":  [
+                                         {
+                                             "Name":  "CODE",
+                                             "ForeignName":  "供應商編號"
+                                         }
+                                     ]
+                      },
+                      {
+                          "Name":  "{4E7A1060-1A9C-43EF-B50F-3BDFECB8DEBF}",
+                          "Table":  "商品基本資料",
+                          "ForeignTable":  "國外訂貨基本資料",
+                          "Fields":  [
+                                         {
+                                             "Name":  "商品名稱",
+                                             "ForeignName":  "商品名稱"
+                                         }
+                                     ]
+                      },
+                      {
+                          "Name":  "{520612A2-01C7-4C99-8CD7-CA8E4088ABDE}",
+                          "Table":  "發票庫存產品基本主表",
+                          "ForeignTable":  "銷貨會計發票副表",
+                          "Fields":  [
+                                         {
+                                             "Name":  "商品名稱",
+                                             "ForeignName":  "商品名稱"
+                                         }
+                                     ]
+                      },
+                      {
+                          "Name":  "{5C303572-2D0A-418A-A5AB-E9640E3BC0E8}",
+                          "Table":  "商品基本資料",
+                          "ForeignTable":  "商品基本資料",
+                          "Fields":  [
+                                         {
+                                             "Name":  "商品名稱",
+                                             "ForeignName":  "商品名稱"
+                                         }
+                                     ]
+                      },
+                      {
+                          "Name":  "{6C0F58DC-63BC-47EC-82CF-38D262D95C01}",
+                          "Table":  "客戶基本資料",
+                          "ForeignTable":  "借入基本資料",
+                          "Fields":  [
+                                         {
+                                             "Name":  "客戶編號",
+                                             "ForeignName":  "客戶編號"
+                                         }
+                                     ]
+                      },
+                      {
+                          "Name":  "{6F9F82B9-9409-48C8-824A-CE92F7C0BC29}",
+                          "Table":  "客戶基本資料",
+                          "ForeignTable":  "歷史資料基本表",
+                          "Fields":  [
+                                         {
+                                             "Name":  "客戶編號",
+                                             "ForeignName":  "客戶編號"
+                                         }
+                                     ]
+                      },
+                      {
+                          "Name":  "{7EA344CA-E295-497C-AC4E-96A4EFCF09F4}",
+                          "Table":  "進貨基本資料",
+                          "ForeignTable":  "進貨基本資料",
+                          "Fields":  [
+                                         {
+                                             "Name":  "批號",
+                                             "ForeignName":  "批號"
+                                         }
+                                     ]
+                      },
+                      {
+                          "Name":  "{7EEB41C1-0632-4F17-8CAE-AB9FC18C2094}",
+                          "Table":  "發票庫存產品基本主表",
+                          "ForeignTable":  "發票庫存入庫基本表",
+                          "Fields":  [
+                                         {
+                                             "Name":  "商品名稱",
+                                             "ForeignName":  "商品名稱"
+                                         }
+                                     ]
+                      },
+                      {
+                          "Name":  "{CA04E5B3-D057-4E8C-99E0-9C9A69E60714}",
+                          "Table":  "客戶訂貨主檔",
+                          "ForeignTable":  "客戶訂貨副檔",
+                          "Fields":  [
+                                         {
+                                             "Name":  "識別碼",
+                                             "ForeignName":  "識別碼"
+                                         }
+                                     ]
+                      },
+                      {
+                          "Name":  "{CE2D1D71-622B-4C40-9D01-78B9E3DFE9CE}",
+                          "Table":  "發票庫存產品基本主表",
+                          "ForeignTable":  "銷貨會計發票副表-2",
+                          "Fields":  [
+                                         {
+                                             "Name":  "商品名稱",
+                                             "ForeignName":  "商品名稱"
+                                         }
+                                     ]
+                      },
+                      {
+                          "Name":  "{D21B9BAC-A42D-4A2D-B25E-2BF08848BFB3}",
+                          "Table":  "商品基本資料",
+                          "ForeignTable":  "提貨單副資料表",
+                          "Fields":  [
+                                         {
+                                             "Name":  "商品名稱",
+                                             "ForeignName":  "商品名稱"
+                                         }
+                                     ]
+                      },
+                      {
+                          "Name":  "{DCBEC60E-5CCA-406B-B15A-61C4420F30DA}",
+                          "Table":  "商品基本資料",
+                          "ForeignTable":  "借入基本資料",
+                          "Fields":  [
+                                         {
+                                             "Name":  "商品名稱",
+                                             "ForeignName":  "商品名稱"
+                                         }
+                                     ]
+                      },
+                      {
+                          "Name":  "{DD022C60-AEA8-4C61-AEF5-E841779A49A8}",
+                          "Table":  "銷貨基本主檔",
+                          "ForeignTable":  "銷貨會計發票副表-2",
+                          "Fields":  [
+                                         {
+                                             "Name":  "銷貨號碼",
+                                             "ForeignName":  "銷貨號碼"
+                                         }
+                                     ]
+                      },
+                      {
+                          "Name":  "{DFB09F23-9DA9-4E60-A570-780F8208535B}",
+                          "Table":  "客戶基本資料",
+                          "ForeignTable":  "會計庫存基本副表",
+                          "Fields":  [
+                                         {
+                                             "Name":  "客戶編號",
+                                             "ForeignName":  "客戶編號"
+                                         }
+                                     ]
+                      },
+                      {
+                          "Name":  "{F039F994-9AD6-4FD2-B270-9D0826C05637}",
+                          "Table":  "進貨基本資料",
+                          "ForeignTable":  "商品變更副表1",
+                          "Fields":  [
+                                         {
+                                             "Name":  "批號",
+                                             "ForeignName":  "批號"
+                                         }
+                                     ]
+                      },
+                      {
+                          "Name":  "{F764A078-C9C9-4ED6-B1A8-5161DBCC700A}",
+                          "Table":  "客戶地區分類表",
+                          "ForeignTable":  "客戶基本資料",
+                          "Fields":  [
+                                         {
+                                             "Name":  "地區編號",
+                                             "ForeignName":  "地區編號"
+                                         }
+                                     ]
+                      },
+                      {
+                          "Name":  "{FBD1786A-5F8D-4CCF-B6E8-D908530DDDAA}",
+                          "Table":  "商品類別表",
+                          "ForeignTable":  "商品基本資料",
+                          "Fields":  [
+                                         {
+                                             "Name":  "商品類別編號",
+                                             "ForeignName":  "商品類別編號"
+                                         }
+                                     ]
+                      },
+                      {
+                          "Name":  "{FD9C801F-F488-4316-AF65-3323E54A4E3E}",
+                          "Table":  "客戶基本資料",
+                          "ForeignTable":  "提貨單主資料表",
+                          "Fields":  [
+                                         {
+                                             "Name":  "客戶編號",
+                                             "ForeignName":  "客戶編號"
+                                         }
+                                     ]
+                      },
+                      {
+                          "Name":  "{FF2DBC7B-1953-49F7-8A70-120D7B137602}",
+                          "Table":  "客戶基本資料",
+                          "ForeignTable":  "客戶訂貨主檔",
+                          "Fields":  [
+                                         {
+                                             "Name":  "客戶編號",
+                                             "ForeignName":  "客戶編號"
+                                         }
+                                     ]
+                      },
+                      {
+                          "Name":  "客戶基本資料銷貨基本主檔",
+                          "Table":  "客戶基本資料",
+                          "ForeignTable":  "銷貨基本主檔",
+                          "Fields":  [
+                                         {
+                                             "Name":  "客戶編號",
+                                             "ForeignName":  "客戶編號"
+                                         }
+                                     ]
+                      },
+                      {
+                          "Name":  "客戶基本資料銷貨基本主檔1",
+                          "Table":  "客戶基本資料",
+                          "ForeignTable":  "銷貨基本主檔",
+                          "Fields":  [
+                                         {
+                                             "Name":  "客戶編號",
+                                             "ForeignName":  "發票方式"
+                                         }
+                                     ]
+                      }
+                  ],
+    "Forms":  [
+                  "庫存表-分批",
+                  "支票代收表單",
+                  "收款列印篩選-多匯少匯 子表單",
+                  "收款查詢-多匯少匯 子表單",
+                  "利潤顯示表單",
+                  "商品變更主表單",
+                  "發票庫存入庫基本表單",
+                  "消帳表單",
+                  "庫存表-不分批",
+                  "銷貨基本主檔",
+                  "名次排列",
+                  "發票庫存出庫基本表單",
+                  "商品借入表單",
+                  "客戶訂貨一覽副表單",
+                  "客戶訂貨一覽主表單",
+                  "客戶訂貨一覽表-待交",
+                  "會計產品基本表",
+                  "銷售統計表示方法",
+                  "銷貨利潤圖表其他",
+                  "消帳表單-銷貨用",
+                  "國際咖啡行情表",
+                  "咖啡行情畫面",
+                  "歷史資料查詢-銷貨用",
+                  "豐潤進銷存首頁",
+                  "標籤列印地點選擇",
+                  "日期區間",
+                  "對帳單列印方式",
+                  "日期區間單一客戶",
+                  "歷史資料-批號查詢客戶",
+                  "提貨單副表單",
+                  "提貨單主表單",
+                  "商品變更副表單",
+                  "訂貨一覽表單",
+                  "會計庫存副表單",
+                  "會計庫存主表單",
+                  "發票庫存產品名稱主表單",
+                  "商品基本資料表單",
+                  "客戶基本資料",
+                  "銷貨副表單",
+                  "銷貨主表單",
+                  "麻袋明細副表單",
+                  "麻袋主表單",
+                  "商品進貨成本表單",
+                  "客戶資料主表單",
+                  "利潤表示方法",
+                  "客戶名稱查詢(單一帳單)",
+                  "銷貨會計發票副表",
+                  "庫存表示方法",
+                  "名次表示方法",
+                  "銷售統計商品別數字",
+                  "商品類別主表",
+                  "歷史資料查詢-客戶用",
+                  "銷貨會計發票副表-2",
+                  "銷售統計商品別圖表",
+                  "提貨單列印對話方塊",
+                  "銷貨基本主檔1",
+                  "銷貨利潤圖表綜合",
+                  "日期-訂貨一覽日期選擇",
+                  "銷貨利潤圖表咖啡"
+              ],
+    "Reports":  [
+                    "請款報表單一客戶",
+                    "客戶訂貨一覽日報表",
+                    "客戶訂貨一覽列印-小紙張",
+                    "送貨單標籤報表",
+                    "發票明細單報表",
+                    "請款報表",
+                    "收款列印篩選-多匯少匯 子表單",
+                    "標籤報表-郵寄帳單用",
+                    "客戶信封報表",
+                    "庫存表-不分批報表",
+                    "發票明細單報表-2",
+                    "客戶訂貨一覽列印",
+                    "標籤 客戶基本資料",
+                    "提貨單報表朝瑞",
+                    "客戶訂貨一覽列印(點陣)-大紙",
+                    "提貨單報表",
+                    "送貨單報表",
+                    "收款列印篩選",
+                    "收款查詢 子報表",
+                    "標籤報表-郵寄帳單用(小標籤)",
+                    "庫存表-分批報表",
+                    "利潤成本報表",
+                    "客戶訂貨一覽日報表日期選擇",
+                    "請款報表-多匯少匯",
+                    "請款報表過期",
+                    "客戶標籤單一客戶"
+                ],
+    "Macros":  [
+                   "標籤結束",
+                   "庫存處理調撥入八德",
+                   "庫存處理-1",
+                   "出貨單列印",
+                   "移動處理",
+                   "庫存處理銷貨聖隆",
+                   "庫存處理",
+                   "提貨單列印",
+                   "重新整理",
+                   "庫存處理銷貨平鎮",
+                   "庫存處理調撥入公司",
+                   "庫存處理調撥入行家",
+                   "庫存處理調撥入協同",
+                   "商品變更第二次處理",
+                   "商品變更第一次處理",
+                   "庫存處理銷貨八德",
+                   "借入處理",
+                   "標籤直接列印",
+                   "一覽",
+                   "庫存處理調撥入聖隆",
+                   "提貨單列印對話方塊",
+                   "標籤",
+                   "庫存處理調撥入平鎮",
+                   "庫存處理銷貨公司",
+                   "庫存處理銷貨行家",
+                   "庫存處理銷貨協同"
+               ]
+}

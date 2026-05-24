@@ -53,6 +53,7 @@ const ORDER_HEADERS = [
   "\u8ce3\u8ca8\u4fbf\u532f\u51fa\u6642\u9593",
   "\u539f\u59cb\u8cc7\u6599",
   "\u662f\u5426\u5df2\u51fa\u8ca8",
+  "\u8ce3\u8ca8\u4fbf\u532f\u51fa\u72c0\u614b",
 ];
 
 const ORDER_COLUMN = {
@@ -61,6 +62,7 @@ const ORDER_COLUMN = {
   RAW_PAYLOAD: "\u539f\u59cb\u8cc7\u6599",
   SHIPPED: "\u662f\u5426\u5df2\u51fa\u8ca8",
   MYSHIP_EXPORTED_AT: "\u8ce3\u8ca8\u4fbf\u532f\u51fa\u6642\u9593",
+  MYSHIP_EXPORT_STATUS: "\u8ce3\u8ca8\u4fbf\u532f\u51fa\u72c0\u614b",
 };
 
 const MYSHIP_HEADERS = [
@@ -143,16 +145,17 @@ function doPost(e) {
     const orderRow = buildOrderRow(orderId, createdAt, payload);
     sheet.appendRow(orderRow);
     appendMyShipImportRow(orderId, createdAt, payload);
-    appendShipmentPrintRow(orderId, createdAt, payload);
+    const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+    const shippedIndex = ensureOrderColumn(sheet, headers, ORDER_COLUMN.SHIPPED);
+    const exportedAtIndex = ensureOrderColumn(sheet, headers, ORDER_COLUMN.MYSHIP_EXPORTED_AT);
+    const exportStatusIndex = ensureOrderColumn(sheet, headers, ORDER_COLUMN.MYSHIP_EXPORT_STATUS);
+    const exportedAt = markOrderMyShipExported(sheet, sheet.getLastRow(), shippedIndex, exportedAtIndex, exportStatusIndex);
+    appendShipmentPrintRow(orderId, createdAt, payload, "\u672a\u51fa\u8ca8", exportedAt);
     try {
       refreshSalesReports();
     } catch (reportError) {
       logError(reportError, e);
     }
-    const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-    const shippedIndex = ensureOrderColumn(sheet, headers, ORDER_COLUMN.SHIPPED);
-    const exportedAtIndex = ensureOrderColumn(sheet, headers, ORDER_COLUMN.MYSHIP_EXPORTED_AT);
-    markOrderMyShipExported(sheet, sheet.getLastRow(), shippedIndex, exportedAtIndex);
 
     sendOrderEmails(orderId, createdAt, payload);
 
@@ -236,6 +239,10 @@ function validatePayload(payload) {
   if (missingFields.length > 0) {
     throw new Error("Missing required fields: " + missingFields.join(", "));
   }
+
+  if (!/^\d{6}$/.test(getStoreId(payload))) {
+    throw new Error("Missing valid 7-ELEVEN store id.");
+  }
 }
 
 function buildOrderRow(orderId, createdAt, payload) {
@@ -268,6 +275,7 @@ function buildOrderRow(orderId, createdAt, payload) {
     "",
     JSON.stringify(payload),
     "\u672a\u51fa\u8ca8",
+    "\u672a\u532f\u51fa",
   ];
 }
 
@@ -295,11 +303,11 @@ function appendMyShipImportRow(orderId, createdAt, payload) {
   appendTextRow(sheet, buildMyShipImportRow(orderId, createdAt, payload), MYSHIP_HEADERS.length);
 }
 
-function appendShipmentPrintRow(orderId, createdAt, payload) {
+function appendShipmentPrintRow(orderId, createdAt, payload, shippedStatus, exportedAt) {
   const sheet = getOrCreateSheet(getSpreadsheet(), CONFIG.PRINT_SHEET_NAME, PRINT_HEADERS);
   prepareShipmentPrintSheet(sheet);
   const rowNumber = sheet.getLastRow() + 1;
-  appendTextRow(sheet, buildShipmentPrintRow(orderId, createdAt, payload), PRINT_HEADERS.length);
+  appendTextRow(sheet, buildShipmentPrintRow(orderId, createdAt, payload, shippedStatus, exportedAt), PRINT_HEADERS.length);
   sheet.getRange(rowNumber, 1, 1, PRINT_HEADERS.length).setWrap(true);
 }
 
@@ -477,6 +485,7 @@ function rebuildMyShipImportSheet() {
   const createdAtIndex = headers.indexOf(ORDER_COLUMN.CREATED_AT);
   const shippedIndex = ensureOrderColumn(ordersSheet, headers, ORDER_COLUMN.SHIPPED);
   const exportedAtIndex = ensureOrderColumn(ordersSheet, headers, ORDER_COLUMN.MYSHIP_EXPORTED_AT);
+  const exportStatusIndex = ensureOrderColumn(ordersSheet, headers, ORDER_COLUMN.MYSHIP_EXPORT_STATUS);
 
   if (rawPayloadIndex === -1) {
     throw new Error("Orders sheet is missing raw_payload.");
@@ -499,7 +508,7 @@ function rebuildMyShipImportSheet() {
     const orderId = row[orderIdIndex] || createOrderId();
     const createdAt = row[createdAtIndex] || "";
     appendTextRow(sheet, buildMyShipImportRow(orderId, createdAt, payload), MYSHIP_HEADERS.length);
-    markOrderMyShipExported(ordersSheet, rowIndex + 2, shippedIndex, exportedAtIndex);
+    markOrderMyShipExported(ordersSheet, rowIndex + 2, shippedIndex, exportedAtIndex, exportStatusIndex);
     exportedCount += 1;
   });
 
@@ -695,11 +704,16 @@ function extractInteger(value) {
   return match ? Number(match[1]) : 0;
 }
 
-function markOrderMyShipExported(sheet, rowNumber, shippedIndex, exportedAtIndex) {
+function markOrderMyShipExported(sheet, rowNumber, shippedIndex, exportedAtIndex, exportStatusIndex) {
   const exportedAt = Utilities.formatDate(new Date(), "Asia/Taipei", "yyyy/MM/dd HH:mm:ss");
 
-  sheet.getRange(rowNumber, shippedIndex + 1).setValue("\u5df2\u51fa\u8ca8");
+  sheet.getRange(rowNumber, shippedIndex + 1).setValue("\u672a\u51fa\u8ca8");
   sheet.getRange(rowNumber, exportedAtIndex + 1).setValue(exportedAt);
+  if (exportStatusIndex !== undefined && exportStatusIndex !== -1) {
+    sheet.getRange(rowNumber, exportStatusIndex + 1).setValue("\u5df2\u532f\u51fa");
+  }
+
+  return exportedAt;
 }
 
 function resetMyShipExportStatus(orderId) {
@@ -714,6 +728,7 @@ function resetMyShipExportStatus(orderId) {
   const orderIdIndex = headers.indexOf(ORDER_COLUMN.ORDER_ID);
   const shippedIndex = ensureOrderColumn(sheet, headers, ORDER_COLUMN.SHIPPED);
   const exportedAtIndex = ensureOrderColumn(sheet, headers, ORDER_COLUMN.MYSHIP_EXPORTED_AT);
+  const exportStatusIndex = ensureOrderColumn(sheet, headers, ORDER_COLUMN.MYSHIP_EXPORT_STATUS);
 
   if (orderIdIndex === -1) {
     throw new Error("Orders sheet is missing order_id.");
@@ -723,6 +738,7 @@ function resetMyShipExportStatus(orderId) {
     if (cleanText(values[index][orderIdIndex]) === cleanText(orderId)) {
       sheet.getRange(index + 1, shippedIndex + 1).setValue("\u672a\u51fa\u8ca8");
       sheet.getRange(index + 1, exportedAtIndex + 1).clearContent();
+      sheet.getRange(index + 1, exportStatusIndex + 1).setValue("\u672a\u532f\u51fa");
       return orderId;
     }
   }

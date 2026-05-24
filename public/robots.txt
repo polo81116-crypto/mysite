@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://polo81116-crypto.github.io/mysite/sitemap.xml
