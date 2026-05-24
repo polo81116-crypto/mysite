@@ -6,7 +6,7 @@ This file tracks project changes, deployment notes, and version updates.
 
 ### Current Version
 
-- Latest commit: `63b7841 Add formula blend category and sales reports`
+- Latest commit: `3f711de Update worklog for formula blend category`
 - Previous backend updates:
   - `7eb9b96 Prevent duplicate MyShip exports`
   - `8792cbc Add MyShip import sheet export`
@@ -18,7 +18,7 @@ This file tracks project changes, deployment notes, and version updates.
   - `0797414 Add Coffee Review award image`
 - Previous frontend update: `bf37aef Require checkout contact fields`
 - Repository: `https://github.com/polo81116-crypto/mysite.git`
-- Local working changes: print-sheet generation, sales reports, and a new formula-blend product category are added.
+- Local working changes: print-sheet generation, sales reports, and a grouped formula-blend product in the "配方豆專區" category are added.
 
 ### Shipment Slip And Sales Reports
 
@@ -36,12 +36,12 @@ This file tracks project changes, deployment notes, and version updates.
 
 - Added a new product category:
   - `配方豆專區`
-- Added four products with prices:
+- Added one grouped product with four selectable options:
   - `350`
   - `400`
   - `450`
   - `500`
-- Updated the frontend validation to expect the extra category and product count.
+- Updated the frontend validation to expect the extra category and grouped product structure.
 
 ### Current Shipping Export Status
 
