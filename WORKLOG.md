@@ -6,7 +6,7 @@ This file tracks project changes, deployment notes, and version updates.
 
 ### Current Version
 
-- Latest commit: `7c686bf Localize order sheet and shipment status`
+- Latest commit: `63b7841 Add formula blend category and sales reports`
 - Previous backend updates:
   - `7eb9b96 Prevent duplicate MyShip exports`
   - `8792cbc Add MyShip import sheet export`
@@ -18,7 +18,7 @@ This file tracks project changes, deployment notes, and version updates.
   - `0797414 Add Coffee Review award image`
 - Previous frontend update: `bf37aef Require checkout contact fields`
 - Repository: `https://github.com/polo81116-crypto/mysite.git`
-- Local working changes: print-sheet generation, sales reports, and a new formula-blend product category are added, but not pushed yet because GitHub authentication still needs verification.
+- Local working changes: print-sheet generation, sales reports, and a new formula-blend product category are added.
 
 ### Shipment Slip And Sales Reports
 
@@ -30,7 +30,7 @@ This file tracks project changes, deployment notes, and version updates.
 - Frontend now sends structured `lineItems` so the backend can calculate rankings and monthly quantities reliably.
 - The backend also keeps appending new orders to the print sheet on submission.
 - `rebuildAllReports()` can be run in Apps Script to regenerate the print sheet and sales reports from `官網下單資料`.
-- GitHub push is pending because the repo currently needs verification / authentication.
+- GitHub push completed successfully.
 
 ### Formula Blend Category
 
