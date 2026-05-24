@@ -1,4 +1,4 @@
-# Worklog
+﻿# Worklog
 
 This file tracks project changes, deployment notes, and version updates.
 
@@ -18,53 +18,54 @@ This file tracks project changes, deployment notes, and version updates.
   - `0797414 Add Coffee Review award image`
 - Previous frontend update: `bf37aef Require checkout contact fields`
 - Repository: `https://github.com/polo81116-crypto/mysite.git`
-- Local working changes: print-sheet generation, sales reports, and a grouped formula-blend product in the "配方豆專區" category are added.
+- Local working changes: print-sheet generation, sales reports, and grouped formula-blend products in the "配方豆專區" category are added.
 
 ### Shipment Slip And Sales Reports
 
 - Added a print-ready sheet for each order:
-  - `出貨單列印`
+  - `?箄疏?桀??躬
 - Added sales report sheets:
-  - `商品銷售排名`
-  - `月銷明細`
+  - `???瑕??`
+  - `??敦`
 - Frontend now sends structured `lineItems` so the backend can calculate rankings and monthly quantities reliably.
 - The backend also keeps appending new orders to the print sheet on submission.
-- `rebuildAllReports()` can be run in Apps Script to regenerate the print sheet and sales reports from `官網下單資料`.
+- `rebuildAllReports()` can be run in Apps Script to regenerate the print sheet and sales reports from `摰雯銝鞈?`.
 - GitHub push completed successfully.
 
 ### Formula Blend Category
 
 - Added a new product category:
-  - `配方豆專區`
-- Added one grouped product with four selectable options:
+  - `?鞊??`
+- Added two grouped products with four selectable options each:
   - `350`
   - `400`
   - `450`
   - `500`
+- Half-pound grouped product uses the same four options with half-size pricing.
 - Updated the frontend validation to expect the extra category and grouped product structure.
 
 ### Current Shipping Export Status
 
 - MyShip export sheet generation is handled by `google-apps-script/order-backend.gs`.
 - New orders are written to:
-  - `官網下單資料`
+  - `摰雯銝鞈?`
   - MyShip import tab, configured as `CONFIG.MYSHIP_SHEET_NAME`
-- Duplicate shipment prevention is active through `官網下單資料.賣貨便匯出時間`.
+- Duplicate shipment prevention is active through `摰雯銝鞈?.鞈?疏靘踹?箸??.
 - Pickup phone numbers are written as text so leading zeroes are preserved.
 - Latest backend file must be pasted into Google Apps Script and redeployed before the live Web App uses these updates.
 
 ### Order Sheet Localization
 
-- Renamed the order sheet tab from `Orders` to `官網下單資料`.
-- Renamed the spreadsheet file title to `官網下單資料`.
+- Renamed the order sheet tab from `Orders` to `摰雯銝鞈?`.
+- Renamed the spreadsheet file title to `摰雯銝鞈?`.
 - Converted order sheet headers from English to Chinese.
 - Added a visible status column:
-  - `是否已出貨`
+  - `?臬撌脣鞎灼
 - The shipment status now displays as:
-  - `未出貨`
-  - `已出貨`
+  - `?芸鞎灼
+  - `撌脣鞎灼
 - The technical export timestamp remains in:
-  - `賣貨便匯出時間`
+  - `鞈?疏靘踹?箸??
 - Existing export and rebuild logic now uses the localized sheet and column names.
 
 ### Store Data Auto Update
@@ -111,7 +112,7 @@ Imgea/ChatGPT Image 1.png
 ```
 
 - Updated `CoffeeReviewAwardCard` to show the award image inside the Coffee Review section.
-- Updated the `Coffee Review 榮獲資訊` carousel slide to use the same local image.
+- Updated the `Coffee Review 璁桃鞈?` carousel slide to use the same local image.
 - `npm.cmd run build` passed after the image integration.
 
 ### Product Image Update
@@ -128,7 +129,7 @@ public/images/medium-dark-1lb.jpg
 Imgea/ChatGPT2.jpg
 ```
 
-- Updated product `shopee-medium-dark-1lb` / `中深焙推薦 一磅裝` to use the local image.
+- Updated product `shopee-medium-dark-1lb` / `銝剜楛???銝蝤?` to use the local image.
 - `npm.cmd run build` passed after the product image update.
 
 - Added half-pound medium-dark product visual asset:
@@ -143,7 +144,7 @@ public/images/medium-dark-half-lb.jpg
 Imgea/ChatGPT3.jpg
 ```
 
-- Updated product `shopee-medium-dark-half-lb` / `中深焙推薦 半磅裝` to use the local image.
+- Updated product `shopee-medium-dark-half-lb` / `銝剜楛?????鋆 to use the local image.
 - `npm.cmd run build` passed after the half-pound product image update.
 
 ### Product Image Layout Update
@@ -251,35 +252,35 @@ https://script.google.com/macros/s/AKfycbzfN28njwcJeZssEQV5HJnZ7Z9Z-dPmIVP0WNLBZ
 - Reference file found in the workspace:
 
 ```txt
-賣貨便_訂單匯入 (2).xlsm
+鞈?疏靘甍閮?臬 (2).xlsm
 ```
 
 - Template workbook sheets:
-  - `訂單匯入`
-  - `填寫說明`
+  - `閮?臬`
+  - `憛怠神隤芣?`
 
 - Required import columns identified from the template:
-  - `＊取件人姓名`
-  - `＊取件人手機`
-  - `＊取件門市`
-  - `* 溫層`
-  - `＊商品`
-  - `＊訂單金額`
-  - `＊運費金額`
-  - `買家下訂日期`
-  - `商品備註`
-  - `其他資訊(FB/LINE/IG帳號)`
+  - `嚗?隞嗡犖憪?`
+  - `嚗?隞嗡犖??`
+  - `嚗?隞園?撣
+  - `* 皞怠惜`
+  - `嚗??
+  - `嚗??桅?憿
+  - `嚗?鞎駁?憿
+  - `鞎瑕振銝??交?`
+  - `???酉`
+  - `?嗡?鞈?(FB/LINE/IG撣唾?)`
 
-- Updated `google-apps-script/order-backend.gs` so each successful order now also appends a row to a Google Sheet tab named `訂單匯入`.
-- `訂單匯入` columns A:J are set to text format to preserve phone numbers and 7-ELEVEN store IDs.
+- Updated `google-apps-script/order-backend.gs` so each successful order now also appends a row to a Google Sheet tab named `閮?臬`.
+- `閮?臬` columns A:J are set to text format to preserve phone numbers and 7-ELEVEN store IDs.
 - Added `rebuildMyShipImportSheet()` to rebuild the import sheet from existing `Orders` rows using `raw_payload`.
 - Apps Script syntax check passed after the MyShip export update.
-- Manual Apps Script redeploy is required before live orders generate `訂單匯入` rows.
+- Manual Apps Script redeploy is required before live orders generate `閮?臬` rows.
 
 ### Duplicate Shipment Prevention
 
 - Added `myship_exported_at` to the `Orders` sheet.
-- When a new order is appended to `訂單匯入`, the related `Orders` row is immediately marked with an export timestamp.
+- When a new order is appended to `閮?臬`, the related `Orders` row is immediately marked with an export timestamp.
 - `rebuildMyShipImportSheet()` now exports only rows where `myship_exported_at` is empty.
 - Added `resetMyShipExportStatus(orderId)` for exceptional cases where an order must be exported again.
 - Operational rule:
@@ -289,7 +290,7 @@ https://script.google.com/macros/s/AKfycbzfN28njwcJeZssEQV5HJnZ7Z9Z-dPmIVP0WNLBZ
 
 ### MyShip Phone Number Formatting
 
-- Updated `訂單匯入` row writing to preserve leading zeroes in pickup phone numbers.
+- Updated `閮?臬` row writing to preserve leading zeroes in pickup phone numbers.
 - Replaced direct `appendRow()` for MyShip rows with text-first range writing:
   - Set row number format to text.
   - Write all A:J values as strings with `setValues()`.
@@ -396,8 +397,8 @@ https://script.google.com/macros/s/AKfycbzfN28njwcJeZssEQV5HJnZ7Z9Z-dPmIVP0WNLBZ
 
 - `npm.cmd run build` passed after updating the frontend URL.
 - Order submission page is connected through:
-  - `立即下單`: opens the order confirmation modal.
-  - `確認送出訂單`: calls `submitOrder()`.
+  - `蝡銝`: opens the order confirmation modal.
+  - `蝣箄??閮`: calls `submitOrder()`.
   - `submitOrder()`: POSTs the order payload to the current Apps Script `/exec` URL.
 
 ### Manual deployment steps
