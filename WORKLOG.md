@@ -19,6 +19,7 @@ This file tracks project changes, deployment notes, and version updates.
 - Previous frontend update: `bf37aef Require checkout contact fields`
 - Repository: `https://github.com/polo81116-crypto/mysite.git`
 - Local working changes: print-sheet generation, sales reports, and grouped formula-blend products in the "配方豆專區" category are added.
+- Working tree note: `src/App.jsx` has been restored and the formula-blend section now contains both the 454g and 227g grouped products; deployment still needs a successful GitHub Pages run to show on the live site.
 
 ### Shipment Slip And Sales Reports
 
