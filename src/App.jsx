@@ -593,49 +593,49 @@ export default function CaobanCoffeeHomepage() {
       {cart.length > 0 && !showOrderConfirm && (
         <aside
           aria-label="已選購商品"
-          className="fixed inset-x-4 bottom-4 z-40 mx-auto max-w-md rounded-2xl border border-[#dccbb2] bg-[#fff8ec]/95 p-4 text-[#2a1a10] shadow-2xl backdrop-blur md:inset-x-auto md:bottom-auto md:right-6 md:top-24 md:w-96"
+          className="fixed inset-x-3 bottom-3 z-40 mx-auto max-w-md rounded-2xl border border-[#dccbb2] bg-[#fff8ec]/95 p-3 text-[#2a1a10] shadow-2xl backdrop-blur md:inset-x-auto md:bottom-auto md:right-6 md:top-24 md:w-96 md:p-4"
         >
-          <div className="flex items-start justify-between gap-4">
+          <div className="flex items-center justify-between gap-3 md:items-start md:gap-4">
             <div>
-              <p className="text-xs font-bold tracking-[0.25em] text-[#8a603b]">SELECTED</p>
-              <h2 className="mt-1 text-lg font-bold">已選購商品</h2>
+              <p className="hidden text-xs font-bold tracking-[0.25em] text-[#8a603b] md:block">SELECTED</p>
+              <h2 className="text-base font-bold md:mt-1 md:text-lg">已選購商品</h2>
             </div>
-            <div className="rounded-full bg-[#efe2cf] px-3 py-1 text-sm font-bold text-[#7a4c2b]">
-              {cartCount} 件
+            <div className="shrink-0 rounded-full bg-[#efe2cf] px-3 py-1 text-xs font-bold text-[#7a4c2b] md:text-sm">
+              {cartCount} 件｜{currency(cartTotal)}
             </div>
           </div>
 
-          <div className="mt-3 max-h-64 space-y-3 overflow-y-auto pr-1">
+          <div className="mt-2 flex gap-2 overflow-x-auto pb-1 md:mt-3 md:block md:max-h-64 md:space-y-3 md:overflow-y-auto md:pr-1">
             {cart.map((item) => (
-              <div key={item.cartId} className="grid grid-cols-[56px_1fr_auto] gap-3 rounded-xl bg-[#f6efe4] p-2">
-                <img src={item.image} alt={item.name} className="h-14 w-14 rounded-lg bg-white object-cover" />
+              <div key={item.cartId} className="grid min-w-[220px] grid-cols-[40px_1fr_auto] gap-2 rounded-xl bg-[#f6efe4] p-2 md:min-w-0 md:grid-cols-[56px_1fr_auto] md:gap-3">
+                <img src={item.image} alt={item.name} className="h-10 w-10 rounded-lg bg-white object-cover md:h-14 md:w-14" />
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-bold">{item.name}</p>
-                  <p className="mt-1 truncate text-xs text-[#66513f]">{item.packageLabel}</p>
-                  <p className="mt-1 text-sm font-bold text-[#7a4c2b]">{currency(item.price * item.quantity)}</p>
+                  <p className="truncate text-xs font-bold md:text-sm">{item.name}</p>
+                  <p className="mt-0.5 truncate text-xs text-[#66513f] md:mt-1">{item.packageLabel}</p>
+                  <p className="mt-0.5 text-xs font-bold text-[#7a4c2b] md:mt-1 md:text-sm">{currency(item.price * item.quantity)}</p>
                 </div>
                 <div className="flex items-center gap-1">
                   <button
                     type="button"
                     onClick={() => updateQuantity(item.cartId, item.quantity - 1)}
-                    className="rounded-full bg-white p-1.5 text-[#2a1a10] shadow-sm"
+                    className="rounded-full bg-white p-1 text-[#2a1a10] shadow-sm md:p-1.5"
                     aria-label={`減少 ${item.name} 數量`}
                   >
-                    <Minus className="h-3.5 w-3.5" />
+                    <Minus className="h-3 w-3 md:h-3.5 md:w-3.5" />
                   </button>
-                  <span className="w-6 text-center text-sm font-bold">{item.quantity}</span>
+                  <span className="w-5 text-center text-xs font-bold md:w-6 md:text-sm">{item.quantity}</span>
                   <button
                     type="button"
                     onClick={() => updateQuantity(item.cartId, item.quantity + 1)}
-                    className="rounded-full bg-[#f3c178] p-1.5 text-[#2a1a10] shadow-sm"
+                    className="rounded-full bg-[#f3c178] p-1 text-[#2a1a10] shadow-sm md:p-1.5"
                     aria-label={`增加 ${item.name} 數量`}
                   >
-                    <Plus className="h-3.5 w-3.5" />
+                    <Plus className="h-3 w-3 md:h-3.5 md:w-3.5" />
                   </button>
                   <button
                     type="button"
                     onClick={() => updateQuantity(item.cartId, 0)}
-                    className="rounded-full bg-white p-1.5 text-[#8a3d2b] shadow-sm"
+                    className="hidden rounded-full bg-white p-1.5 text-[#8a3d2b] shadow-sm md:block"
                     aria-label={`移除 ${item.name}`}
                   >
                     <Trash2 className="h-3.5 w-3.5" />
@@ -645,14 +645,14 @@ export default function CaobanCoffeeHomepage() {
             ))}
           </div>
 
-          <div className="mt-4 border-t border-[#dccbb2] pt-3">
-            <div className="flex items-center justify-between text-sm text-[#66513f]">
+          <div className="mt-2 grid grid-cols-[1fr_auto] items-center gap-3 border-t border-[#dccbb2] pt-2 md:mt-4 md:block md:pt-3">
+            <div className="hidden items-center justify-between text-sm text-[#66513f] md:flex">
               <span>優惠後含運</span>
               <span className="text-lg font-black text-[#2a1a10]">{currency(cartTotal)}</span>
             </div>
             <a
               href="#cart"
-              className="mt-3 inline-flex w-full items-center justify-center rounded-full bg-[#2a1a10] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#4b2d1a]"
+              className="inline-flex w-full items-center justify-center rounded-full bg-[#2a1a10] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#4b2d1a] md:mt-3 md:py-3"
             >
               前往結帳 <ShoppingCart className="ml-2 h-4 w-4" />
             </a>
