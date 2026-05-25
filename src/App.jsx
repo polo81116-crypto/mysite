@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Award, Bean, ChevronRight, Coffee, Filter, MapPin, Minus, Plus, ShoppingBag, ShoppingCart, Trash2 } from "lucide-react";
+import { Award, Bean, ChevronRight, Coffee, Filter, MapPin, Minus, Plus, ShoppingBag, ShoppingCart, Trash2, X } from "lucide-react";
 import { motion } from "framer-motion";
 
 const shopeeUrl = "https://shopee.tw/caobancoffee?categoryId=100629&entryPoint=ShopByPDP&itemId=49107641936&upstream=search";
@@ -357,6 +357,7 @@ export default function CaobanCoffeeHomepage() {
   const [showOrderConfirm, setShowOrderConfirm] = useState(false);
   const [orderSubmitStatus, setOrderSubmitStatus] = useState("idle");
   const [checkoutErrors, setCheckoutErrors] = useState({});
+  const [isFloatingCartHidden, setIsFloatingCartHidden] = useState(false);
 
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const cartSubtotal = useMemo(() => cart.reduce((sum, item) => sum + item.price * item.quantity, 0), [cart]);
@@ -590,7 +591,19 @@ export default function CaobanCoffeeHomepage() {
 
   return (
     <main className="min-h-screen bg-[#f6efe4] text-[#2a1a10]">
-      {cart.length > 0 && !showOrderConfirm && (
+      {cart.length > 0 && !showOrderConfirm && isFloatingCartHidden && (
+        <button
+          type="button"
+          onClick={() => setIsFloatingCartHidden(false)}
+          className="fixed bottom-3 right-3 z-40 inline-flex items-center rounded-full bg-[#2a1a10] px-4 py-3 text-sm font-bold text-white shadow-2xl transition hover:bg-[#4b2d1a] md:bottom-auto md:right-6 md:top-24"
+          aria-label="顯示已選購商品"
+        >
+          <ShoppingCart className="mr-2 h-4 w-4" />
+          {cartCount} 件｜{currency(cartTotal)}
+        </button>
+      )}
+
+      {cart.length > 0 && !showOrderConfirm && !isFloatingCartHidden && (
         <aside
           aria-label="已選購商品"
           className="fixed inset-x-3 bottom-3 z-40 mx-auto max-w-md rounded-2xl border border-[#dccbb2] bg-[#fff8ec]/95 p-3 text-[#2a1a10] shadow-2xl backdrop-blur md:inset-x-auto md:bottom-auto md:right-6 md:top-24 md:w-96 md:p-4"
@@ -600,8 +613,18 @@ export default function CaobanCoffeeHomepage() {
               <p className="hidden text-xs font-bold tracking-[0.25em] text-[#8a603b] md:block">SELECTED</p>
               <h2 className="text-base font-bold md:mt-1 md:text-lg">已選購商品</h2>
             </div>
-            <div className="shrink-0 rounded-full bg-[#efe2cf] px-3 py-1 text-xs font-bold text-[#7a4c2b] md:text-sm">
-              {cartCount} 件｜{currency(cartTotal)}
+            <div className="flex shrink-0 items-center gap-2">
+              <div className="rounded-full bg-[#efe2cf] px-3 py-1 text-xs font-bold text-[#7a4c2b] md:text-sm">
+                {cartCount} 件｜{currency(cartTotal)}
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsFloatingCartHidden(true)}
+                className="rounded-full bg-white p-1.5 text-[#7a4c2b] shadow-sm transition hover:bg-[#efe2cf]"
+                aria-label="隱藏已選購商品"
+              >
+                <X className="h-4 w-4" />
+              </button>
             </div>
           </div>
 
