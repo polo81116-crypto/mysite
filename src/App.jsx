@@ -590,6 +590,75 @@ export default function CaobanCoffeeHomepage() {
 
   return (
     <main className="min-h-screen bg-[#f6efe4] text-[#2a1a10]">
+      {cart.length > 0 && !showOrderConfirm && (
+        <aside
+          aria-label="已選購商品"
+          className="fixed inset-x-4 bottom-4 z-40 mx-auto max-w-md rounded-2xl border border-[#dccbb2] bg-[#fff8ec]/95 p-4 text-[#2a1a10] shadow-2xl backdrop-blur md:inset-x-auto md:bottom-auto md:right-6 md:top-24 md:w-96"
+        >
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-xs font-bold tracking-[0.25em] text-[#8a603b]">SELECTED</p>
+              <h2 className="mt-1 text-lg font-bold">已選購商品</h2>
+            </div>
+            <div className="rounded-full bg-[#efe2cf] px-3 py-1 text-sm font-bold text-[#7a4c2b]">
+              {cartCount} 件
+            </div>
+          </div>
+
+          <div className="mt-3 max-h-64 space-y-3 overflow-y-auto pr-1">
+            {cart.map((item) => (
+              <div key={item.cartId} className="grid grid-cols-[56px_1fr_auto] gap-3 rounded-xl bg-[#f6efe4] p-2">
+                <img src={item.image} alt={item.name} className="h-14 w-14 rounded-lg bg-white object-cover" />
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-bold">{item.name}</p>
+                  <p className="mt-1 truncate text-xs text-[#66513f]">{item.packageLabel}</p>
+                  <p className="mt-1 text-sm font-bold text-[#7a4c2b]">{currency(item.price * item.quantity)}</p>
+                </div>
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => updateQuantity(item.cartId, item.quantity - 1)}
+                    className="rounded-full bg-white p-1.5 text-[#2a1a10] shadow-sm"
+                    aria-label={`減少 ${item.name} 數量`}
+                  >
+                    <Minus className="h-3.5 w-3.5" />
+                  </button>
+                  <span className="w-6 text-center text-sm font-bold">{item.quantity}</span>
+                  <button
+                    type="button"
+                    onClick={() => updateQuantity(item.cartId, item.quantity + 1)}
+                    className="rounded-full bg-[#f3c178] p-1.5 text-[#2a1a10] shadow-sm"
+                    aria-label={`增加 ${item.name} 數量`}
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => updateQuantity(item.cartId, 0)}
+                    className="rounded-full bg-white p-1.5 text-[#8a3d2b] shadow-sm"
+                    aria-label={`移除 ${item.name}`}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-4 border-t border-[#dccbb2] pt-3">
+            <div className="flex items-center justify-between text-sm text-[#66513f]">
+              <span>優惠後含運</span>
+              <span className="text-lg font-black text-[#2a1a10]">{currency(cartTotal)}</span>
+            </div>
+            <a
+              href="#cart"
+              className="mt-3 inline-flex w-full items-center justify-center rounded-full bg-[#2a1a10] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#4b2d1a]"
+            >
+              前往結帳 <ShoppingCart className="ml-2 h-4 w-4" />
+            </a>
+          </div>
+        </aside>
+      )}
       <section className="relative overflow-hidden bg-gradient-to-br from-[#2a1a10] via-[#4b2d1a] to-[#8a603b] text-[#fff8ec]">
         <FloatingIcons />
         <nav className="relative z-10 mx-auto flex max-w-7xl items-center justify-between px-6 py-6">
