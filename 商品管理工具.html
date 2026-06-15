@@ -205,6 +205,21 @@
         });
       }
 
+      async function loadBundledProducts() {
+        try {
+          const response = await fetch("src/admin-products.json", { cache: "no-store" });
+          if (!response.ok) throw new Error("Cannot load bundled products.");
+          data = normalizeData(await response.json());
+          selectedIndex = data.products.length ? 0 : -1;
+          renderList();
+          fillForm(selectedIndex >= 0 ? data.products[selectedIndex] : blankProduct());
+          setMessage("已載入目前商品。若要直接儲存回原檔，請按「開啟商品資料」並選 src/admin-products.json。");
+        } catch {
+          fillForm(blankProduct());
+          setMessage("若左側沒有商品，請按「開啟商品資料」選擇 src/admin-products.json。");
+        }
+      }
+
       async function openJson() {
         if (!window.showOpenFilePicker) { setMessage("請用新版 Chrome 或 Edge 開啟，才可直接讀寫檔案。"); return; }
         [fileHandle] = await window.showOpenFilePicker({ types: [{ description: "商品 JSON", accept: { "application/json": [".json"] } }] });
@@ -261,7 +276,7 @@
       document.addEventListener("input", (event) => { if (event.target.closest("main")) renderPreview(); });
 
       renderImageChoices();
-      fillForm(blankProduct());
+      loadBundledProducts();
     </script>
   </body>
 </html>
