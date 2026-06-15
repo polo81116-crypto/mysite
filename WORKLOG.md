@@ -164,6 +164,28 @@ public/stores.json
 - Build: passed.
 - Apps Script syntax check: passed.
 
+## 2026-06-16
+
+### Version
+
+- Version: shipping fee update
+- Updated by: Codex
+
+### Changes
+
+- Updated checkout shipping fees by delivery method:
+  - 7-11: 38
+  - FamilyMart: 65
+  - SF Express COD: 100
+- Changed checkout labels from convenience-store-only shipping wording to delivery shipping wording.
+
+### Verification
+
+- JSON parse: passed.
+- Lint: passed.
+- Build: passed.
+- Apps Script syntax check: passed.
+
 - Added GitHub Actions workflow:
 
 ```txt
