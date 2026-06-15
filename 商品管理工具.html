@@ -71,6 +71,7 @@
         <div class="field-grid" style="margin-top: 14px">
           <label>上下架狀態<select id="status"><option value="active">上架</option><option value="soldout">售完</option><option value="hidden">下架</option></select></label>
           <label>商品 ID<input id="id" placeholder="例如 medium-dark-1lb" /></label>
+          <label>商品折扣％<input id="discountPercent" inputmode="numeric" placeholder="例如 10，未折扣填 0" /></label>
           <label>分類<input id="category" placeholder="例如 商用優選豆" /></label>
           <label>商品名稱<input id="name" placeholder="例如 中深焙推薦 一磅裝" /></label>
           <label>烘焙度<input id="roast" placeholder="例如 中深烘焙" /></label>
@@ -137,14 +138,14 @@
       const els = {
         openJson: $("#openJson"), saveJson: $("#saveJson"), downloadJson: $("#downloadJson"), openImageFolder: $("#openImageFolder"),
         message: $("#message"), productList: $("#productList"), newProduct: $("#newProduct"), formTitle: $("#formTitle"),
-        id: $("#id"), status: $("#status"), category: $("#category"), name: $("#name"), roast: $("#roast"), weight: $("#weight"), image: $("#image"), taste: $("#taste"),
+        id: $("#id"), status: $("#status"), discountPercent: $("#discountPercent"), category: $("#category"), name: $("#name"), roast: $("#roast"), weight: $("#weight"), image: $("#image"), taste: $("#taste"),
         options: $("#options"), addOption: $("#addOption"), grinds: $("#grinds"), addGrind: $("#addGrind"), grindPreset: $("#grindPreset"), addPresetGrind: $("#addPresetGrind"),
         applyProduct: $("#applyProduct"), duplicateProduct: $("#duplicateProduct"), deleteProduct: $("#deleteProduct"),
         previewImage: $("#previewImage"), previewCategory: $("#previewCategory"), previewName: $("#previewName"), previewTaste: $("#previewTaste"), previewOptions: $("#previewOptions"), imageList: $("#imageList"),
       };
 
       function setMessage(text) { els.message.textContent = text; }
-      function blankProduct() { return { id: `product-${Date.now()}`, status: "active", category: "", name: "", roast: "", taste: "", packageOptions: [{ label: "單包", price: 0 }], grindOptions: [], weight: "", image: "Imgea/ChatGPT Image 1.png" }; }
+      function blankProduct() { return { id: `product-${Date.now()}`, status: "active", discountPercent: 0, category: "", name: "", roast: "", taste: "", packageOptions: [{ label: "單包", price: 0 }], grindOptions: [], weight: "", image: "Imgea/ChatGPT Image 1.png" }; }
       function statusText(status) { return { active: "上架", soldout: "售完", hidden: "下架" }[status] || status; }
       function normalizeData(input) { return { products: Array.isArray(input.products) ? input.products : [] }; }
 
@@ -201,12 +202,13 @@
       function readForm() {
         const packageOptions = [...els.options.querySelectorAll(".option-row")].map((row) => ({ label: row.querySelector("[data-option-label]").value.trim(), price: Number(row.querySelector("[data-option-price]").value) || 0 })).filter((option) => option.label);
         const grindOptions = [...els.grinds.querySelectorAll("[data-grind]")].map((input) => input.value.trim()).filter(Boolean);
-        return { id: els.id.value.trim(), status: els.status.value, category: els.category.value.trim(), name: els.name.value.trim(), roast: els.roast.value.trim(), taste: els.taste.value.trim(), packageOptions: packageOptions.length ? packageOptions : [{ label: "單包", price: 0 }], grindOptions, weight: els.weight.value.trim(), image: els.image.value.trim() };
+        const discountPercent = Math.min(100, Math.max(0, Number(els.discountPercent.value) || 0));
+        return { id: els.id.value.trim(), status: els.status.value, discountPercent, category: els.category.value.trim(), name: els.name.value.trim(), roast: els.roast.value.trim(), taste: els.taste.value.trim(), packageOptions: packageOptions.length ? packageOptions : [{ label: "單包", price: 0 }], grindOptions, weight: els.weight.value.trim(), image: els.image.value.trim() };
       }
 
       function fillForm(product) {
         els.formTitle.textContent = product.name || "商品內容";
-        els.id.value = product.id || ""; els.status.value = product.status || "active"; els.category.value = product.category || ""; els.name.value = product.name || ""; els.roast.value = product.roast || ""; els.weight.value = product.weight || ""; els.image.value = product.image || ""; els.taste.value = product.taste || "";
+        els.id.value = product.id || ""; els.status.value = product.status || "active"; els.discountPercent.value = Number(product.discountPercent) || 0; els.category.value = product.category || ""; els.name.value = product.name || ""; els.roast.value = product.roast || ""; els.weight.value = product.weight || ""; els.image.value = product.image || ""; els.taste.value = product.taste || "";
         renderOptions(product.packageOptions || []); renderGrinds(product.grindOptions || []); renderPreview();
       }
 
@@ -220,7 +222,9 @@
         product.packageOptions.forEach((option) => {
           const row = document.createElement("div");
           row.className = "price-row";
-          row.innerHTML = `<span>${option.label}</span><strong>$${option.price}</strong>`;
+          const discount = Number(product.discountPercent) || 0;
+          const finalPrice = discount > 0 ? Math.round(option.price * (100 - discount) / 100) : option.price;
+          row.innerHTML = `<span>${option.label}</span><strong>${discount > 0 ? `$${option.price} -> $${finalPrice}` : `$${option.price}`}</strong>`;
           els.previewOptions.append(row);
         });
       }

@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>首頁內容管理工具</title>
+    <style>
+      :root { color: #261d14; background: #f7f1e8; font-family: "Microsoft JhengHei", system-ui, sans-serif; }
+      * { box-sizing: border-box; }
+      body { margin: 0; }
+      header { position: sticky; top: 0; z-index: 10; border-bottom: 1px solid #dccbb2; background: #fffaf3; padding: 16px 20px; }
+      main { display: grid; grid-template-columns: 300px 1fr 320px; gap: 14px; padding: 14px; }
+      h1, h2, h3, p { margin: 0; }
+      button, input, textarea { font: inherit; }
+      button { border: 0; border-radius: 8px; background: #2a1a10; color: #fff; cursor: pointer; font-weight: 800; padding: 10px 14px; }
+      button.secondary { border: 1px solid #cdb99e; background: #fff; color: #2a1a10; }
+      button.danger { background: #9d2c1f; }
+      .toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+      .panel { border: 1px solid #dccbb2; border-radius: 10px; background: #fffaf3; padding: 14px; }
+      .hint { color: #6c5947; font-size: 13px; line-height: 1.7; margin-top: 8px; }
+      .list { display: grid; gap: 8px; margin-top: 12px; }
+      .item { border: 1px solid #dccbb2; border-radius: 8px; background: #fff; color: #261d14; padding: 10px; text-align: left; }
+      .item.active { border-color: #8a603b; background: #efe2cf; }
+      label { display: block; font-size: 13px; font-weight: 800; margin-top: 12px; }
+      input, textarea { width: 100%; border: 2px solid #cdb99e; border-radius: 8px; background: #fff; margin-top: 6px; padding: 10px; }
+      textarea { min-height: 90px; resize: vertical; }
+      .preview { overflow: hidden; border-radius: 12px; background: #2a1a10; color: #fff8ec; margin-top: 12px; }
+      .preview img { width: 100%; height: 210px; object-fit: cover; display: block; background: #fff; }
+      .preview div { padding: 14px; }
+      .image-list { display: grid; gap: 8px; margin-top: 10px; }
+      .image-choice { border: 1px solid #dccbb2; background: #fff; color: #261d14; text-align: left; }
+      @media (max-width: 1040px) { main { grid-template-columns: 1fr; } }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>首頁內容管理工具</h1>
+      <p class="hint">管理首頁幻燈片與分類圖片。請開啟 `src/site-content.json`，編輯後儲存，再用一鍵上傳。</p>
+      <div class="toolbar">
+        <button id="openJson">開啟首頁內容</button>
+        <button id="saveJson">儲存回 JSON</button>
+        <button id="downloadJson" class="secondary">下載 JSON</button>
+        <button id="openImageFolder" class="secondary">選擇 Imgea 資料夾</button>
+      </div>
+      <p id="message" class="hint"></p>
+    </header>
+
+    <main>
+      <aside class="panel">
+        <h2>內容清單</h2>
+        <div class="toolbar">
+          <button id="addCategory" class="secondary">新增分類</button>
+          <button id="addSlide" class="secondary">新增幻燈片</button>
+        </div>
+        <div id="contentList" class="list"></div>
+      </aside>
+
+      <section class="panel">
+        <h2 id="formTitle">內容</h2>
+        <label>標題<input id="title" /></label>
+        <label id="subtitleWrap">副標題<input id="subtitle" /></label>
+        <label id="descriptionWrap">描述<textarea id="description"></textarea></label>
+        <label>圖片<input id="image" placeholder="例如 Imgea/ChatGPT Image 1.png" /></label>
+        <div class="toolbar">
+          <button id="apply">套用修改</button>
+          <button id="moveUp" class="secondary">上移</button>
+          <button id="moveDown" class="secondary">下移</button>
+          <button id="remove" class="danger">刪除</button>
+        </div>
+      </section>
+
+      <aside class="panel">
+        <h2>預覽</h2>
+        <div class="preview">
+          <img id="previewImage" />
+          <div>
+            <h3 id="previewTitle"></h3>
+            <p id="previewSubtitle" class="hint" style="color:#f3c178"></p>
+            <p id="previewDescription" class="hint" style="color:#dcc7ad"></p>
+          </div>
+        </div>
+        <h2 style="margin-top:18px">Imgea 圖片</h2>
+        <div id="imageList" class="image-list"></div>
+      </aside>
+    </main>
+
+    <script>
+      const defaultData = { categories: [], infoSlides: [] };
+      const defaultImageChoices = ["Imgea/ChatGPT Image 1.png", "Imgea/ChatGPT2.jpg", "Imgea/ChatGPT3.jpg", "images/coffee-review-award.png"];
+      let fileHandle = null;
+      let data = structuredClone(defaultData);
+      let selected = { type: "category", index: -1 };
+      let imageChoices = [...defaultImageChoices];
+      const $ = (selector) => document.querySelector(selector);
+      const els = {
+        openJson: $("#openJson"), saveJson: $("#saveJson"), downloadJson: $("#downloadJson"), openImageFolder: $("#openImageFolder"), message: $("#message"),
+        contentList: $("#contentList"), addCategory: $("#addCategory"), addSlide: $("#addSlide"), formTitle: $("#formTitle"), title: $("#title"), subtitle: $("#subtitle"), description: $("#description"), image: $("#image"),
+        subtitleWrap: $("#subtitleWrap"), descriptionWrap: $("#descriptionWrap"), apply: $("#apply"), moveUp: $("#moveUp"), moveDown: $("#moveDown"), remove: $("#remove"),
+        previewImage: $("#previewImage"), previewTitle: $("#previewTitle"), previewSubtitle: $("#previewSubtitle"), previewDescription: $("#previewDescription"), imageList: $("#imageList"),
+      };
+      function setMessage(text) { els.message.textContent = text; }
+      function normalize(input) { return { categories: Array.isArray(input.categories) ? input.categories : [], infoSlides: Array.isArray(input.infoSlides) ? input.infoSlides : [] }; }
+      function currentList() { return selected.type === "slide" ? data.infoSlides : data.categories; }
+      function currentItem() { return currentList()[selected.index]; }
+      function blankCategory() { return { title: "新分類", subtitle: "", description: "", image: "Imgea/ChatGPT Image 1.png" }; }
+      function blankSlide() { return { title: "新幻燈片", image: "Imgea/ChatGPT Image 1.png" }; }
+      function renderList() {
+        els.contentList.innerHTML = "";
+        [
+          ...data.categories.map((item, index) => ({ type: "category", index, label: `分類｜${item.title}` })),
+          ...data.infoSlides.map((item, index) => ({ type: "slide", index, label: `幻燈片｜${item.title}` })),
+        ].forEach((entry) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = `item${selected.type === entry.type && selected.index === entry.index ? " active" : ""}`;
+          button.textContent = entry.label;
+          button.addEventListener("click", () => select(entry.type, entry.index));
+          els.contentList.append(button);
+        });
+      }
+      function select(type, index) {
+        selected = { type, index };
+        fillForm(currentItem());
+        renderList();
+      }
+      function fillForm(item) {
+        const isSlide = selected.type === "slide";
+        els.formTitle.textContent = isSlide ? "幻燈片內容" : "分類內容";
+        els.subtitleWrap.style.display = isSlide ? "none" : "block";
+        els.descriptionWrap.style.display = isSlide ? "none" : "block";
+        els.title.value = item?.title || "";
+        els.subtitle.value = item?.subtitle || "";
+        els.description.value = item?.description || "";
+        els.image.value = item?.image || "";
+        renderPreview();
+      }
+      function readForm() {
+        const item = { title: els.title.value.trim(), image: els.image.value.trim() };
+        if (selected.type !== "slide") {
+          item.subtitle = els.subtitle.value.trim();
+          item.description = els.description.value.trim();
+        }
+        return item;
+      }
+      function apply() {
+        if (selected.index < 0) return false;
+        currentList()[selected.index] = readForm();
+        renderList();
+        renderPreview();
+        setMessage("已套用修改，記得儲存回 JSON。");
+        return true;
+      }
+      function renderPreview() {
+        const item = readForm();
+        els.previewImage.src = item.image || "";
+        els.previewTitle.textContent = item.title || "未命名";
+        els.previewSubtitle.textContent = item.subtitle || "";
+        els.previewDescription.textContent = item.description || "";
+      }
+      function renderImages() {
+        els.imageList.innerHTML = "";
+        [...new Set(imageChoices)].forEach((path) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "image-choice";
+          button.textContent = path;
+          button.addEventListener("click", () => { els.image.value = path; renderPreview(); });
+          els.imageList.append(button);
+        });
+      }
+      async function loadBundled() {
+        try {
+          const response = await fetch("src/site-content.json", { cache: "no-store" });
+          if (!response.ok) throw new Error();
+          data = normalize(await response.json());
+          select(data.categories.length ? "category" : "slide", 0);
+          setMessage("已載入目前首頁內容。若要直接儲存回原檔，請按「開啟首頁內容」並選 src/site-content.json。");
+        } catch {
+          data = structuredClone(defaultData);
+          renderList();
+          fillForm({});
+          setMessage("請按「開啟首頁內容」選擇 src/site-content.json。");
+        }
+      }
+      async function openJson() {
+        if (!window.showOpenFilePicker) { setMessage("請用新版 Chrome 或 Edge 開啟。"); return; }
+        [fileHandle] = await window.showOpenFilePicker({ types: [{ description: "JSON", accept: { "application/json": [".json"] } }] });
+        const file = await fileHandle.getFile();
+        data = normalize(JSON.parse(await file.text()));
+        select(data.categories.length ? "category" : "slide", 0);
+        setMessage(`已開啟 ${file.name}`);
+      }
+      async function saveJson() {
+        apply();
+        const text = `${JSON.stringify(data, null, 2)}\n`;
+        if (fileHandle?.createWritable) {
+          const writable = await fileHandle.createWritable();
+          await writable.write(text);
+          await writable.close();
+          setMessage("已儲存回 JSON。");
+          return;
+        }
+        downloadJson();
+      }
+      function downloadJson() {
+        apply();
+        const blob = new Blob([`${JSON.stringify(data, null, 2)}\n`], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "site-content.json";
+        link.click();
+        URL.revokeObjectURL(url);
+      }
+      async function openImageFolder() {
+        if (!window.showDirectoryPicker) { setMessage("請用新版 Chrome 或 Edge 開啟。"); return; }
+        const dir = await window.showDirectoryPicker();
+        const paths = [];
+        for await (const [name, handle] of dir.entries()) {
+          if (handle.kind === "file" && /\.(png|jpe?g|webp|gif)$/i.test(name)) paths.push(`Imgea/${name}`);
+        }
+        imageChoices = [...paths, ...defaultImageChoices];
+        renderImages();
+      }
+      function move(delta) {
+        const list = currentList();
+        const next = selected.index + delta;
+        if (next < 0 || next >= list.length) return;
+        const [item] = list.splice(selected.index, 1);
+        list.splice(next, 0, item);
+        selected.index = next;
+        renderList();
+        setMessage("已調整順序，記得儲存回 JSON。");
+      }
+      els.openJson.addEventListener("click", openJson);
+      els.saveJson.addEventListener("click", saveJson);
+      els.downloadJson.addEventListener("click", downloadJson);
+      els.openImageFolder.addEventListener("click", openImageFolder);
+      els.addCategory.addEventListener("click", () => { data.categories.push(blankCategory()); select("category", data.categories.length - 1); });
+      els.addSlide.addEventListener("click", () => { data.infoSlides.push(blankSlide()); select("slide", data.infoSlides.length - 1); });
+      els.apply.addEventListener("click", apply);
+      els.moveUp.addEventListener("click", () => move(-1));
+      els.moveDown.addEventListener("click", () => move(1));
+      els.remove.addEventListener("click", () => { if (selected.index < 0) return; if (!confirm("確定刪除？")) return; currentList().splice(selected.index, 1); selected.index = Math.max(0, selected.index - 1); renderList(); fillForm(currentItem() || {}); });
+      document.addEventListener("input", (event) => { if (event.target.closest("main")) renderPreview(); });
+      renderImages();
+      loadBundled();
+    </script>
+  </body>
+</html>

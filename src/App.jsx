@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Award, Bean, ChevronRight, Coffee, Filter, MapPin, Minus, Plus, ShoppingBag, ShoppingCart, Trash2, X } from "lucide-react";
 import { motion } from "framer-motion";
 import adminCatalog from "./admin-products.json";
+import siteContent from "./site-content.json";
 
 const shopeeUrl = "https://shopee.tw/caobancoffee?categoryId=100629&entryPoint=ShopByPDP&itemId=49107641936&upstream=search";
 const orderApiUrl = "https://script.google.com/macros/s/AKfycbzfN28njwcJeZssEQV5HJnZ7Z9Z-dPmIVP0WNLBZNQz7VUG9VewI6hl29-0ivpJ_DiPQA/exec";
@@ -17,7 +18,7 @@ function resolveAssetPath(path) {
   return `${import.meta.env.BASE_URL}${path.replace(/^\/+/, "")}`;
 }
 
-const categories = [
+const fallbackCategories = [
   {
     title: "商用優選豆",
     subtitle: "高 CP 值｜穩定供應｜日常營業使用",
@@ -179,6 +180,11 @@ const fallbackProducts = [
   },
 ];
 
+const categories = (siteContent.categories?.length ? siteContent.categories : fallbackCategories).map((category) => ({
+  ...category,
+  image: resolveAssetPath(category.image),
+}));
+
 const products = (adminCatalog.products?.length ? adminCatalog.products : fallbackProducts)
   .filter((product) => product.status !== "hidden")
   .map((product) => ({
@@ -190,11 +196,16 @@ const products = (adminCatalog.products?.length ? adminCatalog.products : fallba
 
 const productCategoryTabs = ["全部商品", ...new Set([...categories.map((category) => category.title), ...products.map((product) => product.category)])];
 const emptyProductCategories = ["單一極致產區", "Coffee Review評分豆"];
-const infoSlides = [
+const fallbackInfoSlides = [
   { title: "本月行事曆", image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1600&q=80" },
   { title: "商品組合特惠", image: "https://images.unsplash.com/photo-1517705008128-361805f42e86?auto=format&fit=crop&w=1600&q=80" },
   { title: "Coffee Review 榮獲資訊", image: coffeeReviewAwardImage },
 ];
+
+const infoSlides = (siteContent.infoSlides?.length ? siteContent.infoSlides : fallbackInfoSlides).map((slide) => ({
+  ...slide,
+  image: resolveAssetPath(slide.image),
+}));
 
 const convenienceStores = [
   { id: "174536", name: "7-11 勤美門市", city: "台中市", district: "西區", address: "台中市西區公益路68號" },
@@ -209,6 +220,17 @@ const convenienceStores = [
 
 function currency(value) {
   return new Intl.NumberFormat("zh-TW", { style: "currency", currency: "TWD", maximumFractionDigits: 0 }).format(value);
+}
+
+function discountPercent(product) {
+  const value = Number(product?.discountPercent) || 0;
+  return Math.min(100, Math.max(0, value));
+}
+
+function discountedPrice(price, product) {
+  const discount = discountPercent(product);
+  if (discount <= 0) return price;
+  return Math.round(price * (100 - discount) / 100);
 }
 
 function makeCartId(productId, packageLabel, grindLabel = "不需研磨") {
@@ -484,6 +506,8 @@ export default function CaobanCoffeeHomepage() {
     const selectedPackage = selectedPackages[product.id] || product.packageOptions[0];
     const selectedGrind = selectedGrinds[product.id] || "不需研磨";
     const cartId = makeCartId(product.id, selectedPackage.label, selectedGrind);
+    const finalPrice = discountedPrice(selectedPackage.price, product);
+    const productDiscount = discountPercent(product);
     setCart((current) => {
       const exists = current.find((item) => item.cartId === cartId);
       if (exists) {
@@ -496,7 +520,9 @@ export default function CaobanCoffeeHomepage() {
           cartId,
           packageLabel: selectedPackage.label,
           grindLabel: selectedGrind,
-          price: selectedPackage.price,
+          price: finalPrice,
+          originalPrice: selectedPackage.price,
+          discountPercent: productDiscount,
           quantity: 1,
         },
       ];
@@ -812,6 +838,8 @@ export default function CaobanCoffeeHomepage() {
                   const cartId = makeCartId(product.id, selectedPackage.label, selectedGrind);
                   const quantity = getCartQuantity(product.id);
                   const isSoldOut = product.status === "soldout";
+                  const productDiscount = discountPercent(product);
+                  const selectedFinalPrice = discountedPrice(selectedPackage.price, product);
                   return (
                     <article key={product.id} className="grid gap-5 px-5 py-6 transition hover:bg-white/5 md:grid-cols-[180px_1.3fr_0.8fr_0.75fr_0.8fr] md:items-center md:px-6">
                       <img src={product.image} alt={product.name} className="h-56 w-full rounded-2xl bg-white object-contain p-2 shadow-lg md:h-52 md:w-[180px]" />
@@ -849,7 +877,7 @@ export default function CaobanCoffeeHomepage() {
                         </div>
                       </div>
                       <div className="text-sm text-[#dcc7ad]"><p className="font-bold text-[#fff8ec]">{product.category}</p><p className="mt-2">{product.roast}</p><p className="mt-1">{product.weight}</p></div>
-                      <div><p className="text-2xl font-bold text-[#f3c178]">{currency(selectedPackage.price)}</p><p className="mt-1 text-xs text-[#dcc7ad]">{selectedPackage.label}</p>{product.grindOptions.length > 0 && <p className="mt-1 text-xs text-[#dcc7ad]">{selectedGrind}</p>}</div>
+                      <div>{productDiscount > 0 && <p className="text-sm text-[#dcc7ad] line-through">{currency(selectedPackage.price)}</p>}<p className="text-2xl font-bold text-[#f3c178]">{currency(selectedFinalPrice)}</p>{productDiscount > 0 && <p className="mt-1 text-xs font-bold text-[#7CFFB2]">{productDiscount}% OFF</p>}<p className="mt-1 text-xs text-[#dcc7ad]">{selectedPackage.label}</p>{product.grindOptions.length > 0 && <p className="mt-1 text-xs text-[#dcc7ad]">{selectedGrind}</p>}</div>
                       <div className="flex items-center justify-start gap-3 md:justify-end">
                         {isSoldOut ? (
                           <button type="button" disabled className="inline-flex cursor-not-allowed items-center justify-center rounded-full bg-white/30 px-5 py-3 font-bold text-white/70">售完</button>

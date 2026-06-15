@@ -1,0 +1,54 @@
+{
+  "categories": [
+    {
+      "title": "商用優選豆",
+      "subtitle": "高 CP 值｜穩定供應｜日常營業使用",
+      "description": "適合咖啡店、早餐店、工作室與日常大量沖煮需求，講求穩定、耐喝與成本平衡。",
+      "image": "https://images.unsplash.com/photo-1447933601403-0c6688de566e?auto=format&fit=crop&w=1200&q=80"
+    },
+    {
+      "title": "精品咖啡豆",
+      "subtitle": "精品配方｜風味平衡｜成熟口感",
+      "description": "精選精品配方與高品質產區豆，強調甜感、層次與平衡風味。",
+      "image": "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=1200&q=80"
+    },
+    {
+      "title": "配方豆專區",
+      "subtitle": "自家配方｜穩定風味｜日常好喝",
+      "description": "提供四款日常配方豆，從順口平衡到厚實濃郁，適合不同沖煮習慣與飲用偏好。",
+      "image": "https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=1200&q=80"
+    },
+    {
+      "title": "單一極致產區",
+      "subtitle": "限量微批次｜風土表現｜精品收藏",
+      "description": "此分類暫時保留，後續可加入單一產區與特殊處理法豆款。",
+      "image": "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1200&q=80"
+    },
+    {
+      "title": "Coffee Review評分豆",
+      "subtitle": "Coffee Review｜高分評測｜精品競標",
+      "description": "此分類暫時保留，後續可加入 Coffee Review 高分評測精品豆。",
+      "image": "https://images.unsplash.com/photo-1459755486867-b55449bb39ff?auto=format&fit=crop&w=1200&q=80"
+    },
+    {
+      "title": "濾掛咖啡",
+      "subtitle": "即沖即飲｜通勤便利｜日常補給",
+      "description": "適合上班、露營與日常快速沖泡，保留精品咖啡風味，同時兼顧便利性與穩定品質。",
+      "image": "https://images.unsplash.com/photo-1517705008128-361805f42e86?auto=format&fit=crop&w=1200&q=80"
+    }
+  ],
+  "infoSlides": [
+    {
+      "title": "本月行事曆",
+      "image": "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1600&q=80"
+    },
+    {
+      "title": "商品組合特惠",
+      "image": "https://images.unsplash.com/photo-1517705008128-361805f42e86?auto=format&fit=crop&w=1600&q=80"
+    },
+    {
+      "title": "Coffee Review 榮獲資訊",
+      "image": "images/coffee-review-award.png"
+    }
+  ]
+}
