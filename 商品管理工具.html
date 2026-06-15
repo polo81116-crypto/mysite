@@ -79,8 +79,11 @@
           <label>商品名稱<input id="name" placeholder="例如 中深焙推薦 一磅裝" /></label>
           <label>烘焙度<input id="roast" placeholder="例如 中深烘焙" /></label>
           <label>重量/包裝<input id="weight" placeholder="例如 一磅裝 / 454g" /></label>
+          <label>產地<input id="origin" placeholder="例如 衣索比亞 / 哥倫比亞 / 台灣分裝" /></label>
           <label class="full">商品圖片<input id="image" placeholder="例如 Imgea/ChatGPT Image 1.png 或 images/medium-dark-1lb.jpg" /></label>
           <label class="full">風味描述<textarea id="taste"></textarea></label>
+          <label class="full">保存方式<textarea id="storage" placeholder="例如 請置於陰涼乾燥處，開封後請密封保存並盡早飲用。"></textarea></label>
+          <label class="full">負責廠商資訊<textarea id="supplierInfo" placeholder="例如 豆之楓企業社"></textarea></label>
           <div class="full"><h3>規格與價格</h3><div id="options"></div><button id="addOption" class="secondary" style="margin-top: 10px">新增規格</button></div>
           <div class="full">
             <h3>研磨選項</h3>
@@ -141,14 +144,14 @@
       const els = {
         openJson: $("#openJson"), saveJson: $("#saveJson"), downloadJson: $("#downloadJson"), openImageFolder: $("#openImageFolder"),
         message: $("#message"), productList: $("#productList"), newProduct: $("#newProduct"), formTitle: $("#formTitle"),
-        id: $("#id"), status: $("#status"), discountPercent: $("#discountPercent"), excludeGlobalDiscount: $("#excludeGlobalDiscount"), excludeFreeShipping: $("#excludeFreeShipping"), category: $("#category"), name: $("#name"), roast: $("#roast"), weight: $("#weight"), image: $("#image"), taste: $("#taste"),
+        id: $("#id"), status: $("#status"), discountPercent: $("#discountPercent"), excludeGlobalDiscount: $("#excludeGlobalDiscount"), excludeFreeShipping: $("#excludeFreeShipping"), category: $("#category"), name: $("#name"), roast: $("#roast"), weight: $("#weight"), origin: $("#origin"), image: $("#image"), taste: $("#taste"), storage: $("#storage"), supplierInfo: $("#supplierInfo"),
         options: $("#options"), addOption: $("#addOption"), grinds: $("#grinds"), addGrind: $("#addGrind"), grindPreset: $("#grindPreset"), addPresetGrind: $("#addPresetGrind"),
         applyProduct: $("#applyProduct"), duplicateProduct: $("#duplicateProduct"), deleteProduct: $("#deleteProduct"),
         previewImage: $("#previewImage"), previewCategory: $("#previewCategory"), previewName: $("#previewName"), previewTaste: $("#previewTaste"), previewOptions: $("#previewOptions"), imageList: $("#imageList"),
       };
 
       function setMessage(text) { els.message.textContent = text; }
-      function blankProduct() { return { id: `product-${Date.now()}`, status: "active", discountPercent: 0, excludeGlobalDiscount: false, excludeFreeShipping: false, category: "", name: "", roast: "", taste: "", packageOptions: [{ label: "單包", price: 0 }], grindOptions: [], weight: "", image: "Imgea/ChatGPT Image 1.png" }; }
+      function blankProduct() { return { id: `product-${Date.now()}`, status: "active", discountPercent: 0, excludeGlobalDiscount: false, excludeFreeShipping: false, category: "", name: "", roast: "", taste: "", packageOptions: [{ label: "單包", price: 0 }], grindOptions: [], weight: "", origin: "", storage: "請置於陰涼乾燥處，開封後請密封保存並盡早飲用。", supplierInfo: "豆之楓企業社", image: "Imgea/ChatGPT Image 1.png" }; }
       function statusText(status) { return { active: "上架", soldout: "售完", hidden: "下架" }[status] || status; }
       function normalizeData(input) { return { products: Array.isArray(input.products) ? input.products : [] }; }
 
@@ -206,12 +209,12 @@
         const packageOptions = [...els.options.querySelectorAll(".option-row")].map((row) => ({ label: row.querySelector("[data-option-label]").value.trim(), price: Number(row.querySelector("[data-option-price]").value) || 0 })).filter((option) => option.label);
         const grindOptions = [...els.grinds.querySelectorAll("[data-grind]")].map((input) => input.value.trim()).filter(Boolean);
         const discountPercent = Math.min(100, Math.max(0, Number(els.discountPercent.value) || 0));
-        return { id: els.id.value.trim(), status: els.status.value, discountPercent, excludeGlobalDiscount: els.excludeGlobalDiscount.checked, excludeFreeShipping: els.excludeFreeShipping.checked, category: els.category.value.trim(), name: els.name.value.trim(), roast: els.roast.value.trim(), taste: els.taste.value.trim(), packageOptions: packageOptions.length ? packageOptions : [{ label: "單包", price: 0 }], grindOptions, weight: els.weight.value.trim(), image: els.image.value.trim() };
+        return { id: els.id.value.trim(), status: els.status.value, discountPercent, excludeGlobalDiscount: els.excludeGlobalDiscount.checked, excludeFreeShipping: els.excludeFreeShipping.checked, category: els.category.value.trim(), name: els.name.value.trim(), roast: els.roast.value.trim(), taste: els.taste.value.trim(), packageOptions: packageOptions.length ? packageOptions : [{ label: "單包", price: 0 }], grindOptions, weight: els.weight.value.trim(), origin: els.origin.value.trim(), storage: els.storage.value.trim(), supplierInfo: els.supplierInfo.value.trim(), image: els.image.value.trim() };
       }
 
       function fillForm(product) {
         els.formTitle.textContent = product.name || "商品內容";
-        els.id.value = product.id || ""; els.status.value = product.status || "active"; els.discountPercent.value = Number(product.discountPercent) || 0; els.excludeGlobalDiscount.checked = Boolean(product.excludeGlobalDiscount); els.excludeFreeShipping.checked = Boolean(product.excludeFreeShipping); els.category.value = product.category || ""; els.name.value = product.name || ""; els.roast.value = product.roast || ""; els.weight.value = product.weight || ""; els.image.value = product.image || ""; els.taste.value = product.taste || "";
+        els.id.value = product.id || ""; els.status.value = product.status || "active"; els.discountPercent.value = Number(product.discountPercent) || 0; els.excludeGlobalDiscount.checked = Boolean(product.excludeGlobalDiscount); els.excludeFreeShipping.checked = Boolean(product.excludeFreeShipping); els.category.value = product.category || ""; els.name.value = product.name || ""; els.roast.value = product.roast || ""; els.weight.value = product.weight || ""; els.origin.value = product.origin || ""; els.image.value = product.image || ""; els.taste.value = product.taste || ""; els.storage.value = product.storage || "請置於陰涼乾燥處，開封後請密封保存並盡早飲用。"; els.supplierInfo.value = product.supplierInfo || "豆之楓企業社";
         renderOptions(product.packageOptions || []); renderGrinds(product.grindOptions || []); renderPreview();
       }
 
@@ -220,7 +223,7 @@
         els.previewImage.src = product.image || "";
         els.previewCategory.textContent = `${product.category || "未分類"}｜${product.roast || "未填烘焙度"}｜${product.weight || "未填重量"}`;
         els.previewName.textContent = product.name || "未命名商品";
-        els.previewTaste.textContent = product.taste || "尚未填寫風味描述。";
+        els.previewTaste.textContent = `${product.taste || "尚未填寫風味描述。"}｜產地：${product.origin || "未填"}｜保存：${product.storage || "未填"}｜負責廠商：${product.supplierInfo || "未填"}`;
         els.previewOptions.innerHTML = "";
         product.packageOptions.forEach((option) => {
           const row = document.createElement("div");

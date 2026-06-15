@@ -2,6 +2,18 @@
 
 This file tracks project changes, deployment notes, and version updates.
 
+## 2026-06-16
+
+### Legal and Product Info Update
+
+- Added product fields for `origin`, `storage`, and `supplierInfo`.
+- Updated existing products in `src/admin-products.json` with safe default values.
+- Added the same fields to `商品管理工具.html` so future product updates can edit and save them.
+- Displayed product origin, storage method, and responsible business information on the product list.
+- Added checkout and footer-facing notices for personal data use, returns/exchanges, shipping, and food-information disclaimers.
+- Updated the footer business name to `豆之楓企業社`.
+- Updated `商品更新上傳說明.md` with the new food-labeling fields.
+
 ## 2026-05-24
 
 ### Current Version

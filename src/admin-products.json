@@ -21,7 +21,10 @@
         "9 磨粉 / 法壓"
       ],
       "weight": "1000 g",
-      "image": "https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=900&q=80"
+      "image": "https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=900&q=80",
+      "origin": "依商品標示為準",
+      "storage": "請置於陰涼乾燥處，開封後請密封保存並盡早飲用。",
+      "supplierInfo": "豆之楓企業社"
     },
     {
       "id": "shopee-medium-dark-1lb",
@@ -88,7 +91,10 @@
         "9 磨粉 / 法壓"
       ],
       "weight": "一磅裝 / 454g",
-      "image": "images/medium-dark-1lb.jpg"
+      "image": "images/medium-dark-1lb.jpg",
+      "origin": "依商品標示為準",
+      "storage": "請置於陰涼乾燥處，開封後請密封保存並盡早飲用。",
+      "supplierInfo": "豆之楓企業社"
     },
     {
       "id": "shopee-medium-dark-half-lb",
@@ -155,7 +161,10 @@
         "9 磨粉 / 法壓"
       ],
       "weight": "半磅裝 / 227g",
-      "image": "images/medium-dark-half-lb.jpg"
+      "image": "images/medium-dark-half-lb.jpg",
+      "origin": "依商品標示為準",
+      "storage": "請置於陰涼乾燥處，開封後請密封保存並盡早飲用。",
+      "supplierInfo": "豆之楓企業社"
     },
     {
       "id": "formula-blend-series",
@@ -190,7 +199,10 @@
         "9 磨粉 / 法壓"
       ],
       "weight": "配方豆系列454g",
-      "image": "https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=900&q=80"
+      "image": "https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=900&q=80",
+      "origin": "依商品標示為準",
+      "storage": "請置於陰涼乾燥處，開封後請密封保存並盡早飲用。",
+      "supplierInfo": "豆之楓企業社"
     },
     {
       "id": "formula-blend-series-half",
@@ -225,7 +237,10 @@
         "9 磨粉 / 法壓"
       ],
       "weight": "配方豆系列 227g",
-      "image": "https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=900&q=80"
+      "image": "https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=900&q=80",
+      "origin": "依商品標示為準",
+      "storage": "請置於陰涼乾燥處，開封後請密封保存並盡早飲用。",
+      "supplierInfo": "豆之楓企業社"
     },
     {
       "id": "colombia-hopes-estate-wine-sun",
@@ -251,7 +266,10 @@
         "9 磨粉 / 法壓"
       ],
       "weight": "精品小包裝",
-      "image": "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=900&q=80"
+      "image": "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=900&q=80",
+      "origin": "依商品標示為準",
+      "storage": "請置於陰涼乾燥處，開封後請密封保存並盡早飲用。",
+      "supplierInfo": "豆之楓企業社"
     },
     {
       "id": "ethiopia-yirgacheffe-banko-datatu",
@@ -277,7 +295,10 @@
         "9 磨粉 / 法壓"
       ],
       "weight": "精品小包裝",
-      "image": "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=900&q=80"
+      "image": "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=900&q=80",
+      "origin": "依商品標示為準",
+      "storage": "請置於陰涼乾燥處，開封後請密封保存並盡早飲用。",
+      "supplierInfo": "豆之楓企業社"
     },
     {
       "id": "golden-mandheling-drip",
@@ -294,7 +315,10 @@
       ],
       "grindOptions": [],
       "weight": "每包 / 10g",
-      "image": "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=900&q=80"
+      "image": "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=900&q=80",
+      "origin": "依商品標示為準",
+      "storage": "請置於陰涼乾燥處，開封後請密封保存並盡早飲用。",
+      "supplierInfo": "豆之楓企業社"
     }
   ]
 }

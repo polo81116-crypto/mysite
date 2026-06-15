@@ -193,6 +193,9 @@ const products = (adminCatalog.products?.length ? adminCatalog.products : fallba
     image: resolveAssetPath(product.image),
     packageOptions: product.packageOptions || [],
     grindOptions: product.grindOptions || [],
+    origin: product.origin || "依商品標示為準",
+    storage: product.storage || "請置於陰涼乾燥處，開封後請密封保存並盡早飲用。",
+    supplierInfo: product.supplierInfo || "豆之楓企業社",
   }));
 
 const productCategoryTabs = ["全部商品", ...new Set([...categories.map((category) => category.title), ...products.map((product) => product.category)])];
@@ -207,6 +210,15 @@ const infoSlides = (siteContent.infoSlides?.length ? siteContent.infoSlides : fa
   ...slide,
   image: resolveAssetPath(slide.image),
 }));
+
+const storeLegalInfo = {
+  businessName: "豆之楓企業社",
+  customerService: "請於訂單備註留下 LINE / IG / Email，客服會依訂單資訊與您聯繫。",
+  privacy: "您填寫的姓名、電話、Email、取貨門市、收件地址、發票與備註資料，僅用於訂單處理、配送、付款確認、售後服務與依法保存交易紀錄。除配送、付款、系統服務或依法令要求外，不會任意提供第三人。",
+  returns: "網路訂購商品依消費者保護法通訊交易規定辦理。咖啡屬食品，若商品已拆封、已研磨客製、因保存不當變質，可能不適用七日猶豫期退貨；若收到商品有瑕疵、破損或品項錯誤，請保留外箱與商品狀態並盡快聯繫客服。",
+  shipping: "目前提供 7-11 賣貨便、全家店到店與順豐快遞貨到付款。超商門市資料可能因物流端更新而變動，實際可寄送門市以物流服務當下資料為準。",
+  foodNotice: "食品資訊以商品頁與商品包裝標示為準。咖啡風味描述為感官參考，非醫療或保健功效宣稱。",
+};
 
 const convenienceStores = [
   { id: "174536", name: "7-11 勤美門市", city: "台中市", district: "西區", address: "台中市西區公益路68號" },
@@ -295,7 +307,7 @@ function validateStoreData() {
   const categoryFieldsValid = categories.every((category) => ["title", "subtitle", "description", "image"].every((field) => Boolean(category[field])));
   const productFieldsValid = products.every(
     (product) =>
-      ["id", "category", "name", "roast", "taste", "packageOptions", "grindOptions", "weight", "image"].every(
+      ["id", "category", "name", "roast", "taste", "packageOptions", "grindOptions", "weight", "origin", "storage", "supplierInfo", "image"].every(
         (field) => product[field] !== undefined && product[field] !== null && product[field] !== ""
       ) &&
       Array.isArray(product.packageOptions) &&
@@ -944,7 +956,14 @@ export default function CaobanCoffeeHomepage() {
                           )}
                         </div>
                       </div>
-                      <div className="text-sm text-[#dcc7ad]"><p className="font-bold text-[#fff8ec]">{product.category}</p><p className="mt-2">{product.roast}</p><p className="mt-1">{product.weight}</p></div>
+                      <div className="text-sm leading-6 text-[#dcc7ad]">
+                        <p className="font-bold text-[#fff8ec]">{product.category}</p>
+                        <p className="mt-2">{product.roast}</p>
+                        <p className="mt-1">{product.weight}</p>
+                        <p className="mt-3 text-xs text-[#f3c178]">產地：{product.origin}</p>
+                        <p className="mt-1 text-xs">保存：{product.storage}</p>
+                        <p className="mt-1 text-xs">負責廠商：{product.supplierInfo}</p>
+                      </div>
                       <div>{productDiscount > 0 && <p className="text-sm text-[#dcc7ad] line-through">{currency(selectedPackage.price)}</p>}<p className="text-2xl font-bold text-[#f3c178]">{currency(selectedFinalPrice)}</p>{productDiscount > 0 && <p className="mt-1 text-xs font-bold text-[#7CFFB2]">{productDiscount}% OFF</p>}<p className="mt-1 text-xs text-[#dcc7ad]">{selectedPackage.label}</p>{product.grindOptions.length > 0 && <p className="mt-1 text-xs text-[#dcc7ad]">{selectedGrind}</p>}</div>
                       <div className="flex items-center justify-start gap-3 md:justify-end">
                         {isSoldOut ? (
@@ -1023,6 +1042,11 @@ export default function CaobanCoffeeHomepage() {
                 <div className="grid gap-4 md:grid-cols-2"><input type="text" placeholder="統一編號" value={checkoutForm.taxId} onChange={(event) => handleCheckoutForm("taxId", event.target.value)} className="w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-white placeholder:text-[#e8d7bf] outline-none" /><input type="text" placeholder="公司抬頭" value={checkoutForm.companyTitle} onChange={(event) => handleCheckoutForm("companyTitle", event.target.value)} className="w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-white placeholder:text-[#e8d7bf] outline-none" /></div>
                 <input type="text" placeholder="其他資訊（FB / LINE / IG 帳號，可留空）" value={checkoutForm.socialAccount} onChange={(event) => handleCheckoutForm("socialAccount", event.target.value)} className="w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-white placeholder:text-[#e8d7bf] outline-none" />
                 <textarea placeholder="訂單備註" value={checkoutForm.note} onChange={(event) => handleCheckoutForm("note", event.target.value)} rows={4} className="w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-white placeholder:text-[#e8d7bf] outline-none" />
+                <div className="rounded-2xl border border-white/15 bg-white/10 p-4 text-xs leading-6 text-[#fff1df]">
+                  <p className="font-bold text-[#f3c178]">個資與退換貨提醒</p>
+                  <p className="mt-1">{storeLegalInfo.privacy}</p>
+                  <p className="mt-2">{storeLegalInfo.returns}</p>
+                </div>
               </div>
               <div className="mt-8 border-t border-white/20 pt-5"><div className="flex justify-between text-[#fff1df]"><span>商品數量</span><span>{cartCount} 件</span></div><div className="mt-4 flex justify-between text-[#fff1df]"><span>商品原價</span><span>{currency(cartSubtotal)}</span></div><div className="mt-4 flex justify-between font-bold text-[#7CFFB2]"><span>全館 9 折優惠</span><span>- {currency(globalDiscountAmount)}</span></div><div className="mt-4 flex justify-between text-[#fff1df]"><span>折扣後小計</span><span>{currency(discountedSubtotal)}</span></div><div className="mt-4 flex justify-between text-[#fff1df]"><span>配送運費</span><span>{shippingFee === 0 ? "免運" : currency(shippingFee)}</span></div><div className="mt-4 border-t border-white/20 pt-4 text-sm leading-7 text-[#fff1df]">7-11 運費 38 元、全家運費 65 元、順豐運費 100 元，折扣後滿 1,000 元享免運優惠。特價商品可設定不參與全館 9 折或不列入免運門檻。</div><div className="mt-5 flex justify-between text-2xl font-bold"><span>總計</span><span>{currency(cartTotal)}</span></div></div>
             </div>
@@ -1053,7 +1077,42 @@ export default function CaobanCoffeeHomepage() {
         </div>
       )}
 
-      <footer className="border-t border-[#dccbb2] px-6 py-10 text-center text-sm text-[#66513f]"><p className="mt-3 leading-7">在那些還沒休息的夜晚，願你手中的咖啡，成為支撐生活的一點光。</p><p className="mt-4 text-xs tracking-[0.25em] text-[#8a603b]">© 攪拌咖啡商行 CAOBAN COFFEE｜精品咖啡豆・咖啡器材・超商取貨方案</p></footer>
+      <section id="store-info" className="bg-[#fff8ec] px-6 py-16">
+        <div className="mx-auto max-w-7xl">
+          <p className="text-sm font-bold tracking-[0.3em] text-[#8a603b]">SHOP INFO</p>
+          <h2 className="mt-2 text-3xl font-bold text-[#2a1a10]">訂購與店家資訊</h2>
+          <div className="mt-8 grid gap-5 md:grid-cols-2">
+            <article className="rounded-2xl border border-[#dccbb2] bg-white p-5 text-sm leading-7 text-[#5c4531]">
+              <h3 className="font-bold text-[#8a603b]">商家與客服</h3>
+              <p className="mt-2">負責廠商：{storeLegalInfo.businessName}</p>
+              <p className="mt-1">{storeLegalInfo.customerService}</p>
+            </article>
+            <article className="rounded-2xl border border-[#dccbb2] bg-white p-5 text-sm leading-7 text-[#5c4531]">
+              <h3 className="font-bold text-[#8a603b]">個資告知</h3>
+              <p className="mt-2">{storeLegalInfo.privacy}</p>
+            </article>
+            <article className="rounded-2xl border border-[#dccbb2] bg-white p-5 text-sm leading-7 text-[#5c4531]">
+              <h3 className="font-bold text-[#8a603b]">退換貨與取消訂單</h3>
+              <p className="mt-2">{storeLegalInfo.returns}</p>
+            </article>
+            <article className="rounded-2xl border border-[#dccbb2] bg-white p-5 text-sm leading-7 text-[#5c4531]">
+              <h3 className="font-bold text-[#8a603b]">配送與食品標示</h3>
+              <p className="mt-2">{storeLegalInfo.shipping}</p>
+              <p className="mt-2">{storeLegalInfo.foodNotice}</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <footer className="border-t border-[#dccbb2] px-6 py-10 text-center text-sm text-[#66513f]">
+        <p className="mt-3 leading-7">在那些還沒休息的夜晚，願你手中的咖啡，成為支撐生活的一點光。</p>
+        <div className="mt-4 flex flex-wrap justify-center gap-x-5 gap-y-2 text-xs font-bold text-[#8a603b]">
+          <a href="#store-info" className="hover:text-[#2a1a10]">個資告知</a>
+          <a href="#store-info" className="hover:text-[#2a1a10]">退換貨說明</a>
+          <a href="#store-info" className="hover:text-[#2a1a10]">配送付款</a>
+        </div>
+        <p className="mt-4 text-xs tracking-[0.25em] text-[#8a603b]">© 豆之楓企業社｜精品咖啡豆・咖啡器材・超商 貨運 專屬取貨方案</p>
+      </footer>
     </main>
   );
 }
