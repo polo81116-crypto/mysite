@@ -8,4 +8,28 @@
   .qty-btn {
     @apply inline-flex h-8 w-8 items-center justify-center rounded-md border border-[#d8cbb5] bg-white text-[#2d2418] hover:bg-[#f5efe5];
   }
+
+  .marquee-track {
+    @apply flex w-max items-center gap-8 whitespace-nowrap text-base font-black text-[#ffe9bd] md:text-lg;
+    animation: marquee 24s linear infinite;
+  }
+
+  .marquee-item {
+    @apply inline-flex items-center;
+  }
+
+  .marquee-item::before {
+    content: "•";
+    @apply mr-8 text-[#eacb8f];
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
 }

@@ -17,7 +17,7 @@ const orderApiUrl =
 const shopeeUrl =
   "https://shopee.tw/caobancoffee?categoryId=100629&entryPoint=ShopByPDP&itemId=49107641936&upstream=search";
 
-const { grindOptions, products } = catalog;
+const { grindOptions, products, settings = {} } = catalog;
 
 const initialForm = {
   name: "",
@@ -65,13 +65,13 @@ export default function App() {
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const visibleProducts = products.filter((product) => product.status !== "hidden");
 
-  function addItem(product, option, grind) {
+  function addItem(product, option, grind, quantity = 1) {
     const id = lineId(product.id, option.label, grind);
     setCart((current) => {
       const existing = current.find((item) => item.id === id);
       if (existing) {
         return current.map((item) =>
-          item.id === id ? { ...item, quantity: item.quantity + 1 } : item
+          item.id === id ? { ...item, quantity: item.quantity + quantity } : item
         );
       }
       return [
@@ -81,11 +81,10 @@ export default function App() {
           productId: product.id,
           name: product.name,
           category: product.category,
-          image: imageUrl(product.image),
           option: option.label,
           grind,
           price: option.price,
-          quantity: 1,
+          quantity,
         },
       ];
     });
@@ -215,23 +214,37 @@ export default function App() {
       </header>
 
       <section className="mx-auto grid max-w-6xl gap-4 px-4 py-6 lg:grid-cols-[1fr_360px]">
-        <div className="overflow-hidden rounded-md border border-[#d8cbb5] bg-white">
-          <div className="grid md:grid-cols-[1fr_280px]">
-            <div className="p-5 md:p-6">
-              <p className="text-sm font-bold text-[#8b6b3f]">公告欄</p>
-              <h2 className="mt-2 text-2xl font-black text-[#1f1b16]">自家烘焙咖啡豆開放訂購</h2>
-              <div className="mt-4 grid gap-3 text-sm leading-7 text-[#5f554a] md:grid-cols-2">
-                <p className="rounded-md bg-[#fff5df] p-3">7-11 取貨付款，取貨時再付款。</p>
-                <p className="rounded-md bg-[#fff5df] p-3">單筆滿 $1,000 免運，未滿運費 $38。</p>
-                <p className="rounded-md bg-[#fff5df] p-3">咖啡豆可選原豆或研磨度。</p>
-                <p className="rounded-md bg-[#fff5df] p-3">下單前會再次確認訂單內容。</p>
+        <div
+          className="relative min-h-[340px] overflow-hidden rounded-md bg-[#2d2418] text-white md:min-h-[390px]"
+          style={{
+            backgroundImage: `linear-gradient(90deg, rgba(28, 20, 12, 0.86), rgba(28, 20, 12, 0.48)), url(${imageUrl(
+              settings.announcementImage || products[0]?.image
+            )})`,
+            backgroundPosition: "center",
+            backgroundSize: "cover",
+          }}
+        >
+          <div className="flex min-h-[340px] flex-col justify-between p-5 md:min-h-[390px] md:p-8">
+            <div className="max-w-2xl">
+              <p className="text-sm font-bold text-[#eacb8f]">公告欄</p>
+              <h2 className="mt-3 text-3xl font-black leading-tight md:text-5xl">
+                {settings.announcementTitle || "自家烘焙咖啡豆開放訂購"}
+              </h2>
+              <p className="mt-4 max-w-xl text-base font-bold leading-8 text-[#fff3dd] md:text-xl">
+                {settings.announcementSubtitle || "7-11 取貨付款｜滿 $1,000 免運｜咖啡豆可選原豆或研磨"}
+              </p>
+            </div>
+            <div className="-mx-5 overflow-hidden border-y border-white/20 bg-black/35 py-3 md:-mx-8">
+              <div className="marquee-track">
+                {[...(settings.announcementMessages || []), ...(settings.announcementMessages || [])].map(
+                  (message, index) => (
+                    <span key={`${message}-${index}`} className="marquee-item">
+                      {message}
+                    </span>
+                  )
+                )}
               </div>
             </div>
-            <img
-              src={imageUrl(products[0]?.image)}
-              alt="咖啡豆產品"
-              className="h-56 w-full object-cover md:h-full"
-            />
           </div>
         </div>
 
@@ -364,13 +377,13 @@ export default function App() {
 function ProductRow({ product, onAdd }) {
   const [optionLabel, setOptionLabel] = useState(product.options[0].label);
   const [grind, setGrind] = useState(product.noGrind ? "不需研磨" : grindOptions[0]);
+  const [quantity, setQuantity] = useState(1);
   const option = product.options.find((item) => item.label === optionLabel) ?? product.options[0];
   const isSoldOut = product.status === "soldout";
 
   return (
-    <article className="grid gap-4 rounded-md border border-[#e6e0d5] bg-white p-4 md:grid-cols-[96px_1fr]">
-      <img src={imageUrl(product.image)} alt={product.name} className="h-24 w-24 rounded-md object-cover" />
-      <div className="grid gap-4 md:grid-cols-[1fr_180px_180px_104px] md:items-center">
+    <article className="rounded-md border border-[#e6e0d5] bg-white p-4">
+      <div className="grid gap-4 md:grid-cols-[1fr_170px_170px_116px_120px] md:items-center">
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <p className="text-xs font-bold text-[#8b6b3f]">{product.category}</p>
@@ -398,14 +411,49 @@ function ProductRow({ product, onAdd }) {
             <option key={item}>{item}</option>
           ))}
         </select>
+        <div className="rounded-md border border-[#d8cbb5] bg-[#fffaf0] px-3 py-2">
+          <p className="text-xs font-bold text-[#8b6b3f]">單價</p>
+          <p className="mt-1 font-black">{currency(option.price)} / 包</p>
+        </div>
+        <div>
+          <p className="mb-2 text-xs font-bold text-[#8b6b3f]">數量</p>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setQuantity((value) => Math.max(1, value - 1))}
+              className="qty-btn"
+              aria-label="減少數量"
+            >
+              <Minus className="h-4 w-4" />
+            </button>
+            <input
+              value={quantity}
+              inputMode="numeric"
+              onChange={(event) => {
+                const next = Number(event.target.value);
+                setQuantity(Number.isFinite(next) && next > 0 ? Math.floor(next) : 1);
+              }}
+              className="h-9 w-12 rounded-md border border-[#d8cbb5] bg-white text-center font-black"
+              aria-label="商品數量"
+            />
+            <button
+              type="button"
+              onClick={() => setQuantity((value) => value + 1)}
+              className="qty-btn"
+              aria-label="增加數量"
+            >
+              <Plus className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
         <button
           type="button"
-          onClick={() => onAdd(product, option, grind)}
+          onClick={() => onAdd(product, option, grind, quantity)}
           disabled={isSoldOut}
           className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#2d2418] px-4 text-sm font-bold text-white hover:bg-[#463821] disabled:cursor-not-allowed disabled:bg-[#c8bbaa] disabled:text-white"
         >
           {!isSoldOut && <Plus className="h-4 w-4" />}
-          {isSoldOut ? "售完" : `${currency(option.price)} / 包`}
+          {isSoldOut ? "售完" : "加入"}
         </button>
       </div>
     </article>

@@ -210,6 +210,22 @@
       <section class="panel">
         <h2 id="formTitle">商品內容</h2>
         <div class="form-grid" style="margin-top: 14px">
+          <label class="full">
+            公告欄圖片
+            <input id="announcementImage" placeholder="例如 images/medium-dark-1lb.jpg 或 https://..." />
+          </label>
+          <label class="full">
+            公告欄標題
+            <input id="announcementTitle" placeholder="例如 自家烘焙咖啡豆開放訂購" />
+          </label>
+          <label class="full">
+            公告欄副標題
+            <input id="announcementSubtitle" placeholder="例如 7-11 取貨付款｜滿 $1,000 免運" />
+          </label>
+          <label class="full">
+            跑馬燈文字
+            <textarea id="announcementMessages" placeholder="每一行一則公告"></textarea>
+          </label>
           <label>
             商品 ID
             <input id="id" placeholder="例如 medium-dark-1lb" />
@@ -264,6 +280,17 @@
 
     <script>
       const defaultData = {
+        settings: {
+          announcementImage: "images/medium-dark-1lb.jpg",
+          announcementTitle: "自家烘焙咖啡豆開放訂購",
+          announcementSubtitle: "7-11 取貨付款｜滿 $1,000 免運｜咖啡豆可選原豆或研磨",
+          announcementMessages: [
+            "7-11 取貨付款，取貨時再付款",
+            "單筆滿 $1,000 免運，未滿運費 $38",
+            "咖啡豆可選原豆或研磨度",
+            "下單前會再次確認訂單內容",
+          ],
+        },
         grindOptions: ["咖啡豆不研磨", "義式/摩卡壺", "手沖/濾杯", "法壓壺", "冷萃"],
         products: [],
       };
@@ -279,6 +306,10 @@
         newProduct: document.querySelector("#newProduct"),
         productList: document.querySelector("#productList"),
         formTitle: document.querySelector("#formTitle"),
+        announcementImage: document.querySelector("#announcementImage"),
+        announcementTitle: document.querySelector("#announcementTitle"),
+        announcementSubtitle: document.querySelector("#announcementSubtitle"),
+        announcementMessages: document.querySelector("#announcementMessages"),
         id: document.querySelector("#id"),
         status: document.querySelector("#status"),
         category: document.querySelector("#category"),
@@ -316,6 +347,10 @@
 
       function normalizeData(input) {
         return {
+          settings: {
+            ...defaultData.settings,
+            ...(input.settings || {}),
+          },
           grindOptions: Array.isArray(input.grindOptions) ? input.grindOptions : defaultData.grindOptions,
           products: Array.isArray(input.products) ? input.products : [],
         };
@@ -352,6 +387,17 @@
       }
 
       function readForm() {
+        data.settings = {
+          ...(data.settings || {}),
+          announcementImage: els.announcementImage.value.trim(),
+          announcementTitle: els.announcementTitle.value.trim(),
+          announcementSubtitle: els.announcementSubtitle.value.trim(),
+          announcementMessages: els.announcementMessages.value
+            .split("\n")
+            .map((line) => line.trim())
+            .filter(Boolean),
+        };
+
         const optionRows = [...els.options.querySelectorAll(".option-row")];
         const options = optionRows
           .map((row) => {
@@ -377,6 +423,10 @@
 
       function fillForm(product) {
         els.formTitle.textContent = product.name || "商品內容";
+        els.announcementImage.value = data.settings?.announcementImage || "";
+        els.announcementTitle.value = data.settings?.announcementTitle || "";
+        els.announcementSubtitle.value = data.settings?.announcementSubtitle || "";
+        els.announcementMessages.value = (data.settings?.announcementMessages || []).join("\n");
         els.id.value = product.id || "";
         els.status.value = product.status || "active";
         els.category.value = product.category || "";

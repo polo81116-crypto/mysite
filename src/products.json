@@ -1,4 +1,15 @@
 {
+  "settings": {
+    "announcementImage": "images/announcement-cover.png",
+    "announcementTitle": "自家烘焙咖啡豆開放訂購",
+    "announcementSubtitle": "7-11 取貨付款｜滿 $1,000 免運｜咖啡豆可選原豆或研磨",
+    "announcementMessages": [
+      "7-11 取貨付款，取貨時再付款",
+      "單筆滿 $1,000 免運，未滿運費 $38",
+      "咖啡豆可選原豆或研磨度",
+      "下單前會再次確認訂單內容"
+    ]
+  },
   "grindOptions": ["咖啡豆不研磨", "義式/摩卡壺", "手沖/濾杯", "法壓壺", "冷萃"],
   "products": [
     {
