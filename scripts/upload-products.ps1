@@ -22,6 +22,9 @@ if (-not (Test-Path ".git")) {
   Fail "Cannot find .git. Please run this script inside the project folder."
 }
 
+Write-Host "Syncing latest GitHub main..." -ForegroundColor Cyan
+git pull --rebase --autostash origin main
+
 Write-Host "Checking product JSON..." -ForegroundColor Cyan
 node -e "JSON.parse(require('fs').readFileSync('src/admin-products.json','utf8')); console.log('admin-products.json ok')"
 
@@ -48,25 +51,12 @@ if (-not $Message) {
   $Message = "Update products"
 }
 
-Write-Host "Syncing latest GitHub main..." -ForegroundColor Cyan
-git pull --rebase origin main
-
-Write-Host "Staging product files..." -ForegroundColor Cyan
-git add src/admin-products.json
-git add "商品管理工具.html"
-git add "開啟商品管理工具.bat"
-git add "一鍵上傳商品更新.bat"
-git add "商品更新上傳說明.md"
-git add scripts/upload-products.ps1
-if (Test-Path "Imgea") {
-  git add Imgea
-}
-git add vite.config.js
-git add src/App.jsx
+Write-Host "Staging files..." -ForegroundColor Cyan
+git add --all
 
 $staged = git diff --cached --name-only
 if (-not $staged) {
-  Write-Host "No staged product changes." -ForegroundColor Yellow
+  Write-Host "No staged changes." -ForegroundColor Yellow
   Pause-AndExit 0
 }
 
