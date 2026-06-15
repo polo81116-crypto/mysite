@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>商品管理工具</title>
+    <style>
+      :root {
+        color: #24211d;
+        background: #fbfaf7;
+        font-family: "Microsoft JhengHei", system-ui, sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+      }
+
+      header {
+        border-bottom: 1px solid #e6e0d5;
+        background: #fff;
+        padding: 20px;
+      }
+
+      main {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 16px;
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 16px;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+      }
+
+      button {
+        border: 0;
+        border-radius: 6px;
+        background: #2d2418;
+        color: #fff;
+        cursor: pointer;
+        font-weight: 700;
+        padding: 10px 14px;
+      }
+
+      button.secondary {
+        border: 1px solid #d8cbb5;
+        background: #fff;
+        color: #2d2418;
+      }
+
+      button.danger {
+        background: #9a3328;
+      }
+
+      label {
+        display: block;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      input,
+      select,
+      textarea {
+        width: 100%;
+        border: 1px solid #d8cbb5;
+        border-radius: 6px;
+        margin-top: 6px;
+        padding: 10px;
+      }
+
+      textarea {
+        min-height: 84px;
+        resize: vertical;
+      }
+
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 14px;
+      }
+
+      .panel {
+        border: 1px solid #e6e0d5;
+        border-radius: 8px;
+        background: #fff;
+        padding: 14px;
+      }
+
+      .list {
+        display: grid;
+        gap: 8px;
+        margin-top: 12px;
+      }
+
+      .item {
+        border: 1px solid #e6e0d5;
+        border-radius: 8px;
+        background: #fff;
+        cursor: pointer;
+        padding: 12px;
+        text-align: left;
+      }
+
+      .item.active {
+        border-color: #8b6b3f;
+        background: #f8f4ed;
+      }
+
+      .item small {
+        color: #73695d;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .full {
+        grid-column: 1 / -1;
+      }
+
+      .option-row {
+        display: grid;
+        grid-template-columns: 1fr 120px 44px;
+        gap: 8px;
+        margin-top: 8px;
+      }
+
+      .option-row button {
+        padding: 0;
+      }
+
+      .status {
+        border-radius: 999px;
+        display: inline-block;
+        font-size: 12px;
+        font-weight: 700;
+        margin-top: 6px;
+        padding: 3px 8px;
+      }
+
+      .status.active {
+        background: #e7f4df;
+        color: #2e6d2e;
+      }
+
+      .status.soldout {
+        background: #fff2d8;
+        color: #8b5a00;
+      }
+
+      .status.hidden {
+        background: #eee;
+        color: #555;
+      }
+
+      .notice {
+        color: #73695d;
+        font-size: 13px;
+        line-height: 1.7;
+        margin-top: 10px;
+      }
+
+      @media (max-width: 820px) {
+        main {
+          grid-template-columns: 1fr;
+        }
+
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>商品管理工具</h1>
+      <p class="notice">開啟 `src/products.json` 後，可新增商品、修改價格、設定上架/售完/下架，再儲存回同一個檔案。</p>
+      <div class="toolbar">
+        <button id="openFile">開啟商品資料檔</button>
+        <button id="saveFile">儲存</button>
+        <button id="downloadFile" class="secondary">另存 JSON</button>
+      </div>
+    </header>
+
+    <main>
+      <aside class="panel">
+        <button id="newProduct" class="secondary" style="width: 100%">新增商品</button>
+        <div id="productList" class="list"></div>
+      </aside>
+
+      <section class="panel">
+        <h2 id="formTitle">商品內容</h2>
+        <div class="form-grid" style="margin-top: 14px">
+          <label>
+            商品 ID
+            <input id="id" placeholder="例如 medium-dark-1lb" />
+          </label>
+          <label>
+            狀態
+            <select id="status">
+              <option value="active">上架</option>
+              <option value="soldout">售完</option>
+              <option value="hidden">下架</option>
+            </select>
+          </label>
+          <label>
+            分類
+            <input id="category" placeholder="例如 常規豆" />
+          </label>
+          <label>
+            商品名稱
+            <input id="name" placeholder="例如 中深焙配方豆" />
+          </label>
+          <label class="full">
+            商品說明
+            <textarea id="note"></textarea>
+          </label>
+          <label class="full">
+            圖片網址或路徑
+            <input id="image" placeholder="例如 images/medium-dark-1lb.jpg 或 https://..." />
+          </label>
+          <label>
+            不需要研磨
+            <select id="noGrind">
+              <option value="false">否</option>
+              <option value="true">是</option>
+            </select>
+          </label>
+          <div></div>
+          <div class="full">
+            <h3>規格與價格</h3>
+            <div id="options"></div>
+            <button id="addOption" class="secondary" style="margin-top: 10px">新增規格</button>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <button id="applyProduct">套用修改</button>
+          <button id="duplicateProduct" class="secondary">複製商品</button>
+          <button id="deleteProduct" class="danger">刪除商品</button>
+        </div>
+        <p id="message" class="notice"></p>
+      </section>
+    </main>
+
+    <script>
+      const defaultData = {
+        grindOptions: ["咖啡豆不研磨", "義式/摩卡壺", "手沖/濾杯", "法壓壺", "冷萃"],
+        products: [],
+      };
+
+      let fileHandle = null;
+      let data = structuredClone(defaultData);
+      let selectedIndex = -1;
+
+      const els = {
+        openFile: document.querySelector("#openFile"),
+        saveFile: document.querySelector("#saveFile"),
+        downloadFile: document.querySelector("#downloadFile"),
+        newProduct: document.querySelector("#newProduct"),
+        productList: document.querySelector("#productList"),
+        formTitle: document.querySelector("#formTitle"),
+        id: document.querySelector("#id"),
+        status: document.querySelector("#status"),
+        category: document.querySelector("#category"),
+        name: document.querySelector("#name"),
+        note: document.querySelector("#note"),
+        image: document.querySelector("#image"),
+        noGrind: document.querySelector("#noGrind"),
+        options: document.querySelector("#options"),
+        addOption: document.querySelector("#addOption"),
+        applyProduct: document.querySelector("#applyProduct"),
+        duplicateProduct: document.querySelector("#duplicateProduct"),
+        deleteProduct: document.querySelector("#deleteProduct"),
+        message: document.querySelector("#message"),
+      };
+
+      function blankProduct() {
+        return {
+          id: `product-${Date.now()}`,
+          status: "active",
+          category: "",
+          name: "",
+          note: "",
+          image: "",
+          options: [{ label: "單包", price: 0 }],
+        };
+      }
+
+      function statusText(status) {
+        return { active: "上架", soldout: "售完", hidden: "下架" }[status] || status;
+      }
+
+      function setMessage(text) {
+        els.message.textContent = text;
+      }
+
+      function normalizeData(input) {
+        return {
+          grindOptions: Array.isArray(input.grindOptions) ? input.grindOptions : defaultData.grindOptions,
+          products: Array.isArray(input.products) ? input.products : [],
+        };
+      }
+
+      function renderList() {
+        els.productList.innerHTML = "";
+        data.products.forEach((product, index) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = `item${index === selectedIndex ? " active" : ""}`;
+          button.innerHTML = `
+            <strong>${product.name || "未命名商品"}</strong><br>
+            <small>${product.category || "未分類"}｜${product.options?.length || 0} 個規格</small><br>
+            <span class="status ${product.status || "active"}">${statusText(product.status || "active")}</span>
+          `;
+          button.addEventListener("click", () => selectProduct(index));
+          els.productList.append(button);
+        });
+      }
+
+      function renderOptions(options = []) {
+        els.options.innerHTML = "";
+        options.forEach((option, index) => {
+          const row = document.createElement("div");
+          row.className = "option-row";
+          row.innerHTML = `
+            <input data-field="label" data-index="${index}" value="${option.label || ""}" placeholder="規格，例如 100g" />
+            <input data-field="price" data-index="${index}" value="${Number(option.price) || 0}" inputmode="numeric" placeholder="價格" />
+            <button type="button" class="danger" data-remove="${index}">×</button>
+          `;
+          els.options.append(row);
+        });
+      }
+
+      function readForm() {
+        const optionRows = [...els.options.querySelectorAll(".option-row")];
+        const options = optionRows
+          .map((row) => {
+            const label = row.querySelector('[data-field="label"]').value.trim();
+            const price = Number(row.querySelector('[data-field="price"]').value);
+            return { label, price: Number.isFinite(price) ? price : 0 };
+          })
+          .filter((option) => option.label);
+
+        const product = {
+          id: els.id.value.trim(),
+          status: els.status.value,
+          category: els.category.value.trim(),
+          name: els.name.value.trim(),
+          note: els.note.value.trim(),
+          image: els.image.value.trim(),
+          options: options.length ? options : [{ label: "單包", price: 0 }],
+        };
+
+        if (els.noGrind.value === "true") product.noGrind = true;
+        return product;
+      }
+
+      function fillForm(product) {
+        els.formTitle.textContent = product.name || "商品內容";
+        els.id.value = product.id || "";
+        els.status.value = product.status || "active";
+        els.category.value = product.category || "";
+        els.name.value = product.name || "";
+        els.note.value = product.note || "";
+        els.image.value = product.image || "";
+        els.noGrind.value = product.noGrind ? "true" : "false";
+        renderOptions(product.options || []);
+      }
+
+      function selectProduct(index) {
+        selectedIndex = index;
+        fillForm(data.products[index]);
+        renderList();
+        setMessage("");
+      }
+
+      function applyProduct() {
+        const product = readForm();
+        if (!product.id || !product.name) {
+          setMessage("商品 ID 和商品名稱必填。");
+          return;
+        }
+
+        const duplicate = data.products.findIndex((item, index) => item.id === product.id && index !== selectedIndex);
+        if (duplicate !== -1) {
+          setMessage("商品 ID 不可重複。");
+          return;
+        }
+
+        if (selectedIndex === -1) {
+          data.products.push(product);
+          selectedIndex = data.products.length - 1;
+        } else {
+          data.products[selectedIndex] = product;
+        }
+        renderList();
+        fillForm(product);
+        setMessage("已套用修改，記得按「儲存」。");
+      }
+
+      async function openFile() {
+        if (!window.showOpenFilePicker) {
+          setMessage("這個瀏覽器不支援直接開檔，請改用新版 Chrome 或 Edge。");
+          return;
+        }
+
+        [fileHandle] = await window.showOpenFilePicker({
+          types: [{ description: "JSON", accept: { "application/json": [".json"] } }],
+        });
+        const file = await fileHandle.getFile();
+        data = normalizeData(JSON.parse(await file.text()));
+        selectedIndex = data.products.length ? 0 : -1;
+        renderList();
+        if (selectedIndex >= 0) fillForm(data.products[selectedIndex]);
+        setMessage(`已開啟：${file.name}`);
+      }
+
+      async function saveFile() {
+        applyProduct();
+        const text = `${JSON.stringify(data, null, 2)}\n`;
+        if (fileHandle?.createWritable) {
+          const writable = await fileHandle.createWritable();
+          await writable.write(text);
+          await writable.close();
+          setMessage("已儲存到原本的 products.json。");
+          return;
+        }
+        downloadFile();
+      }
+
+      function downloadFile() {
+        applyProduct();
+        const blob = new Blob([`${JSON.stringify(data, null, 2)}\n`], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "products.json";
+        link.click();
+        URL.revokeObjectURL(url);
+        setMessage("已下載 products.json，請覆蓋 src/products.json。");
+      }
+
+      els.openFile.addEventListener("click", openFile);
+      els.saveFile.addEventListener("click", saveFile);
+      els.downloadFile.addEventListener("click", downloadFile);
+      els.newProduct.addEventListener("click", () => {
+        selectedIndex = -1;
+        fillForm(blankProduct());
+        renderList();
+      });
+      els.addOption.addEventListener("click", () => {
+        const current = readForm();
+        current.options.push({ label: "", price: 0 });
+        renderOptions(current.options);
+      });
+      els.options.addEventListener("click", (event) => {
+        const removeIndex = event.target.dataset.remove;
+        if (removeIndex === undefined) return;
+        const current = readForm();
+        current.options.splice(Number(removeIndex), 1);
+        renderOptions(current.options);
+      });
+      els.applyProduct.addEventListener("click", applyProduct);
+      els.duplicateProduct.addEventListener("click", () => {
+        const copy = readForm();
+        copy.id = `${copy.id}-copy`;
+        copy.name = `${copy.name} 複製`;
+        selectedIndex = -1;
+        fillForm(copy);
+        renderList();
+      });
+      els.deleteProduct.addEventListener("click", () => {
+        if (selectedIndex === -1) return;
+        if (!confirm("確定要刪除這個商品？")) return;
+        data.products.splice(selectedIndex, 1);
+        selectedIndex = data.products.length ? Math.min(selectedIndex, data.products.length - 1) : -1;
+        renderList();
+        if (selectedIndex >= 0) fillForm(data.products[selectedIndex]);
+        else fillForm(blankProduct());
+        setMessage("已刪除，記得按「儲存」。");
+      });
+
+      renderList();
+      fillForm(blankProduct());
+    </script>
+  </body>
+</html>

@@ -10,12 +10,15 @@ import {
   ShoppingBag,
   Trash2,
 } from "lucide-react";
-import { grindOptions, products } from "./products";
+import catalog from "./products.json";
 
 const orderApiUrl =
   "https://script.google.com/macros/s/AKfycbzfN28njwcJeZssEQV5HJnZ7Z9Z-dPmIVP0WNLBZNQz7VUG9VewI6hl29-0ivpJ_DiPQA/exec";
 const shopeeUrl =
   "https://shopee.tw/caobancoffee?categoryId=100629&entryPoint=ShopByPDP&itemId=49107641936&upstream=search";
+
+const { grindOptions, products } = catalog;
+
 const initialForm = {
   name: "",
   phone: "",
@@ -34,6 +37,12 @@ function currency(value) {
     currency: "TWD",
     maximumFractionDigits: 0,
   }).format(value);
+}
+
+function imageUrl(value) {
+  if (!value) return "";
+  if (/^https?:\/\//.test(value)) return value;
+  return `${import.meta.env.BASE_URL}${value.replace(/^\/+/, "")}`;
 }
 
 function lineId(productId, optionLabel, grind) {
@@ -72,7 +81,7 @@ export default function App() {
           productId: product.id,
           name: product.name,
           category: product.category,
-          image: product.image,
+          image: imageUrl(product.image),
           option: option.label,
           grind,
           price: option.price,
@@ -190,7 +199,7 @@ export default function App() {
           <div>
             <p className="text-sm font-semibold text-[#8b6b3f]">自家烘焙精品咖啡｜7-11 取貨付款</p>
             <h1 className="mt-2 text-3xl font-black tracking-normal text-[#1f1b16] md:text-5xl">
-              草本咖啡訂購單
+              豆之楓企業社
             </h1>
           </div>
           <a
@@ -204,6 +213,44 @@ export default function App() {
           </a>
         </div>
       </header>
+
+      <section className="mx-auto grid max-w-6xl gap-4 px-4 py-6 lg:grid-cols-[1fr_360px]">
+        <div className="overflow-hidden rounded-md border border-[#d8cbb5] bg-white">
+          <div className="grid md:grid-cols-[1fr_280px]">
+            <div className="p-5 md:p-6">
+              <p className="text-sm font-bold text-[#8b6b3f]">公告欄</p>
+              <h2 className="mt-2 text-2xl font-black text-[#1f1b16]">自家烘焙咖啡豆開放訂購</h2>
+              <div className="mt-4 grid gap-3 text-sm leading-7 text-[#5f554a] md:grid-cols-2">
+                <p className="rounded-md bg-[#fff5df] p-3">7-11 取貨付款，取貨時再付款。</p>
+                <p className="rounded-md bg-[#fff5df] p-3">單筆滿 $1,000 免運，未滿運費 $38。</p>
+                <p className="rounded-md bg-[#fff5df] p-3">咖啡豆可選原豆或研磨度。</p>
+                <p className="rounded-md bg-[#fff5df] p-3">下單前會再次確認訂單內容。</p>
+              </div>
+            </div>
+            <img
+              src={imageUrl(products[0]?.image)}
+              alt="咖啡豆產品"
+              className="h-56 w-full object-cover md:h-full"
+            />
+          </div>
+        </div>
+
+        <div className="rounded-md border border-[#d8cbb5] bg-[#2d2418] p-5 text-white">
+          <p className="text-sm font-bold text-[#eacb8f]">咖啡產品</p>
+          <h2 className="mt-2 text-2xl font-black">咖啡豆、濾掛、日常配方</h2>
+          <p className="mt-3 text-sm leading-7 text-[#f5e8d1]">
+            依照喝法選擇規格與研磨度，加入購物車後填收件資料即可送出訂單。
+          </p>
+          <div className="mt-4 grid grid-cols-3 gap-2">
+            {visibleProducts.slice(0, 3).map((product) => (
+              <div key={product.id} className="overflow-hidden rounded-md bg-white/10">
+                <img src={imageUrl(product.image)} alt={product.name} className="h-20 w-full object-cover" />
+                <p className="truncate px-2 py-2 text-xs font-bold">{product.category}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       <section className="mx-auto grid max-w-6xl gap-6 px-4 py-6 lg:grid-cols-[1fr_360px] lg:items-start">
         <div className="space-y-4">
@@ -228,16 +275,16 @@ export default function App() {
             </div>
             <div className="mt-5 grid gap-4 md:grid-cols-2">
               <Field label="收件人姓名" error={errors.name}>
-                <input value={form.name} onChange={(e) => updateForm("name", e.target.value)} />
+                <input placeholder="例如：王小明" value={form.name} onChange={(e) => updateForm("name", e.target.value)} />
               </Field>
               <Field label="手機號碼" hint="09 開頭，共 10 碼" error={errors.phone}>
-                <input value={form.phone} inputMode="tel" onChange={(e) => updateForm("phone", e.target.value)} />
+                <input placeholder="例如：0912345678" value={form.phone} inputMode="tel" onChange={(e) => updateForm("phone", e.target.value)} />
               </Field>
               <Field label="Email" hint="收出貨通知與電子發票" error={errors.email}>
-                <input value={form.email} type="email" onChange={(e) => updateForm("email", e.target.value)} />
+                <input placeholder="例如：coffee@example.com" value={form.email} type="email" onChange={(e) => updateForm("email", e.target.value)} />
               </Field>
               <Field label="7-11 取貨門市" hint="可填店名、店號或地址" error={errors.store}>
-                <input value={form.store} onChange={(e) => updateForm("store", e.target.value)} />
+                <input placeholder="例如：中山門市 / 123456 / 台中市..." value={form.store} onChange={(e) => updateForm("store", e.target.value)} />
               </Field>
               <Field label="發票">
                 <select value={form.invoice} onChange={(e) => updateForm("invoice", e.target.value)}>
@@ -248,20 +295,20 @@ export default function App() {
                 </select>
               </Field>
               <Field label="其他聯絡資訊" hint="FB / LINE / IG，可留空">
-                <input value={form.social} onChange={(e) => updateForm("social", e.target.value)} />
+                <input placeholder="例如：LINE ID 或 Facebook 名稱" value={form.social} onChange={(e) => updateForm("social", e.target.value)} />
               </Field>
               {form.invoice === "公司統編" && (
                 <>
                   <Field label="統一編號" error={errors.taxId}>
-                    <input value={form.taxId} inputMode="numeric" onChange={(e) => updateForm("taxId", e.target.value)} />
+                    <input placeholder="例如：12345678" value={form.taxId} inputMode="numeric" onChange={(e) => updateForm("taxId", e.target.value)} />
                   </Field>
                   <Field label="公司抬頭">
-                    <input value={form.companyTitle} onChange={(e) => updateForm("companyTitle", e.target.value)} />
+                    <input placeholder="例如：豆之楓企業社" value={form.companyTitle} onChange={(e) => updateForm("companyTitle", e.target.value)} />
                   </Field>
                 </>
               )}
               <Field label="備註" className="md:col-span-2">
-                <textarea rows={4} value={form.note} onChange={(e) => updateForm("note", e.target.value)} />
+                <textarea placeholder="例如：希望週末前到貨、不要研磨太細..." rows={4} value={form.note} onChange={(e) => updateForm("note", e.target.value)} />
               </Field>
             </div>
           </section>
@@ -322,7 +369,7 @@ function ProductRow({ product, onAdd }) {
 
   return (
     <article className="grid gap-4 rounded-md border border-[#e6e0d5] bg-white p-4 md:grid-cols-[96px_1fr]">
-      <img src={product.image} alt={product.name} className="h-24 w-24 rounded-md object-cover" />
+      <img src={imageUrl(product.image)} alt={product.name} className="h-24 w-24 rounded-md object-cover" />
       <div className="grid gap-4 md:grid-cols-[1fr_180px_180px_104px] md:items-center">
         <div>
           <div className="flex flex-wrap items-center gap-2">
@@ -358,7 +405,7 @@ function ProductRow({ product, onAdd }) {
           className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#2d2418] px-4 text-sm font-bold text-white hover:bg-[#463821] disabled:cursor-not-allowed disabled:bg-[#c8bbaa] disabled:text-white"
         >
           {!isSoldOut && <Plus className="h-4 w-4" />}
-          {isSoldOut ? "售完" : currency(option.price)}
+          {isSoldOut ? "售完" : `${currency(option.price)} / 包`}
         </button>
       </div>
     </article>
@@ -401,6 +448,7 @@ function CartSummary({ cart, cartCount, subtotal, shipping, total, error, onQuan
                   <p className="mt-1 text-xs text-[#73695d]">
                     {item.option}｜{item.grind}
                   </p>
+                  <p className="mt-1 text-xs font-bold text-[#8b6b3f]">{currency(item.price)} / 包</p>
                 </div>
                 <button type="button" onClick={() => onQuantity(item.id, 0)} aria-label="移除商品">
                   <Trash2 className="h-4 w-4 text-[#9a3b2f]" />
