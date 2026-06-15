@@ -469,7 +469,7 @@ export default function CaobanCoffeeHomepage() {
       }
       try {
         setStoreDataStatus("loading");
-        const response = await fetch(storeConfig.url);
+        const response = await fetch(storeConfig.url, { cache: "no-store" });
         if (!response.ok) throw new Error("門市資料載入失敗");
         const data = await response.json();
         const stores = Object.entries(data).map(([id, value]) => {
