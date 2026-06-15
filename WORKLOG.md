@@ -168,6 +168,26 @@ public/stores.json
 
 ### Version
 
+- Version: FamilyMart store data import
+- Updated by: Codex
+
+### Changes
+
+- Added `scripts/update-family-stores.mjs` to fetch FamilyMart stores from the official map.com.tw FamilyMart API.
+- Generated `public/family-stores.json` with 4,498 valid FamilyMart stores.
+- Updated the store-data GitHub Action to refresh both 7-ELEVEN and FamilyMart store files.
+
+### Verification
+
+- 7-ELEVEN store JSON: 7,292 valid records.
+- FamilyMart store JSON: 4,498 valid records.
+- Lint: passed.
+- Build: passed.
+
+## 2026-06-16
+
+### Version
+
 - Version: shipping fee update
 - Updated by: Codex
 
