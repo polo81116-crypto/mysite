@@ -75,7 +75,16 @@
           <label class="full">商品圖片<input id="image" placeholder="例如 Imgea/ChatGPT Image 1.png 或 images/medium-dark-1lb.jpg" /></label>
           <label class="full">風味描述<textarea id="taste"></textarea></label>
           <div class="full"><h3>規格與價格</h3><div id="options"></div><button id="addOption" class="secondary" style="margin-top: 10px">新增規格</button></div>
-          <div class="full"><h3>研磨選項</h3><p class="hint">濾掛或不需研磨的商品可以留空。</p><div id="grinds"></div><button id="addGrind" class="secondary" style="margin-top: 10px">新增研磨選項</button></div>
+          <div class="full">
+            <h3>研磨選項</h3>
+            <p class="hint">可用下方選單快速加入目前網站常用的研磨方式；濾掛或不需研磨的商品可以留空。</p>
+            <div class="toolbar">
+              <select id="grindPreset" style="max-width: 340px"></select>
+              <button id="addPresetGrind" class="secondary">加入選單研磨方式</button>
+              <button id="addGrind" class="secondary">新增空白研磨方式</button>
+            </div>
+            <div id="grinds"></div>
+          </div>
         </div>
         <div class="toolbar">
           <button id="applyProduct">套用到商品清單</button>
@@ -104,6 +113,18 @@
     <script>
       const defaultData = { products: [] };
       const defaultImageChoices = ["Imgea/ChatGPT Image 1.png", "Imgea/ChatGPT2.jpg", "Imgea/ChatGPT3.jpg", "images/medium-dark-1lb.jpg", "images/medium-dark-half-lb.jpg"];
+      const grindPresets = [
+        "咖啡原豆",
+        "一磅（咖啡原豆）",
+        "半磅（咖啡原豆）",
+        "一磅(咖啡原豆)",
+        "半磅(咖啡原豆)",
+        "2.5 磨粉 / 義式",
+        "3 磨粉 / 摩卡壺",
+        "8 磨粉 / 手沖（推薦）",
+        "8 磨粉 / 手沖",
+        "9 磨粉 / 法壓",
+      ];
       let fileHandle = null;
       let data = structuredClone(defaultData);
       let selectedIndex = -1;
@@ -114,7 +135,7 @@
         openJson: $("#openJson"), saveJson: $("#saveJson"), downloadJson: $("#downloadJson"), openImageFolder: $("#openImageFolder"),
         message: $("#message"), productList: $("#productList"), newProduct: $("#newProduct"), formTitle: $("#formTitle"),
         id: $("#id"), status: $("#status"), category: $("#category"), name: $("#name"), roast: $("#roast"), weight: $("#weight"), image: $("#image"), taste: $("#taste"),
-        options: $("#options"), addOption: $("#addOption"), grinds: $("#grinds"), addGrind: $("#addGrind"),
+        options: $("#options"), addOption: $("#addOption"), grinds: $("#grinds"), addGrind: $("#addGrind"), grindPreset: $("#grindPreset"), addPresetGrind: $("#addPresetGrind"),
         applyProduct: $("#applyProduct"), duplicateProduct: $("#duplicateProduct"), deleteProduct: $("#deleteProduct"),
         previewImage: $("#previewImage"), previewCategory: $("#previewCategory"), previewName: $("#previewName"), previewTaste: $("#previewTaste"), previewOptions: $("#previewOptions"), imageList: $("#imageList"),
       };
@@ -205,6 +226,16 @@
         });
       }
 
+      function renderGrindPresets() {
+        els.grindPreset.innerHTML = "";
+        grindPresets.forEach((preset) => {
+          const option = document.createElement("option");
+          option.value = preset;
+          option.textContent = preset;
+          els.grindPreset.append(option);
+        });
+      }
+
       async function loadBundledProducts() {
         try {
           const response = await fetch("src/admin-products.json", { cache: "no-store" });
@@ -271,11 +302,18 @@
       els.deleteProduct.addEventListener("click", () => { if (selectedIndex === -1) return; if (!confirm("確定刪除這個商品？")) return; data.products.splice(selectedIndex, 1); selectedIndex = data.products.length ? Math.min(selectedIndex, data.products.length - 1) : -1; renderList(); fillForm(selectedIndex >= 0 ? data.products[selectedIndex] : blankProduct()); setMessage("已刪除商品，記得儲存回 JSON。"); });
       els.addOption.addEventListener("click", () => { const product = readForm(); product.packageOptions.push({ label: "", price: 0 }); renderOptions(product.packageOptions); });
       els.addGrind.addEventListener("click", () => { const product = readForm(); product.grindOptions.push(""); renderGrinds(product.grindOptions); });
+      els.addPresetGrind.addEventListener("click", () => {
+        const product = readForm();
+        const preset = els.grindPreset.value;
+        if (preset && !product.grindOptions.includes(preset)) product.grindOptions.push(preset);
+        renderGrinds(product.grindOptions);
+      });
       els.options.addEventListener("click", (event) => { const index = event.target.dataset.removeOption; if (index === undefined) return; const product = readForm(); product.packageOptions.splice(Number(index), 1); renderOptions(product.packageOptions); renderPreview(); });
       els.grinds.addEventListener("click", (event) => { const index = event.target.dataset.removeGrind; if (index === undefined) return; const product = readForm(); product.grindOptions.splice(Number(index), 1); renderGrinds(product.grindOptions); });
       document.addEventListener("input", (event) => { if (event.target.closest("main")) renderPreview(); });
 
       renderImageChoices();
+      renderGrindPresets();
       loadBundledProducts();
     </script>
   </body>
