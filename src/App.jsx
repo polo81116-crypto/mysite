@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Award, Bean, ChevronRight, Coffee, Filter, MapPin, Minus, Plus, ShoppingBag, ShoppingCart, Trash2, X } from "lucide-react";
 import { motion } from "framer-motion";
+import adminCatalog from "./admin-products.json";
 
 const shopeeUrl = "https://shopee.tw/caobancoffee?categoryId=100629&entryPoint=ShopByPDP&itemId=49107641936&upstream=search";
 const orderApiUrl = "https://script.google.com/macros/s/AKfycbzfN28njwcJeZssEQV5HJnZ7Z9Z-dPmIVP0WNLBZNQz7VUG9VewI6hl29-0ivpJ_DiPQA/exec";
@@ -9,6 +10,12 @@ const sevenElevenStoresJsonUrl = `${import.meta.env.BASE_URL}stores.json`;
 const coffeeReviewAwardImage = `${import.meta.env.BASE_URL}images/coffee-review-award.png`;
 const mediumDarkOnePoundImage = `${import.meta.env.BASE_URL}images/medium-dark-1lb.jpg`;
 const mediumDarkHalfPoundImage = `${import.meta.env.BASE_URL}images/medium-dark-half-lb.jpg`;
+
+function resolveAssetPath(path) {
+  if (!path) return "";
+  if (/^https?:\/\//.test(path)) return path;
+  return `${import.meta.env.BASE_URL}${path.replace(/^\/+/, "")}`;
+}
 
 const categories = [
   {
@@ -81,7 +88,7 @@ const formulaBlendHalfPoundOptions = formulaBlendOptions.map((option) => ({
   price: Math.round(option.price / 2 + 15),
 }));
 
-const products = [
+const fallbackProducts = [
   {
     id: "shopee-medium-dark-1lb",
     category: "商用優選豆",
@@ -172,7 +179,16 @@ const products = [
   },
 ];
 
-const productCategoryTabs = ["全部商品", ...categories.map((category) => category.title)];
+const products = (adminCatalog.products?.length ? adminCatalog.products : fallbackProducts)
+  .filter((product) => product.status !== "hidden")
+  .map((product) => ({
+    ...product,
+    image: resolveAssetPath(product.image),
+    packageOptions: product.packageOptions || [],
+    grindOptions: product.grindOptions || [],
+  }));
+
+const productCategoryTabs = ["全部商品", ...new Set([...categories.map((category) => category.title), ...products.map((product) => product.category)])];
 const emptyProductCategories = ["單一極致產區", "Coffee Review評分豆"];
 const infoSlides = [
   { title: "本月行事曆", image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1600&q=80" },
@@ -795,11 +811,12 @@ export default function CaobanCoffeeHomepage() {
                   const selectedGrind = selectedGrinds[product.id] || "不需研磨";
                   const cartId = makeCartId(product.id, selectedPackage.label, selectedGrind);
                   const quantity = getCartQuantity(product.id);
+                  const isSoldOut = product.status === "soldout";
                   return (
                     <article key={product.id} className="grid gap-5 px-5 py-6 transition hover:bg-white/5 md:grid-cols-[180px_1.3fr_0.8fr_0.75fr_0.8fr] md:items-center md:px-6">
                       <img src={product.image} alt={product.name} className="h-56 w-full rounded-2xl bg-white object-contain p-2 shadow-lg md:h-52 md:w-[180px]" />
                       <div>
-                        <div className="mb-2 inline-flex rounded-full bg-[#f3c178]/10 px-3 py-1 text-xs font-bold text-[#f3c178] md:hidden">{product.category}</div>
+                        <div className="mb-2 flex flex-wrap gap-2"><span className="inline-flex rounded-full bg-[#f3c178]/10 px-3 py-1 text-xs font-bold text-[#f3c178] md:hidden">{product.category}</span>{isSoldOut && <span className="inline-flex rounded-full bg-white px-3 py-1 text-xs font-bold text-[#8a3d2b]">售完</span>}</div>
                         <h3 className="text-xl font-bold">{product.name}</h3>
                         <p className="mt-2 text-sm leading-6 text-[#f3c178]">{product.taste}</p>
                         <div className="mt-4 rounded-2xl border border-white/10 bg-black/10 p-4">
@@ -834,7 +851,9 @@ export default function CaobanCoffeeHomepage() {
                       <div className="text-sm text-[#dcc7ad]"><p className="font-bold text-[#fff8ec]">{product.category}</p><p className="mt-2">{product.roast}</p><p className="mt-1">{product.weight}</p></div>
                       <div><p className="text-2xl font-bold text-[#f3c178]">{currency(selectedPackage.price)}</p><p className="mt-1 text-xs text-[#dcc7ad]">{selectedPackage.label}</p>{product.grindOptions.length > 0 && <p className="mt-1 text-xs text-[#dcc7ad]">{selectedGrind}</p>}</div>
                       <div className="flex items-center justify-start gap-3 md:justify-end">
-                        {quantity > 0 ? (
+                        {isSoldOut ? (
+                          <button type="button" disabled className="inline-flex cursor-not-allowed items-center justify-center rounded-full bg-white/30 px-5 py-3 font-bold text-white/70">售完</button>
+                        ) : quantity > 0 ? (
                           <div className="flex items-center gap-2 rounded-full bg-white/10 p-1">
                             <button type="button" onClick={() => updateQuantity(cartId, quantity - 1)} className="rounded-full bg-white p-2 text-[#2a1a10]" aria-label={`減少 ${product.name} 數量`}><Minus className="h-4 w-4" /></button>
                             <span className="w-8 text-center font-bold">{quantity}</span>

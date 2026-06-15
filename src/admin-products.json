@@ -1,0 +1,130 @@
+{
+  "products": [
+    {
+      "id": "shopee-medium-dark-1lb",
+      "status": "active",
+      "category": "商用優選豆",
+      "name": "中深焙推薦 一磅裝",
+      "roast": "中深烘焙",
+      "taste": "不酸好滋味、濃郁堅果香、自家烘焙",
+      "packageOptions": [
+        { "label": "【中深】巴西 摩羯座 甜濃縮", "price": 400 },
+        { "label": "【中深】經典 黃金曼巴", "price": 400 },
+        { "label": "【中深】衣索 耶加雪菲 水洗", "price": 430 },
+        { "label": "【中深】肯亞 精選 AA 水洗", "price": 430 },
+        { "label": "【中深】哥倫比亞 梅德琳", "price": 390 },
+        { "label": "【中深】薩爾瓦多 巧克情深", "price": 400 },
+        { "label": "【中深】巴西 喜拉朵", "price": 350 },
+        { "label": "【中深】瓜地馬拉 微微特南果", "price": 350 },
+        { "label": "【中深】衣索 耶加雪菲 日曬", "price": 450 },
+        { "label": "【中深】印尼 曼特寧", "price": 430 },
+        { "label": "【中深】尼加 溫和風情 SHG", "price": 380 },
+        { "label": "NEW【中深】巴拿馬 射手座 紅玉谷", "price": 490 }
+      ],
+      "grindOptions": ["一磅（咖啡原豆）", "2.5 磨粉 / 義式", "3 磨粉 / 摩卡壺", "8 磨粉 / 手沖（推薦）", "9 磨粉 / 法壓"],
+      "weight": "一磅裝 / 454g",
+      "image": "images/medium-dark-1lb.jpg"
+    },
+    {
+      "id": "shopee-medium-dark-half-lb",
+      "status": "active",
+      "category": "商用優選豆",
+      "name": "中深焙推薦 半磅裝",
+      "roast": "中深烘焙",
+      "taste": "不酸好滋味、濃郁堅果香、自家烘焙，適合初次嘗試與日常少量飲用。",
+      "packageOptions": [
+        { "label": "【中深】巴西 摩羯座 甜濃縮", "price": 215 },
+        { "label": "【中深】經典 黃金曼巴", "price": 215 },
+        { "label": "【中深】衣索 耶加雪菲 水洗", "price": 230 },
+        { "label": "【中深】肯亞 精選 AA 水洗", "price": 230 },
+        { "label": "【中深】哥倫比亞 梅德琳", "price": 210 },
+        { "label": "【中深】薩爾瓦多 巧克情深", "price": 215 },
+        { "label": "【中深】巴西 喜拉朵", "price": 190 },
+        { "label": "【中深】瓜地馬拉 微微特南果", "price": 190 },
+        { "label": "【中深】衣索 耶加雪菲 日曬", "price": 240 },
+        { "label": "【中深】印尼 曼特寧", "price": 230 },
+        { "label": "【中深】尼加 溫和風情 SHG", "price": 205 },
+        { "label": "NEW【中深】巴拿馬 射手座 紅玉谷", "price": 260 }
+      ],
+      "grindOptions": ["半磅（咖啡原豆）", "2.5 磨粉 / 義式", "3 磨粉 / 摩卡壺", "8 磨粉 / 手沖（推薦）", "9 磨粉 / 法壓"],
+      "weight": "半磅裝 / 227g",
+      "image": "images/medium-dark-half-lb.jpg"
+    },
+    {
+      "id": "formula-blend-series",
+      "status": "active",
+      "category": "配方豆專區",
+      "name": "配方豆專區",
+      "roast": "中焙 / 中深焙",
+      "taste": "四款日常配方豆，提供順口、堅果、焦糖與厚實風味選擇。",
+      "packageOptions": [
+        { "label": "【深】經典典藏配方", "price": 350 },
+        { "label": "【中深】堅果小子配方", "price": 400 },
+        { "label": "【中深】太妃糖姬配方", "price": 450 },
+        { "label": "【中】冠軍精選配方", "price": 500 }
+      ],
+      "grindOptions": ["一磅(咖啡原豆)", "2.5 磨粉 / 義式", "3 磨粉 / 摩卡壺", "8 磨粉 / 手沖（推薦）", "9 磨粉 / 法壓"],
+      "weight": "配方豆系列454g",
+      "image": "https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=900&q=80"
+    },
+    {
+      "id": "formula-blend-series-half",
+      "status": "active",
+      "category": "配方豆專區",
+      "name": "配方豆專區 227g",
+      "roast": "中深 / 中深咖啡",
+      "taste": "果香、甜感、平衡感明顯，適合日常沖煮。",
+      "packageOptions": [
+        { "label": "【深】經典典藏配方", "price": 190 },
+        { "label": "【中深】堅果小子配方", "price": 215 },
+        { "label": "【中深】太妃糖姬配方", "price": 240 },
+        { "label": "【中】冠軍精選配方", "price": 265 }
+      ],
+      "grindOptions": ["半磅(咖啡原豆)", "2.5 磨粉 / 義式", "3 磨粉 / 摩卡壺", "8 磨粉 / 手沖", "9 磨粉 / 法壓"],
+      "weight": "配方豆系列 227g",
+      "image": "https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=900&q=80"
+    },
+    {
+      "id": "colombia-hopes-estate-wine-sun",
+      "status": "active",
+      "category": "精品咖啡豆",
+      "name": "哥倫比亞 希望莊園 酒香日曬處理",
+      "roast": "淺烘焙",
+      "taste": "酒香發酵、莓果甜感、尾韻濃郁，適合喜歡特殊發酵風味的精品咖啡愛好者。",
+      "packageOptions": [
+        { "label": "100g", "price": 160 },
+        { "label": "200g", "price": 300 }
+      ],
+      "grindOptions": ["咖啡原豆", "3 磨粉 / 摩卡壺", "8 磨粉 / 手沖（推薦）", "9 磨粉 / 法壓"],
+      "weight": "精品小包裝",
+      "image": "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=900&q=80"
+    },
+    {
+      "id": "ethiopia-yirgacheffe-banko-datatu",
+      "status": "active",
+      "category": "精品咖啡豆",
+      "name": "衣索比亞 耶加雪夫 班可 達達圖 G1 水洗",
+      "roast": "淺烘焙",
+      "taste": "茉莉花香、柑橘酸甜、尾韻乾淨細緻，展現耶加雪夫經典水洗風味。",
+      "packageOptions": [
+        { "label": "100g", "price": 145 },
+        { "label": "200g", "price": 270 }
+      ],
+      "grindOptions": ["咖啡原豆", "3 磨粉 / 摩卡壺", "8 磨粉 / 手沖（推薦）", "9 磨粉 / 法壓"],
+      "weight": "精品小包裝",
+      "image": "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=900&q=80"
+    },
+    {
+      "id": "golden-mandheling-drip",
+      "status": "active",
+      "category": "濾掛咖啡",
+      "name": "黃金曼巴 濾掛咖啡",
+      "roast": "中深烘焙",
+      "taste": "厚實可可、焦糖甜感、滑順尾韻",
+      "packageOptions": [{ "label": "單包", "price": 15 }],
+      "grindOptions": [],
+      "weight": "每包 / 10g",
+      "image": "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=900&q=80"
+    }
+  ]
+}
