@@ -119,6 +119,28 @@ This file tracks project changes, deployment notes, and version updates.
 public/stores.json
 ```
 
+## 2026-06-16
+
+### Version
+
+- Version: special sale exclusions
+- Updated by: Codex
+
+### Changes
+
+- Added product-level controls for special sale items:
+  - `excludeGlobalDiscount`: skips the sitewide 9-discount calculation.
+  - `excludeFreeShipping`: excludes the item from the free-shipping threshold.
+- Added matching checkboxes and preview notes in `商品管理工具.html`.
+- Updated cart totals to show the actual sitewide discount amount after exclusions.
+- Updated `商品更新上傳說明.md` with special sale instructions.
+
+### Verification
+
+- JSON parse: passed.
+- Lint: passed.
+- Build: passed when run outside the sandbox with Windows native dependency access.
+
 - Added GitHub Actions workflow:
 
 ```txt

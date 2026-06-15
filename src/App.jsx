@@ -399,8 +399,19 @@ export default function CaobanCoffeeHomepage() {
 
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const cartSubtotal = useMemo(() => cart.reduce((sum, item) => sum + item.price * item.quantity, 0), [cart]);
-  const discountedSubtotal = useMemo(() => Math.round(cartSubtotal * 0.9), [cartSubtotal]);
-  const shippingFee = useMemo(() => (cart.length === 0 ? 0 : discountedSubtotal >= 1000 ? 0 : 38), [cart.length, discountedSubtotal]);
+  const globalDiscountEligibleSubtotal = useMemo(() => cart.reduce((sum, item) => sum + (item.excludeGlobalDiscount ? 0 : item.price * item.quantity), 0), [cart]);
+  const globalDiscountAmount = useMemo(() => Math.round(globalDiscountEligibleSubtotal * 0.1), [globalDiscountEligibleSubtotal]);
+  const discountedSubtotal = useMemo(() => cartSubtotal - globalDiscountAmount, [cartSubtotal, globalDiscountAmount]);
+  const freeShippingSubtotal = useMemo(
+    () => cart.reduce((sum, item) => {
+      if (item.excludeFreeShipping) return sum;
+      const itemSubtotal = item.price * item.quantity;
+      const itemDiscount = item.excludeGlobalDiscount ? 0 : Math.round(itemSubtotal * 0.1);
+      return sum + itemSubtotal - itemDiscount;
+    }, 0),
+    [cart]
+  );
+  const shippingFee = useMemo(() => (cart.length === 0 ? 0 : freeShippingSubtotal >= 1000 ? 0 : 38), [cart.length, freeShippingSubtotal]);
   const cartTotal = useMemo(() => discountedSubtotal + shippingFee, [discountedSubtotal, shippingFee]);
   const isCheckoutBelowMinimum = cart.length > 0 && cartTotal < minimumCheckoutTotal;
   const checkoutDisabled = cart.length === 0 || isCheckoutBelowMinimum;
@@ -523,6 +534,8 @@ export default function CaobanCoffeeHomepage() {
           price: finalPrice,
           originalPrice: selectedPackage.price,
           discountPercent: productDiscount,
+          excludeGlobalDiscount: Boolean(product.excludeGlobalDiscount),
+          excludeFreeShipping: Boolean(product.excludeFreeShipping),
           quantity: 1,
         },
       ];
@@ -589,7 +602,7 @@ export default function CaobanCoffeeHomepage() {
       itemSummary,
       lineItems,
       subtotal: currency(cartSubtotal),
-      discount: currency(cartSubtotal - discountedSubtotal),
+      discount: currency(globalDiscountAmount),
       shippingFee: shippingText,
       total: currency(cartTotal),
       totalNumber: cartTotal,
@@ -948,7 +961,7 @@ export default function CaobanCoffeeHomepage() {
                 <input type="text" placeholder="其他資訊（FB / LINE / IG 帳號，可留空）" value={checkoutForm.socialAccount} onChange={(event) => handleCheckoutForm("socialAccount", event.target.value)} className="w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-white placeholder:text-[#e8d7bf] outline-none" />
                 <textarea placeholder="訂單備註" value={checkoutForm.note} onChange={(event) => handleCheckoutForm("note", event.target.value)} rows={4} className="w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-white placeholder:text-[#e8d7bf] outline-none" />
               </div>
-              <div className="mt-8 border-t border-white/20 pt-5"><div className="flex justify-between text-[#fff1df]"><span>商品數量</span><span>{cartCount} 件</span></div><div className="mt-4 flex justify-between text-[#fff1df]"><span>商品原價</span><span>{currency(cartSubtotal)}</span></div><div className="mt-4 flex justify-between font-bold text-[#7CFFB2]"><span>全館 9 折優惠</span><span>- {currency(cartSubtotal - discountedSubtotal)}</span></div><div className="mt-4 flex justify-between text-[#fff1df]"><span>折扣後小計</span><span>{currency(discountedSubtotal)}</span></div><div className="mt-4 flex justify-between text-[#fff1df]"><span>超商運費</span><span>{shippingFee === 0 ? "免運" : currency(shippingFee)}</span></div><div className="mt-4 border-t border-white/20 pt-4 text-sm leading-7 text-[#fff1df]">7-11 賣貨便每筆訂單運費 38 元，折扣後滿 1,000 元享免運優惠。全館商品目前享 9 折優惠活動。</div><div className="mt-5 flex justify-between text-2xl font-bold"><span>總計</span><span>{currency(cartTotal)}</span></div></div>
+              <div className="mt-8 border-t border-white/20 pt-5"><div className="flex justify-between text-[#fff1df]"><span>商品數量</span><span>{cartCount} 件</span></div><div className="mt-4 flex justify-between text-[#fff1df]"><span>商品原價</span><span>{currency(cartSubtotal)}</span></div><div className="mt-4 flex justify-between font-bold text-[#7CFFB2]"><span>全館 9 折優惠</span><span>- {currency(globalDiscountAmount)}</span></div><div className="mt-4 flex justify-between text-[#fff1df]"><span>折扣後小計</span><span>{currency(discountedSubtotal)}</span></div><div className="mt-4 flex justify-between text-[#fff1df]"><span>超商運費</span><span>{shippingFee === 0 ? "免運" : currency(shippingFee)}</span></div><div className="mt-4 border-t border-white/20 pt-4 text-sm leading-7 text-[#fff1df]">7-11 賣貨便每筆訂單運費 38 元，折扣後滿 1,000 元享免運優惠。特價商品可設定不參與全館 9 折或不列入免運門檻。</div><div className="mt-5 flex justify-between text-2xl font-bold"><span>總計</span><span>{currency(cartTotal)}</span></div></div>
             </div>
             {isCheckoutBelowMinimum && <p className="mt-4 rounded-2xl border border-[#ffcfca]/40 bg-[#ffcfca]/10 px-4 py-3 text-sm font-bold leading-6 text-[#ffcfca]">結帳最低消費為 {currency(minimumCheckoutTotal)}，目前還差 {currency(minimumCheckoutTotal - cartTotal)}。</p>}
             <button type="button" onClick={openOrderConfirm} disabled={checkoutDisabled} className={`mt-6 inline-flex w-full items-center justify-center rounded-full px-6 py-4 font-bold transition ${checkoutDisabled ? "cursor-not-allowed bg-white/30 text-white/60" : "bg-white text-[#5a341d] hover:scale-[1.02]"}`}>立即下單</button>
@@ -963,7 +976,7 @@ export default function CaobanCoffeeHomepage() {
             <div className="flex items-start justify-between gap-4 border-b border-[#dccbb2] pb-5"><div><p className="text-sm font-bold tracking-[0.3em] text-[#8a603b]">{orderSubmitStatus === "success" ? "ORDER COMPLETE" : "ORDER CONFIRM"}</p><h2 className="mt-2 text-3xl font-bold">{orderSubmitStatus === "success" ? "訂購完成" : "請確認訂單內容"}</h2><p className="mt-2 text-sm leading-6 text-[#66513f]">{orderSubmitStatus === "success" ? "謝謝您的訂購，我們已收到您的咖啡訂單，接下來會用心為您準備每一份香氣。" : "確認商品、收件資料與取貨門市無誤後，再送出訂單。"}</p></div><button type="button" onClick={orderSubmitStatus === "success" ? closeOrderComplete : () => setShowOrderConfirm(false)} className="rounded-full bg-[#efe2cf] px-4 py-2 text-sm font-bold text-[#5a341d]">關閉</button></div>
             <div className="mt-6 space-y-4">{cart.map((item) => (<div key={item.cartId} className="rounded-2xl bg-[#f6efe4] p-4"><div className="flex justify-between gap-4"><div><p className="font-bold">{item.name}</p><p className="mt-1 text-sm text-[#66513f]">{item.packageLabel}</p><p className="mt-1 text-sm text-[#66513f]">{item.grindLabel}</p></div><div className="text-right"><p className="font-bold">{currency(item.price)} × {item.quantity}</p><p className="mt-1 text-sm text-[#8a603b]">{currency(item.price * item.quantity)}</p></div></div></div>))}</div>
             <div className="mt-6 grid gap-4 md:grid-cols-2"><div className="rounded-2xl border border-[#dccbb2] bg-white p-5"><p className="font-bold text-[#8a603b]">收件資料</p><div className="mt-3 space-y-2 text-sm leading-6 text-[#5c4531]"><p>收件人：{checkoutForm.recipient || "尚未填寫"}</p><p>手機：{checkoutForm.phone || "尚未填寫"}</p><p>Email：{checkoutForm.email || "尚未填寫"}</p><p>取貨門市：{checkoutForm.pickupStore || "尚未選擇"}</p><p className="mt-3 rounded-xl bg-[#f6efe4] px-3 py-2 text-xs font-bold text-[#8a603b]">7-11 賣貨便為貨到付款，取貨時再付款。</p></div></div><div className="rounded-2xl border border-[#dccbb2] bg-white p-5"><p className="font-bold text-[#8a603b]">發票與備註</p><div className="mt-3 space-y-2 text-sm leading-6 text-[#5c4531]"><p>統一編號：{checkoutForm.taxId || "無"}</p><p>公司抬頭：{checkoutForm.companyTitle || "無"}</p><p>備註：{checkoutForm.note || "無"}</p><p>其他資訊：{checkoutForm.socialAccount || "無"}</p></div></div></div>
-            <div className="mt-6 rounded-2xl bg-[#2a1a10] p-5 text-white"><div className="flex justify-between text-sm text-[#fff1df]"><span>商品原價</span><span>{currency(cartSubtotal)}</span></div><div className="mt-3 flex justify-between text-sm font-bold text-[#7CFFB2]"><span>全館 9 折優惠</span><span>- {currency(cartSubtotal - discountedSubtotal)}</span></div><div className="mt-3 flex justify-between text-sm text-[#fff1df]"><span>折扣後小計</span><span>{currency(discountedSubtotal)}</span></div><div className="mt-3 flex justify-between text-sm text-[#fff1df]"><span>超商運費</span><span>{shippingFee === 0 ? "免運" : currency(shippingFee)}</span></div><div className="mt-4 flex justify-between border-t border-white/20 pt-4 text-2xl font-bold"><span>總計</span><span>{currency(cartTotal)}</span></div></div>
+            <div className="mt-6 rounded-2xl bg-[#2a1a10] p-5 text-white"><div className="flex justify-between text-sm text-[#fff1df]"><span>商品原價</span><span>{currency(cartSubtotal)}</span></div><div className="mt-3 flex justify-between text-sm font-bold text-[#7CFFB2]"><span>全館 9 折優惠</span><span>- {currency(globalDiscountAmount)}</span></div><div className="mt-3 flex justify-between text-sm text-[#fff1df]"><span>折扣後小計</span><span>{currency(discountedSubtotal)}</span></div><div className="mt-3 flex justify-between text-sm text-[#fff1df]"><span>超商運費</span><span>{shippingFee === 0 ? "免運" : currency(shippingFee)}</span></div><div className="mt-4 flex justify-between border-t border-white/20 pt-4 text-2xl font-bold"><span>總計</span><span>{currency(cartTotal)}</span></div></div>
             {orderSubmitStatus === "success" && <div className="mt-6 rounded-[2rem] border border-[#b8d8ba] bg-[#e8f5e9] p-6 text-center text-[#2e7d32]"><p className="text-2xl font-black">訂單已順利送出</p><p className="mt-3 text-sm font-bold leading-7">感謝您把今天的咖啡時光交給攪拌咖啡商行。訂單明細將寄到您的 Email，我們也會同步收到通知並盡快為您安排出貨。</p><p className="mt-3 text-sm leading-7 text-[#3d6b40]">願這份咖啡，在抵達您手中時，剛好成為生活裡最舒服的一段香氣。</p></div>}
             {orderSubmitStatus === "error" && <div className="mt-6 rounded-2xl bg-[#fff0f0] p-4 text-sm font-bold leading-7 text-[#9f2a2a]">訂單送出失敗，請稍後再試，或改用蝦皮商城下單。</div>}
             {orderSubmitStatus === "success" ? (
