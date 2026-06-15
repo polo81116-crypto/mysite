@@ -141,6 +141,29 @@ public/stores.json
 - Lint: passed.
 - Build: passed when run outside the sandbox with Windows native dependency access.
 
+## 2026-06-16
+
+### Version
+
+- Version: shipping method expansion
+- Updated by: Codex
+
+### Changes
+
+- Added checkout options for `7-11 賣貨便`, `全家店到店`, and `順豐快遞貨到付款`.
+- Added `public/family-stores.json` as the FamilyMart store-data slot. The frontend now supports loading FamilyMart stores in the same format as `public/stores.json`.
+- Confirmed the current 7-11 store file has 7,292 valid records.
+- Added `配送方式` and `收件地址` fields to the Google Apps Script order payload and order sheet output.
+- Updated Apps Script so SF Express COD orders skip the MyShip import sheet and are marked as `順豐快遞`.
+- Updated homepage and footer wording requested by the user.
+
+### Verification
+
+- JSON parse: passed.
+- Lint: passed.
+- Build: passed.
+- Apps Script syntax check: passed.
+
 - Added GitHub Actions workflow:
 
 ```txt

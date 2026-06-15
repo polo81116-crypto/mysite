@@ -8,6 +8,7 @@ const shopeeUrl = "https://shopee.tw/caobancoffee?categoryId=100629&entryPoint=S
 const orderApiUrl = "https://script.google.com/macros/s/AKfycbzfN28njwcJeZssEQV5HJnZ7Z9Z-dPmIVP0WNLBZNQz7VUG9VewI6hl29-0ivpJ_DiPQA/exec";
 const minimumCheckoutTotal = 100;
 const sevenElevenStoresJsonUrl = `${import.meta.env.BASE_URL}stores.json`;
+const familyMartStoresJsonUrl = `${import.meta.env.BASE_URL}family-stores.json`;
 const coffeeReviewAwardImage = `${import.meta.env.BASE_URL}images/coffee-review-award.png`;
 const mediumDarkOnePoundImage = `${import.meta.env.BASE_URL}images/medium-dark-1lb.jpg`;
 const mediumDarkHalfPoundImage = `${import.meta.env.BASE_URL}images/medium-dark-half-lb.jpg`;
@@ -218,6 +219,12 @@ const convenienceStores = [
   { id: "186503", name: "7-11 高雄美麗島門市", city: "高雄市", district: "新興區", address: "高雄市新興區中山一路115號" },
 ];
 
+const pickupMethodOptions = ["7-11 賣貨便", "全家店到店", "順豐快遞貨到付款"];
+const storeDataConfigs = {
+  "7-11 賣貨便": { url: sevenElevenStoresJsonUrl, prefix: "7-11", suffix: "門市", fallback: convenienceStores },
+  "全家店到店": { url: familyMartStoresJsonUrl, prefix: "全家", suffix: "店", fallback: [] },
+};
+
 function currency(value) {
   return new Intl.NumberFormat("zh-TW", { style: "currency", currency: "TWD", maximumFractionDigits: 0 }).format(value);
 }
@@ -262,6 +269,21 @@ function parsePickupStore(value) {
 
 function isValidStoreId(storeId) {
   return /^\d{6}$/.test(storeId);
+}
+
+function isSevenElevenPickup(method) {
+  return method.includes("7-11");
+}
+
+function isStorePickup(method) {
+  return !method.includes("順豐");
+}
+
+function formatPickupStoreForMethod(method, value) {
+  const text = value.trim();
+  if (!isStorePickup(method)) return "";
+  if (isSevenElevenPickup(method)) return text;
+  return text.startsWith(`${method}｜`) ? text : `${method}｜${text}`;
 }
 
 function validateStoreData() {
@@ -387,10 +409,10 @@ export default function CaobanCoffeeHomepage() {
   const [selectedProductCategory, setSelectedProductCategory] = useState("全部商品");
   const [selectedPackages, setSelectedPackages] = useState(() => Object.fromEntries(products.map((product) => [product.id, product.packageOptions[0]])));
   const [selectedGrinds, setSelectedGrinds] = useState(() => Object.fromEntries(products.map((product) => [product.id, product.grindOptions[0] || "不需研磨"])));
-  const [checkoutForm, setCheckoutForm] = useState({ pickupStore: "", recipient: "", phone: "", email: "", taxId: "", companyTitle: "", note: "", socialAccount: "" });
+  const [checkoutForm, setCheckoutForm] = useState({ pickupStore: "", deliveryAddress: "", recipient: "", phone: "", email: "", taxId: "", companyTitle: "", note: "", socialAccount: "" });
   const [currentInfoSlide, setCurrentInfoSlide] = useState(0);
   const [storeKeyword, setStoreKeyword] = useState("");
-  const [remoteStores, setRemoteStores] = useState([]);
+  const [remoteStores, setRemoteStores] = useState({});
   const [storeDataStatus, setStoreDataStatus] = useState("loading");
   const [showOrderConfirm, setShowOrderConfirm] = useState(false);
   const [orderSubmitStatus, setOrderSubmitStatus] = useState("idle");
@@ -417,7 +439,12 @@ export default function CaobanCoffeeHomepage() {
   const checkoutDisabled = cart.length === 0 || isCheckoutBelowMinimum;
   const filteredProducts = selectedProductCategory === "全部商品" ? products : products.filter((product) => product.category === selectedProductCategory);
   const currentSlide = infoSlides[currentInfoSlide];
-  const storeSource = remoteStores.length > 0 ? remoteStores : convenienceStores;
+  const storeConfig = storeDataConfigs[pickupMethod] || null;
+  const loadedStores = useMemo(() => remoteStores[pickupMethod] || [], [remoteStores, pickupMethod]);
+  const storeSource = useMemo(
+    () => (isStorePickup(pickupMethod) ? (loadedStores.length > 0 ? loadedStores : storeConfig?.fallback || []) : []),
+    [loadedStores, pickupMethod, storeConfig]
+  );
   const filteredStores = useMemo(() => {
     const keyword = storeKeyword.trim().toLowerCase();
     if (!keyword) return storeSource.slice(0, 8);
@@ -428,10 +455,15 @@ export default function CaobanCoffeeHomepage() {
 
   useEffect(() => {
     let isMounted = true;
-    async function loadSevenElevenStores() {
+    async function loadPickupStores() {
+      if (!storeConfig) {
+        setRemoteStores((current) => ({ ...current, [pickupMethod]: [] }));
+        setStoreDataStatus("skipped");
+        return;
+      }
       try {
         setStoreDataStatus("loading");
-        const response = await fetch(sevenElevenStoresJsonUrl);
+        const response = await fetch(storeConfig.url);
         if (!response.ok) throw new Error("門市資料載入失敗");
         const data = await response.json();
         const stores = Object.entries(data).map(([id, value]) => {
@@ -441,28 +473,28 @@ export default function CaobanCoffeeHomepage() {
           const cityMatch = address.match(/^(台北市|新北市|桃園市|台中市|台南市|高雄市|基隆市|新竹市|嘉義市|新竹縣|苗栗縣|彰化縣|南投縣|雲林縣|嘉義縣|屏東縣|宜蘭縣|花蓮縣|台東縣|澎湖縣|金門縣|連江縣)/);
           return {
             id,
-            name: storeName.startsWith("7-11") ? storeName : `7-11 ${storeName}門市`,
+            name: storeName.startsWith(storeConfig.prefix) ? storeName : `${storeConfig.prefix} ${storeName}${storeConfig.suffix}`,
             city: cityMatch?.[0] || "",
             district: "",
             address,
           };
         });
         if (isMounted) {
-          setRemoteStores(stores);
-          setStoreDataStatus("ready");
+          setRemoteStores((current) => ({ ...current, [pickupMethod]: stores }));
+          setStoreDataStatus(stores.length > 0 ? "ready" : "empty");
         }
       } catch {
         if (isMounted) {
-          setRemoteStores([]);
+          setRemoteStores((current) => ({ ...current, [pickupMethod]: [] }));
           setStoreDataStatus("fallback");
         }
       }
     }
-    loadSevenElevenStores();
+    loadPickupStores();
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [pickupMethod, storeConfig]);
 
   function handleCheckoutForm(field, value) {
     setCheckoutForm((current) => ({ ...current, [field]: value }));
@@ -474,19 +506,29 @@ export default function CaobanCoffeeHomepage() {
     });
   }
 
+  function handlePickupMethodChange(method) {
+    setPickupMethod(method);
+    setStoreKeyword("");
+    handleCheckoutForm("pickupStore", "");
+  }
+
   function validateCheckoutForm() {
     const requiredFields = [
       ["recipient", "請填寫收件人姓名"],
       ["phone", "請填寫手機號碼"],
       ["email", "請填寫 Email"],
-      ["pickupStore", "請選擇或填寫超商門市"],
     ];
+    if (isStorePickup(pickupMethod)) {
+      requiredFields.push(["pickupStore", "請選擇或填寫超商門市"]);
+    } else {
+      requiredFields.push(["deliveryAddress", "請填寫順豐收件地址"]);
+    }
     const errors = Object.fromEntries(
       requiredFields.filter(([field]) => !checkoutForm[field].trim()).map(([field, message]) => [field, message])
     );
     const { storeId } = parsePickupStore(checkoutForm.pickupStore);
 
-    if (checkoutForm.pickupStore.trim() && !isValidStoreId(storeId)) {
+    if (isSevenElevenPickup(pickupMethod) && checkoutForm.pickupStore.trim() && !isValidStoreId(storeId)) {
       errors.pickupStore = "請從門市清單選擇有效的 7-11 門市，避免賣貨便店號空白";
     }
 
@@ -568,7 +610,8 @@ export default function CaobanCoffeeHomepage() {
     const items = buildOrderItemsText(cart);
     const lineItems = buildOrderLineItems(cart);
     const itemSummary = cart.map((item) => `${item.name} ${item.packageLabel} ${item.grindLabel} x${item.quantity}`).join("；");
-    const { storeName, storeId, storeAddress } = parsePickupStore(checkoutForm.pickupStore);
+    const pickupStore = formatPickupStoreForMethod(pickupMethod, checkoutForm.pickupStore);
+    const { storeName, storeId, storeAddress } = parsePickupStore(pickupStore);
     const orderTime = new Date().toLocaleString("zh-TW", { hour12: false });
     const shippingText = shippingFee === 0 ? "免運" : currency(shippingFee);
     const productNote = `${itemSummary}${checkoutForm.note ? `｜備註：${checkoutForm.note}` : ""}`;
@@ -579,7 +622,10 @@ export default function CaobanCoffeeHomepage() {
       "取件人姓名": checkoutForm.recipient,
       "取件人手機": checkoutForm.phone,
       "Email": checkoutForm.email,
-      "取件門市": checkoutForm.pickupStore,
+      "配送方式": pickupMethod,
+      "取件門市": pickupStore,
+      "收件地址": checkoutForm.deliveryAddress,
+      "取貨方式": pickupMethod,
       "統一編號": checkoutForm.taxId,
       "公司抬頭": checkoutForm.companyTitle,
       "溫層": "常溫",
@@ -594,7 +640,10 @@ export default function CaobanCoffeeHomepage() {
       recipient: checkoutForm.recipient,
       phone: checkoutForm.phone,
       email: checkoutForm.email,
-      pickupStore: checkoutForm.pickupStore,
+      shippingMethod: pickupMethod,
+      pickupMethod,
+      pickupStore,
+      deliveryAddress: checkoutForm.deliveryAddress,
       storeName,
       storeId,
       storeAddress,
@@ -751,7 +800,7 @@ export default function CaobanCoffeeHomepage() {
         </nav>
         <div className="relative z-10 mx-auto grid max-w-7xl gap-10 px-6 pb-20 pt-10 md:grid-cols-[1.1fr_0.9fr] md:items-center md:pt-16">
           <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
-            <p className="mb-4 inline-flex rounded-full border border-[#f3c178]/40 px-4 py-2 text-sm text-[#f3c178]">專屬 7-11 賣貨便超商取貨方案</p>
+            <p className="mb-4 inline-flex rounded-full border border-[#f3c178]/40 px-4 py-2 text-sm text-[#f3c178]">超商 貨運 專屬取貨 方案</p>
             <h2 className="max-w-3xl text-4xl font-bold leading-tight md:text-6xl">未眠的夜裡，也值得一杯真正安定你的咖啡</h2>
             <p className="mt-6 max-w-2xl text-lg leading-8 text-[#f8e7cf]">未眠，不只是深夜，而是每一位仍在為生活奔波的人。攪拌咖啡商行希望用一杯穩定、真實、有溫度的咖啡，陪伴每個還在努力前進的時刻。</p>
             <div className="mt-8 flex flex-col gap-4 sm:flex-row">
@@ -934,9 +983,9 @@ export default function CaobanCoffeeHomepage() {
 
           <aside className="rounded-[2rem] bg-[#8a603b] p-7 text-white shadow-xl md:p-10">
             <p className="text-sm font-bold tracking-[0.3em] text-[#f3c178]">CHECKOUT</p><h2 className="mt-2 text-3xl font-bold">超商取貨結帳</h2>
-            <div className="mt-5 rounded-2xl border border-[#f3c178]/30 bg-[#f3c178]/10 p-4 text-[#fff1df]"><p className="text-sm font-bold text-[#f3c178]">優惠活動</p><ul className="mt-2 space-y-1 text-sm leading-7"><li>• 全館商品 9 折優惠</li><li>• 7-11 賣貨便運費 38 元</li><li>• 折扣後滿 1,000 元享免運</li><li>7-11 賣貨便為貨到付款，取貨時再付款。</li></ul></div>
+            <div className="mt-5 rounded-2xl border border-[#f3c178]/30 bg-[#f3c178]/10 p-4 text-[#fff1df]"><p className="text-sm font-bold text-[#f3c178]">優惠活動</p><ul className="mt-2 space-y-1 text-sm leading-7"><li>• 全館商品 9 折優惠</li><li>• 超商取貨運費 38 元</li><li>• 折扣後滿 1,000 元享免運</li><li>7-11 與全家取貨皆可填寫，取貨時再付款。</li></ul></div>
             <div className="mt-8 space-y-4">
-              {["7-11 賣貨便"].map((method) => (<button key={method} type="button" onClick={() => setPickupMethod(method)} className={`flex w-full items-center justify-between rounded-2xl border px-5 py-4 text-left font-bold transition ${pickupMethod === method ? "border-[#f3c178] bg-[#f3c178] text-[#2a1a10]" : "border-white/20 bg-white/10 text-white hover:bg-white/15"}`}><span className="inline-flex items-center"><MapPin className="mr-2 h-5 w-5" />{method}</span><ChevronRight className="h-5 w-5" /></button>))}
+              {pickupMethodOptions.map((method) => (<button key={method} type="button" onClick={() => handlePickupMethodChange(method)} className={`flex w-full items-center justify-between rounded-2xl border px-5 py-4 text-left font-bold transition ${pickupMethod === method ? "border-[#f3c178] bg-[#f3c178] text-[#2a1a10]" : "border-white/20 bg-white/10 text-white hover:bg-white/15"}`}><span className="inline-flex items-center"><MapPin className="mr-2 h-5 w-5" />{method}</span><ChevronRight className="h-5 w-5" /></button>))}
             </div>
             <div className="mt-8 rounded-3xl bg-white/10 p-6">
               <p className="mb-4 text-sm font-bold tracking-[0.2em] text-[#f3c178]">收件與發票資訊</p>
@@ -947,15 +996,23 @@ export default function CaobanCoffeeHomepage() {
                 {checkoutErrors.phone && <p className="-mt-2 text-sm font-bold text-[#ffcfca]">{checkoutErrors.phone}</p>}
                 <input type="email" required aria-invalid={Boolean(checkoutErrors.email)} placeholder="Email（必填）" value={checkoutForm.email} onChange={(event) => handleCheckoutForm("email", event.target.value)} className={`w-full rounded-2xl border bg-white/10 px-4 py-3 text-white placeholder:text-[#e8d7bf] outline-none ${checkoutErrors.email ? "border-[#ffb4a8]" : "border-white/20"}`} />
                 {checkoutErrors.email && <p className="-mt-2 text-sm font-bold text-[#ffcfca]">{checkoutErrors.email}</p>}
-                <div className="rounded-2xl border border-white/15 bg-white/10 p-4">
-                  <div><p className="font-bold text-[#f3c178]">超商門市</p><p className="mt-1 text-xs leading-6 text-[#fff1df]">可輸入門市名稱、店號、城市或地址關鍵字，系統會搜尋全台 7-11 門市資料並自動帶入地址。</p><p className="mt-1 text-xs leading-6 text-[#f3c178]">{storeDataStatus === "loading" ? "門市資料載入中…" : storeDataStatus === "ready" ? `已載入 ${remoteStores.length.toLocaleString("zh-TW")} 間門市資料` : "目前使用備用門市清單，若查不到可改用更多關鍵字搜尋。"}</p></div>
-                  <input type="text" placeholder="搜尋門市名稱 / 店號 / 地址，例如：勤美、台中、西區" value={storeKeyword} onChange={(event) => setStoreKeyword(event.target.value)} className="mt-4 w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-white placeholder:text-[#e8d7bf] outline-none" />
+                {!isStorePickup(pickupMethod) && (
+                  <div className="rounded-2xl border border-white/15 bg-white/10 p-4">
+                    <p className="font-bold text-[#f3c178]">順豐收件地址</p>
+                    <p className="mt-1 text-xs leading-6 text-[#fff1df]">順豐快遞貨到付款不需要門市，請填寫可收件地址。訂單會在 Google 表單資料中標示為順豐快遞貨到付款。</p>
+                    <input type="text" required aria-invalid={Boolean(checkoutErrors.deliveryAddress)} placeholder="收件地址（必填）" value={checkoutForm.deliveryAddress} onChange={(event) => handleCheckoutForm("deliveryAddress", event.target.value)} className={`mt-4 w-full rounded-2xl border bg-white/10 px-4 py-3 text-white placeholder:text-[#e8d7bf] outline-none ${checkoutErrors.deliveryAddress ? "border-[#ffb4a8]" : "border-white/20"}`} />
+                    {checkoutErrors.deliveryAddress && <p className="mt-2 text-sm font-bold text-[#ffcfca]">{checkoutErrors.deliveryAddress}</p>}
+                  </div>
+                )}
+                {isStorePickup(pickupMethod) && <div className="rounded-2xl border border-white/15 bg-white/10 p-4">
+                  <div><p className="font-bold text-[#f3c178]">超商門市</p><p className="mt-1 text-xs leading-6 text-[#fff1df]">可輸入門市名稱、店號、城市或地址關鍵字，系統會搜尋目前選擇的超商門市資料並自動帶入地址。</p><p className="mt-1 text-xs leading-6 text-[#f3c178]">{storeDataStatus === "loading" ? "門市資料載入中…" : storeDataStatus === "ready" ? `已載入 ${loadedStores.length.toLocaleString("zh-TW")} 間${pickupMethod}門市資料` : storeDataStatus === "empty" ? `目前尚未匯入${pickupMethod}完整門市資料，請先手動填寫門市名稱、店號與地址。` : "目前使用備用門市清單，若查不到可改用更多關鍵字搜尋。"}</p></div>
+                  <input type="text" placeholder={`搜尋${pickupMethod}門市名稱 / 店號 / 地址，例如：勤美、台中、西區`} value={storeKeyword} onChange={(event) => setStoreKeyword(event.target.value)} className="mt-4 w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-white placeholder:text-[#e8d7bf] outline-none" />
                   <div className="mt-3 max-h-56 space-y-2 overflow-y-auto rounded-2xl bg-black/10 p-3">
-                    {filteredStores.length === 0 ? (<p className="px-3 py-2 text-sm text-[#fff1df]">目前找不到符合的門市，請換店名、店號、路名或縣市關鍵字搜尋。</p>) : filteredStores.map((store) => (<button key={store.id} type="button" onClick={() => selectStore(store)} className="w-full rounded-xl bg-white/10 px-4 py-3 text-left transition hover:bg-[#f3c178] hover:text-[#2a1a10]"><span className="block text-sm font-bold">{store.name}｜{store.id}</span><span className="mt-1 block text-xs leading-5">{store.address}</span></button>))}
+                    {filteredStores.length === 0 ? (<p className="px-3 py-2 text-sm text-[#fff1df]">目前找不到符合的門市，請換店名、店號、路名或縣市關鍵字搜尋；若全家資料尚未匯入，也可以先在下方手動填寫。</p>) : filteredStores.map((store) => (<button key={store.id} type="button" onClick={() => selectStore(store)} className="w-full rounded-xl bg-white/10 px-4 py-3 text-left transition hover:bg-[#f3c178] hover:text-[#2a1a10]"><span className="block text-sm font-bold">{store.name}｜{store.id}</span><span className="mt-1 block text-xs leading-5">{store.address}</span></button>))}
                   </div>
                   <input type="text" required aria-invalid={Boolean(checkoutErrors.pickupStore)} placeholder="已選門市 / 店號 / 地址（必填）" value={checkoutForm.pickupStore} onChange={(event) => handleCheckoutForm("pickupStore", event.target.value)} className={`mt-3 w-full rounded-2xl border bg-white/10 px-4 py-3 text-white placeholder:text-[#e8d7bf] outline-none ${checkoutErrors.pickupStore ? "border-[#ffb4a8]" : "border-white/20"}`} />
                   {checkoutErrors.pickupStore && <p className="mt-2 text-sm font-bold text-[#ffcfca]">{checkoutErrors.pickupStore}</p>}
-                </div>
+                </div>}
                 <div className="rounded-2xl border border-white/15 bg-white/10 p-4"><p className="text-sm font-bold text-[#f3c178]">發票資訊</p><p className="mt-1 text-xs leading-6 text-[#fff1df]">目前是免用統一發票，有需要的請留下統一編號及抬頭，會隨貨附上。</p></div>
                 <div className="grid gap-4 md:grid-cols-2"><input type="text" placeholder="統一編號" value={checkoutForm.taxId} onChange={(event) => handleCheckoutForm("taxId", event.target.value)} className="w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-white placeholder:text-[#e8d7bf] outline-none" /><input type="text" placeholder="公司抬頭" value={checkoutForm.companyTitle} onChange={(event) => handleCheckoutForm("companyTitle", event.target.value)} className="w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-white placeholder:text-[#e8d7bf] outline-none" /></div>
                 <input type="text" placeholder="其他資訊（FB / LINE / IG 帳號，可留空）" value={checkoutForm.socialAccount} onChange={(event) => handleCheckoutForm("socialAccount", event.target.value)} className="w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-white placeholder:text-[#e8d7bf] outline-none" />
@@ -975,7 +1032,7 @@ export default function CaobanCoffeeHomepage() {
           <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-[2rem] bg-[#fff8ec] p-6 text-[#2a1a10] shadow-2xl md:p-8">
             <div className="flex items-start justify-between gap-4 border-b border-[#dccbb2] pb-5"><div><p className="text-sm font-bold tracking-[0.3em] text-[#8a603b]">{orderSubmitStatus === "success" ? "ORDER COMPLETE" : "ORDER CONFIRM"}</p><h2 className="mt-2 text-3xl font-bold">{orderSubmitStatus === "success" ? "訂購完成" : "請確認訂單內容"}</h2><p className="mt-2 text-sm leading-6 text-[#66513f]">{orderSubmitStatus === "success" ? "謝謝您的訂購，我們已收到您的咖啡訂單，接下來會用心為您準備每一份香氣。" : "確認商品、收件資料與取貨門市無誤後，再送出訂單。"}</p></div><button type="button" onClick={orderSubmitStatus === "success" ? closeOrderComplete : () => setShowOrderConfirm(false)} className="rounded-full bg-[#efe2cf] px-4 py-2 text-sm font-bold text-[#5a341d]">關閉</button></div>
             <div className="mt-6 space-y-4">{cart.map((item) => (<div key={item.cartId} className="rounded-2xl bg-[#f6efe4] p-4"><div className="flex justify-between gap-4"><div><p className="font-bold">{item.name}</p><p className="mt-1 text-sm text-[#66513f]">{item.packageLabel}</p><p className="mt-1 text-sm text-[#66513f]">{item.grindLabel}</p></div><div className="text-right"><p className="font-bold">{currency(item.price)} × {item.quantity}</p><p className="mt-1 text-sm text-[#8a603b]">{currency(item.price * item.quantity)}</p></div></div></div>))}</div>
-            <div className="mt-6 grid gap-4 md:grid-cols-2"><div className="rounded-2xl border border-[#dccbb2] bg-white p-5"><p className="font-bold text-[#8a603b]">收件資料</p><div className="mt-3 space-y-2 text-sm leading-6 text-[#5c4531]"><p>收件人：{checkoutForm.recipient || "尚未填寫"}</p><p>手機：{checkoutForm.phone || "尚未填寫"}</p><p>Email：{checkoutForm.email || "尚未填寫"}</p><p>取貨門市：{checkoutForm.pickupStore || "尚未選擇"}</p><p className="mt-3 rounded-xl bg-[#f6efe4] px-3 py-2 text-xs font-bold text-[#8a603b]">7-11 賣貨便為貨到付款，取貨時再付款。</p></div></div><div className="rounded-2xl border border-[#dccbb2] bg-white p-5"><p className="font-bold text-[#8a603b]">發票與備註</p><div className="mt-3 space-y-2 text-sm leading-6 text-[#5c4531]"><p>統一編號：{checkoutForm.taxId || "無"}</p><p>公司抬頭：{checkoutForm.companyTitle || "無"}</p><p>備註：{checkoutForm.note || "無"}</p><p>其他資訊：{checkoutForm.socialAccount || "無"}</p></div></div></div>
+            <div className="mt-6 grid gap-4 md:grid-cols-2"><div className="rounded-2xl border border-[#dccbb2] bg-white p-5"><p className="font-bold text-[#8a603b]">收件資料</p><div className="mt-3 space-y-2 text-sm leading-6 text-[#5c4531]"><p>收件人：{checkoutForm.recipient || "尚未填寫"}</p><p>手機：{checkoutForm.phone || "尚未填寫"}</p><p>Email：{checkoutForm.email || "尚未填寫"}</p><p>配送方式：{pickupMethod}</p>{isStorePickup(pickupMethod) ? <p>取貨門市：{checkoutForm.pickupStore || "尚未選擇"}</p> : <p>收件地址：{checkoutForm.deliveryAddress || "尚未填寫"}</p>}<p className="mt-3 rounded-xl bg-[#f6efe4] px-3 py-2 text-xs font-bold text-[#8a603b]">{isStorePickup(pickupMethod) ? "超商取貨為貨到付款，取貨時再付款。" : "順豐快遞貨到付款，送達時再付款。"}</p></div></div><div className="rounded-2xl border border-[#dccbb2] bg-white p-5"><p className="font-bold text-[#8a603b]">發票與備註</p><div className="mt-3 space-y-2 text-sm leading-6 text-[#5c4531]"><p>統一編號：{checkoutForm.taxId || "無"}</p><p>公司抬頭：{checkoutForm.companyTitle || "無"}</p><p>備註：{checkoutForm.note || "無"}</p><p>其他資訊：{checkoutForm.socialAccount || "無"}</p></div></div></div>
             <div className="mt-6 rounded-2xl bg-[#2a1a10] p-5 text-white"><div className="flex justify-between text-sm text-[#fff1df]"><span>商品原價</span><span>{currency(cartSubtotal)}</span></div><div className="mt-3 flex justify-between text-sm font-bold text-[#7CFFB2]"><span>全館 9 折優惠</span><span>- {currency(globalDiscountAmount)}</span></div><div className="mt-3 flex justify-between text-sm text-[#fff1df]"><span>折扣後小計</span><span>{currency(discountedSubtotal)}</span></div><div className="mt-3 flex justify-between text-sm text-[#fff1df]"><span>超商運費</span><span>{shippingFee === 0 ? "免運" : currency(shippingFee)}</span></div><div className="mt-4 flex justify-between border-t border-white/20 pt-4 text-2xl font-bold"><span>總計</span><span>{currency(cartTotal)}</span></div></div>
             {orderSubmitStatus === "success" && <div className="mt-6 rounded-[2rem] border border-[#b8d8ba] bg-[#e8f5e9] p-6 text-center text-[#2e7d32]"><p className="text-2xl font-black">訂單已順利送出</p><p className="mt-3 text-sm font-bold leading-7">感謝您把今天的咖啡時光交給攪拌咖啡商行。訂單明細將寄到您的 Email，我們也會同步收到通知並盡快為您安排出貨。</p><p className="mt-3 text-sm leading-7 text-[#3d6b40]">願這份咖啡，在抵達您手中時，剛好成為生活裡最舒服的一段香氣。</p></div>}
             {orderSubmitStatus === "error" && <div className="mt-6 rounded-2xl bg-[#fff0f0] p-4 text-sm font-bold leading-7 text-[#9f2a2a]">訂單送出失敗，請稍後再試，或改用蝦皮商城下單。</div>}
@@ -990,7 +1047,7 @@ export default function CaobanCoffeeHomepage() {
         </div>
       )}
 
-      <footer className="border-t border-[#dccbb2] px-6 py-10 text-center text-sm text-[#66513f]"><p className="text-lg font-semibold text-[#4b2d1a]">未眠 WEIMIAN COFFEE</p><p className="mt-3 leading-7">在那些還沒休息的夜晚，願你手中的咖啡，成為支撐生活的一點光。</p><p className="mt-4 text-xs tracking-[0.25em] text-[#8a603b]">© 攪拌咖啡商行 CAOBAN COFFEE｜精品咖啡豆・咖啡器材・超商取貨方案</p></footer>
+      <footer className="border-t border-[#dccbb2] px-6 py-10 text-center text-sm text-[#66513f]"><p className="mt-3 leading-7">在那些還沒休息的夜晚，願你手中的咖啡，成為支撐生活的一點光。</p><p className="mt-4 text-xs tracking-[0.25em] text-[#8a603b]">© 攪拌咖啡商行 CAOBAN COFFEE｜精品咖啡豆・咖啡器材・超商取貨方案</p></footer>
     </main>
   );
 }

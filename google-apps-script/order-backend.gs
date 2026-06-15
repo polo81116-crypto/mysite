@@ -54,6 +54,8 @@ const ORDER_HEADERS = [
   "\u539f\u59cb\u8cc7\u6599",
   "\u662f\u5426\u5df2\u51fa\u8ca8",
   "\u8ce3\u8ca8\u4fbf\u532f\u51fa\u72c0\u614b",
+  "\u914d\u9001\u65b9\u5f0f",
+  "\u6536\u4ef6\u5730\u5740",
 ];
 
 const ORDER_COLUMN = {
@@ -144,12 +146,19 @@ function doPost(e) {
     const sheet = getOrdersSheet(spreadsheet);
     const orderRow = buildOrderRow(orderId, createdAt, payload);
     sheet.appendRow(orderRow);
-    appendMyShipImportRow(orderId, createdAt, payload);
     const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
     const shippedIndex = ensureOrderColumn(sheet, headers, ORDER_COLUMN.SHIPPED);
     const exportedAtIndex = ensureOrderColumn(sheet, headers, ORDER_COLUMN.MYSHIP_EXPORTED_AT);
     const exportStatusIndex = ensureOrderColumn(sheet, headers, ORDER_COLUMN.MYSHIP_EXPORT_STATUS);
-    const exportedAt = markOrderMyShipExported(sheet, sheet.getLastRow(), shippedIndex, exportedAtIndex, exportStatusIndex);
+    let exportedAt = "";
+    if (isStorePickupPayload(payload)) {
+      appendMyShipImportRow(orderId, createdAt, payload);
+      exportedAt = markOrderMyShipExported(sheet, sheet.getLastRow(), shippedIndex, exportedAtIndex, exportStatusIndex);
+    } else {
+      sheet.getRange(sheet.getLastRow(), shippedIndex + 1).setValue("\u672a\u51fa\u8ca8");
+      sheet.getRange(sheet.getLastRow(), exportedAtIndex + 1).clearContent();
+      sheet.getRange(sheet.getLastRow(), exportStatusIndex + 1).setValue("\u9806\u8c50\u5feb\u905e");
+    }
     appendShipmentPrintRow(orderId, createdAt, payload, "\u672a\u51fa\u8ca8", exportedAt);
     try {
       refreshSalesReports();
@@ -228,9 +237,13 @@ function validatePayload(payload) {
     ["recipient", "recipient"],
     ["phone", "phone"],
     ["email", "email"],
-    ["pickupStore", "pickupStore"],
     ["items", "items"],
   ];
+  if (isStorePickupPayload(payload)) {
+    requiredFields.push(["pickupStore", "pickupStore"]);
+  } else {
+    requiredFields.push(["deliveryAddress", "deliveryAddress"]);
+  }
 
   const missingFields = requiredFields
     .filter(([key]) => !String(payload[key] || "").trim())
@@ -240,7 +253,7 @@ function validatePayload(payload) {
     throw new Error("Missing required fields: " + missingFields.join(", "));
   }
 
-  if (!/^\d{6}$/.test(getStoreId(payload))) {
+  if (isSevenElevenPayload(payload) && !/^\d{6}$/.test(getStoreId(payload))) {
     throw new Error("Missing valid 7-ELEVEN store id.");
   }
 }
@@ -276,6 +289,8 @@ function buildOrderRow(orderId, createdAt, payload) {
     JSON.stringify(payload),
     "\u672a\u51fa\u8ca8",
     "\u672a\u532f\u51fa",
+    cleanText(payload.shippingMethod || payload.pickupMethod),
+    cleanText(payload.deliveryAddress),
   ];
 }
 
@@ -505,6 +520,7 @@ function rebuildMyShipImportSheet() {
     if (cleanText(exportedAt)) return;
 
     const payload = JSON.parse(rawPayload);
+    if (!isStorePickupPayload(payload)) return;
     const orderId = row[orderIdIndex] || createOrderId();
     const createdAt = row[createdAtIndex] || "";
     appendTextRow(sheet, buildMyShipImportRow(orderId, createdAt, payload), MYSHIP_HEADERS.length);
@@ -865,7 +881,9 @@ function buildCustomerTextEmail(orderId, createdAt, payload) {
     "\u6536\u4ef6\u4eba\uff1a" + cleanText(payload.recipient),
     "\u624b\u6a5f\uff1a" + cleanText(payload.phone),
     "Email: " + cleanText(payload.email),
+    "\u914d\u9001\u65b9\u5f0f\uff1a" + cleanText(payload.shippingMethod || payload.pickupMethod),
     "\u53d6\u4ef6\u9580\u5e02\uff1a" + cleanText(payload.pickupStore),
+    "\u6536\u4ef6\u5730\u5740\uff1a" + cleanText(payload.deliveryAddress),
     "",
     "\u5546\u54c1\u660e\u7d30\uff1a",
     cleanText(payload.items),
@@ -893,7 +911,9 @@ function buildAdminTextEmail(orderId, createdAt, payload) {
     "\u6536\u4ef6\u4eba\uff1a" + cleanText(payload.recipient),
     "\u624b\u6a5f\uff1a" + cleanText(payload.phone),
     "Email: " + cleanText(payload.email),
+    "\u914d\u9001\u65b9\u5f0f\uff1a" + cleanText(payload.shippingMethod || payload.pickupMethod),
     "\u53d6\u4ef6\u9580\u5e02\uff1a" + cleanText(payload.pickupStore),
+    "\u6536\u4ef6\u5730\u5740\uff1a" + cleanText(payload.deliveryAddress),
     "\u9580\u5e02\u5e97\u865f\uff1a" + cleanText(payload.storeId),
     "\u9580\u5e02\u540d\u7a31\uff1a" + cleanText(payload.storeName),
     "\u9580\u5e02\u5730\u5740\uff1a" + cleanText(payload.storeAddress),
@@ -947,7 +967,9 @@ function buildOrderHtmlEmail(options) {
     ["\u6536\u4ef6\u4eba", payload.recipient],
     ["\u624b\u6a5f", payload.phone],
     ["Email", payload.email],
+    ["\u914d\u9001\u65b9\u5f0f", payload.shippingMethod || payload.pickupMethod],
     ["\u53d6\u4ef6\u9580\u5e02", payload.pickupStore],
+    ["\u6536\u4ef6\u5730\u5740", payload.deliveryAddress],
   ];
   const storeRows = options.showStoreDetails
     ? [
@@ -1145,6 +1167,18 @@ function getStoreId(payload) {
   const numericPart = parts.find((part) => /^\d{6}$/.test(part));
 
   return numericPart || "";
+}
+
+function getShippingMethod(payload) {
+  return cleanText(payload.shippingMethod || payload.pickupMethod);
+}
+
+function isSevenElevenPayload(payload) {
+  return getShippingMethod(payload).indexOf("7-11") !== -1;
+}
+
+function isStorePickupPayload(payload) {
+  return getShippingMethod(payload).indexOf("\u9806\u8c50") === -1;
 }
 
 function normalizePhone(value) {
