@@ -298,7 +298,32 @@
       els.openImageFolder.addEventListener("click", openImageFolder);
       els.newProduct.addEventListener("click", () => { selectedIndex = -1; fillForm(blankProduct()); renderList(); });
       els.applyProduct.addEventListener("click", applyProduct);
-      els.duplicateProduct.addEventListener("click", () => { const copy = readForm(); copy.id = `${copy.id}-copy`; copy.name = `${copy.name} 複製`; selectedIndex = -1; fillForm(copy); renderList(); });
+      els.duplicateProduct.addEventListener("click", () => {
+        const source = readForm();
+        if (!source.id || !source.name) {
+          setMessage("請先選擇或填好一個商品再複製。");
+          return;
+        }
+        let nextId = `${source.id}-copy`;
+        let count = 2;
+        while (data.products.some((product) => product.id === nextId)) {
+          nextId = `${source.id}-copy-${count}`;
+          count += 1;
+        }
+        const copy = {
+          ...source,
+          id: nextId,
+          status: "hidden",
+          name: `${source.name} 複製`,
+          packageOptions: source.packageOptions.map((option) => ({ ...option })),
+          grindOptions: [...source.grindOptions],
+        };
+        data.products.push(copy);
+        selectedIndex = data.products.length - 1;
+        renderList();
+        fillForm(copy);
+        setMessage("已複製成新商品，預設為下架。修改完成後可改成上架並儲存。");
+      });
       els.deleteProduct.addEventListener("click", () => { if (selectedIndex === -1) return; if (!confirm("確定刪除這個商品？")) return; data.products.splice(selectedIndex, 1); selectedIndex = data.products.length ? Math.min(selectedIndex, data.products.length - 1) : -1; renderList(); fillForm(selectedIndex >= 0 ? data.products[selectedIndex] : blankProduct()); setMessage("已刪除商品，記得儲存回 JSON。"); });
       els.addOption.addEventListener("click", () => { const product = readForm(); product.packageOptions.push({ label: "", price: 0 }); renderOptions(product.packageOptions); });
       els.addGrind.addEventListener("click", () => { const product = readForm(); product.grindOptions.push(""); renderGrinds(product.grindOptions); });
