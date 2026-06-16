@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Award, Bean, ChevronRight, Coffee, Filter, MapPin, Minus, Plus, ShoppingBag, ShoppingCart, Trash2, X } from "lucide-react";
+import { Award, Bean, ChevronRight, Coffee, Filter, MapPin, Minus, Plus, ShoppingCart, Trash2, X } from "lucide-react";
 import { motion } from "framer-motion";
 import adminCatalog from "./admin-products.json";
 import siteContent from "./site-content.json";
@@ -195,7 +195,7 @@ const products = (adminCatalog.products?.length ? adminCatalog.products : fallba
     grindOptions: product.grindOptions || [],
     origin: product.origin || "依商品標示為準",
     storage: product.storage || "請置於陰涼乾燥處，開封後請密封保存並盡早飲用。",
-    supplierInfo: product.supplierInfo || "豆之楓企業社",
+    supplierInfo: product.supplierInfo || "攪拌咖啡行",
   }));
 
 const productCategoryTabs = ["全部商品", ...new Set([...categories.map((category) => category.title), ...products.map((product) => product.category)])];
@@ -212,7 +212,7 @@ const infoSlides = (siteContent.infoSlides?.length ? siteContent.infoSlides : fa
 }));
 
 const storeLegalInfo = {
-  businessName: "豆之楓企業社",
+  businessName: "攪拌咖啡行",
   customerService: "請於訂單備註留下 LINE / IG / Email，客服會依訂單資訊與您聯繫。",
   privacy: "您填寫的姓名、電話、Email、取貨門市、收件地址、發票與備註資料，僅用於訂單處理、配送、付款確認、售後服務與依法保存交易紀錄。除配送、付款、系統服務或依法令要求外，不會任意提供第三人。",
   returns: "網路訂購商品依消費者保護法通訊交易規定辦理。咖啡屬食品，若商品已拆封、已研磨客製、因保存不當變質，可能不適用七日猶豫期退貨；若收到商品有瑕疵、破損或品項錯誤，請保留外箱與商品狀態並盡快聯繫客服。",
@@ -868,30 +868,7 @@ export default function CaobanCoffeeHomepage() {
         </div>
       </section>
 
-      <section id="products" className="mx-auto max-w-7xl px-6 py-20">
-        <div className="mb-10 flex flex-col justify-between gap-4 md:flex-row md:items-end">
-          <div>
-            <p className="text-sm font-bold tracking-[0.3em] text-[#8a603b]">SHOP BY CATEGORY</p>
-            <h2 className="mt-3 text-3xl font-bold md:text-5xl">商品分類選購</h2>
-          </div>
-          <a href={shopeeUrl} target="_blank" rel="noreferrer" className="inline-flex items-center font-bold text-[#7a4c2b]">查看蝦皮商城 <ChevronRight className="ml-1 h-5 w-5" /></a>
-        </div>
-        <div className="grid gap-7 md:grid-cols-2 xl:grid-cols-5">
-          {categories.map((item) => (
-            <article key={item.title} className="overflow-hidden rounded-[2rem] bg-white shadow-sm ring-1 ring-[#dccbb2] transition hover:-translate-y-1 hover:shadow-xl">
-              <img src={item.image} alt={item.title} className="h-48 w-full object-cover" />
-              <div className="p-6">
-                <p className="text-sm font-semibold text-[#8a603b]">{item.subtitle}</p>
-                <h3 className="mt-2 text-2xl font-bold">{item.title}</h3>
-                <p className="mt-4 leading-7 text-[#66513f]">{item.description}</p>
-                <a href="#featured-products" className="mt-6 inline-flex items-center rounded-full bg-[#2a1a10] px-5 py-3 text-sm font-bold text-white">進入商品 <ShoppingBag className="ml-2 h-4 w-4" /></a>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section id="featured-products" className="bg-[#2a1a10] px-6 py-20 text-[#fff8ec]">
+      <section id="products" className="bg-[#2a1a10] px-6 py-20 text-[#fff8ec]">
         <div className="mx-auto max-w-7xl">
           <div className="mb-8 flex flex-col justify-between gap-5 md:flex-row md:items-end">
             <div>
@@ -1111,7 +1088,7 @@ export default function CaobanCoffeeHomepage() {
           <a href="#store-info" className="hover:text-[#2a1a10]">退換貨說明</a>
           <a href="#store-info" className="hover:text-[#2a1a10]">配送付款</a>
         </div>
-        <p className="mt-4 text-xs tracking-[0.25em] text-[#8a603b]">© 豆之楓企業社｜精品咖啡豆・咖啡器材・超商 貨運 專屬取貨方案</p>
+        <p className="mt-4 text-xs tracking-[0.25em] text-[#8a603b]">© 攪拌咖啡行｜精品咖啡豆・咖啡器材・超商 貨運 專屬取貨方案</p>
       </footer>
     </main>
   );
