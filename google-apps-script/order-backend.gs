@@ -17,6 +17,7 @@ const CONFIG = {
   ORDERS_SHEET_NAME: "\u5b98\u7db2\u4e0b\u55ae\u8cc7\u6599",
   LEGACY_ORDERS_SHEET_NAME: "Orders",
   PRINT_SHEET_NAME: "\u51fa\u8ca8\u55ae\u5217\u5370",
+  SHIPMENT_SORT_SHEET_NAME: "\u51fa\u8ca8\u5206\u985e\u7e3d\u8868",
   SALES_RANKING_SHEET_NAME: "\u5546\u54c1\u92b7\u552e\u6392\u540d",
   MONTHLY_SALES_SHEET_NAME: "\u6708\u92b7\u660e\u7d30",
   MYSHIP_SHEET_NAME: "\u8a02\u55ae\u532f\u5165",
@@ -66,6 +67,24 @@ const ORDER_COLUMN = {
   MYSHIP_EXPORTED_AT: "\u8ce3\u8ca8\u4fbf\u532f\u51fa\u6642\u9593",
   MYSHIP_EXPORT_STATUS: "\u8ce3\u8ca8\u4fbf\u532f\u51fa\u72c0\u614b",
 };
+
+const SHIPMENT_SORT_HEADERS = [
+  "\u7269\u6d41\u5206\u985e",
+  "\u51fa\u8ca8\u8655\u7406",
+  "\u8a02\u55ae\u7de8\u865f",
+  "\u5efa\u7acb\u6642\u9593",
+  "\u6536\u4ef6\u4eba\u59d3\u540d",
+  "\u6536\u4ef6\u4eba\u624b\u6a5f",
+  "\u9580\u5e02\u6216\u5730\u5740",
+  "\u9580\u5e02\u5e97\u865f",
+  "\u5546\u54c1\u6458\u8981",
+  "\u7e3d\u91d1\u984d",
+  "\u904b\u8cbb",
+  "\u662f\u5426\u5df2\u51fa\u8ca8",
+  "\u532f\u51fa\u6216\u8655\u7406\u72c0\u614b",
+  "\u8a02\u55ae\u5099\u8a3b",
+  "\u5176\u4ed6\u8cc7\u8a0a",
+];
 
 const MYSHIP_HEADERS = [
   "\uff0a\u53d6\u4ef6\u4eba\u59d3\u540d",
@@ -160,6 +179,8 @@ function doPost(e) {
       sheet.getRange(sheet.getLastRow(), exportStatusIndex + 1).setValue("\u9806\u8c50\u5feb\u905e");
     }
     appendShipmentPrintRow(orderId, createdAt, payload, "\u672a\u51fa\u8ca8", exportedAt);
+    appendShipmentSortRow(orderId, createdAt, payload, "\u672a\u51fa\u8ca8", exportedAt ? "\u5df2\u532f\u51fa" : "\u5f85\u8655\u7406");
+    applyOrderSheetFormatting(sheet);
     try {
       refreshSalesReports();
     } catch (reportError) {
@@ -312,6 +333,26 @@ function buildShipmentPrintRow(orderId, createdAt, payload, shippedStatus, expor
   ];
 }
 
+function buildShipmentSortRow(orderId, createdAt, payload, shippedStatus, processStatus) {
+  return [
+    getShipmentCategory(payload),
+    getShipmentActionLabel(payload),
+    cleanText(orderId),
+    cleanText(createdAt),
+    cleanText(payload.recipient),
+    cleanText(payload.phone),
+    getShipmentDestination(payload),
+    getStoreId(payload),
+    cleanText(payload.itemSummary || payload.items),
+    cleanText(payload.total || payload.totalNumber),
+    cleanText(payload.shippingFee),
+    cleanText(shippedStatus || "\u672a\u51fa\u8ca8"),
+    cleanText(processStatus || getDefaultShipmentProcessStatus(payload)),
+    cleanText(payload.note),
+    cleanText(payload.socialAccount),
+  ];
+}
+
 function appendMyShipImportRow(orderId, createdAt, payload) {
   const sheet = getOrCreateSheet(getSpreadsheet(), CONFIG.MYSHIP_SHEET_NAME, MYSHIP_HEADERS);
   prepareMyShipSheet(sheet);
@@ -324,6 +365,14 @@ function appendShipmentPrintRow(orderId, createdAt, payload, shippedStatus, expo
   const rowNumber = sheet.getLastRow() + 1;
   appendTextRow(sheet, buildShipmentPrintRow(orderId, createdAt, payload, shippedStatus, exportedAt), PRINT_HEADERS.length);
   sheet.getRange(rowNumber, 1, 1, PRINT_HEADERS.length).setWrap(true);
+}
+
+function appendShipmentSortRow(orderId, createdAt, payload, shippedStatus, processStatus) {
+  const sheet = getOrCreateSheet(getSpreadsheet(), CONFIG.SHIPMENT_SORT_SHEET_NAME, SHIPMENT_SORT_HEADERS);
+  prepareShipmentSortSheet(sheet);
+  const rowNumber = sheet.getLastRow() + 1;
+  appendTextRow(sheet, buildShipmentSortRow(orderId, createdAt, payload, shippedStatus, processStatus), SHIPMENT_SORT_HEADERS.length);
+  applyShipmentRowStyle(sheet, rowNumber, getShipmentCategory(payload));
 }
 
 function rebuildShipmentPrintSheet() {
@@ -374,6 +423,56 @@ function rebuildShipmentPrintSheet() {
   });
 
   sheet.getDataRange().setWrap(true);
+
+  return sheet.getLastRow() - 1;
+}
+
+function rebuildShipmentSortSheet() {
+  const spreadsheet = getSpreadsheet();
+  const ordersSheet = getOrdersSheet(spreadsheet);
+
+  if (!ordersSheet || ordersSheet.getLastRow() < 2) {
+    const emptySheet = getOrCreateSheet(spreadsheet, CONFIG.SHIPMENT_SORT_SHEET_NAME, SHIPMENT_SORT_HEADERS);
+    emptySheet.clearContents();
+    emptySheet.appendRow(SHIPMENT_SORT_HEADERS);
+    prepareShipmentSortSheet(emptySheet);
+    return 0;
+  }
+
+  const values = ordersSheet.getDataRange().getValues();
+  const headers = values[0];
+  const rawPayloadIndex = headers.indexOf(ORDER_COLUMN.RAW_PAYLOAD);
+  const orderIdIndex = headers.indexOf(ORDER_COLUMN.ORDER_ID);
+  const createdAtIndex = headers.indexOf(ORDER_COLUMN.CREATED_AT);
+  const shippedIndex = ensureOrderColumn(ordersSheet, headers, ORDER_COLUMN.SHIPPED);
+  const exportStatusIndex = ensureOrderColumn(ordersSheet, headers, ORDER_COLUMN.MYSHIP_EXPORT_STATUS);
+
+  if (rawPayloadIndex === -1) {
+    throw new Error("Orders sheet is missing raw_payload.");
+  }
+
+  const sheet = getOrCreateSheet(spreadsheet, CONFIG.SHIPMENT_SORT_SHEET_NAME, SHIPMENT_SORT_HEADERS);
+  sheet.clearContents();
+  sheet.appendRow(SHIPMENT_SORT_HEADERS);
+  prepareShipmentSortSheet(sheet);
+
+  values.slice(1).forEach((row) => {
+    const rawPayload = row[rawPayloadIndex];
+    if (!rawPayload) return;
+
+    let payload;
+    try {
+      payload = JSON.parse(rawPayload);
+    } catch (error) {
+      return;
+    }
+
+    const orderId = row[orderIdIndex] || createOrderId();
+    const createdAt = row[createdAtIndex] || "";
+    const shippedStatus = cleanText(row[shippedIndex]) || "\u672a\u51fa\u8ca8";
+    const processStatus = cleanText(row[exportStatusIndex]) || getDefaultShipmentProcessStatus(payload);
+    appendShipmentSortRow(orderId, createdAt, payload, shippedStatus, processStatus);
+  });
 
   return sheet.getLastRow() - 1;
 }
@@ -476,10 +575,12 @@ function refreshSalesReports() {
 
 function rebuildAllReports() {
   const printCount = rebuildShipmentPrintSheet();
+  const shipmentSortCount = rebuildShipmentSortSheet();
   const stats = refreshSalesReports();
 
   return {
     printCount,
+    shipmentSortCount,
     rankingCount: stats.rankingCount,
     monthlyCount: stats.monthlyCount,
   };
@@ -561,6 +662,38 @@ function prepareShipmentPrintSheet(sheet) {
   sheet.setFrozenRows(1);
   sheet.getRange(1, 1, Math.max(sheet.getLastRow(), 1), PRINT_HEADERS.length).setWrap(true);
   sheet.getRange("A:M").setNumberFormat("@");
+}
+
+function prepareShipmentSortSheet(sheet) {
+  sheet.setFrozenRows(1);
+  sheet.getRange(1, 1, Math.max(sheet.getLastRow(), 1), SHIPMENT_SORT_HEADERS.length).setWrap(true);
+  sheet.getRange(1, 1, Math.max(sheet.getLastRow(), 1), SHIPMENT_SORT_HEADERS.length).setNumberFormat("@");
+  sheet.getRange(1, 1, 1, SHIPMENT_SORT_HEADERS.length).setFontWeight("bold").setBackground("#2a1a10").setFontColor("#fff8ec");
+  if (!sheet.getFilter()) {
+    sheet.getRange(1, 1, Math.max(sheet.getLastRow(), 1), SHIPMENT_SORT_HEADERS.length).createFilter();
+  }
+}
+
+function applyOrderSheetFormatting(sheet) {
+  const lastRow = sheet.getLastRow();
+  const lastColumn = sheet.getLastColumn();
+  if (lastRow < 1 || lastColumn < 1) return;
+
+  sheet.getRange(1, 1, 1, lastColumn).setFontWeight("bold").setBackground("#2a1a10").setFontColor("#fff8ec");
+  const headers = sheet.getRange(1, 1, 1, lastColumn).getValues()[0];
+  const shippingMethodIndex = headers.indexOf("\u914d\u9001\u65b9\u5f0f");
+  if (shippingMethodIndex === -1 || lastRow < 2) return;
+
+  const method = cleanText(sheet.getRange(lastRow, shippingMethodIndex + 1).getValue());
+  sheet.getRange(lastRow, 1, 1, lastColumn).setBackground(getShipmentBackgroundColor(method));
+}
+
+function applyShipmentRowStyle(sheet, rowNumber, shipmentCategory) {
+  if (rowNumber < 2) return;
+
+  sheet.getRange(rowNumber, 1, 1, SHIPMENT_SORT_HEADERS.length)
+    .setBackground(getShipmentBackgroundColor(shipmentCategory))
+    .setWrap(true);
 }
 
 function writeSalesRankingSheet(spreadsheet, rows) {
@@ -863,7 +996,8 @@ function notifyAdmin(orderId, createdAt, payload) {
     return;
   }
 
-  const subject = "\u65b0\u8a02\u55ae\u901a\u77e5\uff0c\u8acb\u5b89\u6392\u51fa\u8ca8\uff1a" + orderId;
+  const shippingMethod = getShipmentCategory(payload);
+  const subject = "\u5b98\u7db2\u5ba2\u6236\u4e0b\u55ae\uff08" + shippingMethod + "\uff09";
   const body = buildAdminTextEmail(orderId, createdAt, payload);
   const htmlBody = buildAdminHtmlEmail(orderId, createdAt, payload);
 
@@ -948,11 +1082,12 @@ function buildCustomerHtmlEmail(orderId, createdAt, payload) {
 }
 
 function buildAdminHtmlEmail(orderId, createdAt, payload) {
+  const shippingMethod = getShipmentCategory(payload);
   return buildOrderHtmlEmail({
     preheader: "\u6709\u4e00\u7b46\u65b0\u8a02\u55ae\u9700\u8981\u5b89\u6392\u51fa\u8ca8\u3002",
-    eyebrow: "\u65b0\u8a02\u55ae",
-    title: "\u8acb\u5b89\u6392\u51fa\u8ca8",
-    intro: "\u5ba2\u6236\u5df2\u5b8c\u6210\u4e0b\u55ae\uff0c\u8acb\u78ba\u8a8d\u4ee5\u4e0b\u8cc7\u8a0a\u3002",
+    eyebrow: "\u5b98\u7db2\u5ba2\u6236\u4e0b\u55ae",
+    title: "\u5b98\u7db2\u5ba2\u6236\u4e0b\u55ae\uff08" + shippingMethod + "\uff09",
+    intro: "\u8acb\u78ba\u8a8d\u91d1\u984d\u3001\u8a02\u8cfc\u660e\u7d30\u8207\u51fa\u8ca8\u8cc7\u8a0a\u3002",
     orderId,
     createdAt,
     payload,
@@ -1171,6 +1306,76 @@ function getStoreId(payload) {
 
 function getShippingMethod(payload) {
   return cleanText(payload.shippingMethod || payload.pickupMethod);
+}
+
+function getShipmentCategory(payload) {
+  const method = getShippingMethod(payload);
+
+  if (method.indexOf("7-11") !== -1) {
+    return "7-11 \u8ce3\u8ca8\u4fbf";
+  }
+
+  if (method.indexOf("\u5168\u5bb6") !== -1) {
+    return "\u5168\u5bb6\u5e97\u5230\u5e97";
+  }
+
+  if (method.indexOf("\u9806\u8c50") !== -1) {
+    return "\u9806\u8c50\u5feb\u905e\u8ca8\u5230\u4ed8\u6b3e";
+  }
+
+  return method || "\u672a\u5206\u985e";
+}
+
+function getShipmentActionLabel(payload) {
+  const category = getShipmentCategory(payload);
+
+  if (category.indexOf("7-11") !== -1) {
+    return "\u532f\u5165\u8ce3\u8ca8\u4fbf";
+  }
+
+  if (category.indexOf("\u5168\u5bb6") !== -1) {
+    return "\u5168\u5bb6\u5e97\u5230\u5e97\u51fa\u8ca8";
+  }
+
+  if (category.indexOf("\u9806\u8c50") !== -1) {
+    return "\u9806\u8c50\u6536\u4ef6\u5730\u5740\u51fa\u8ca8";
+  }
+
+  return "\u5f85\u78ba\u8a8d\u51fa\u8ca8\u65b9\u5f0f";
+}
+
+function getShipmentDestination(payload) {
+  if (isStorePickupPayload(payload)) {
+    const storeParts = [
+      cleanText(payload.pickupStore),
+      cleanText(payload.storeAddress),
+    ].filter(Boolean);
+    return storeParts.join(" / ");
+  }
+
+  return cleanText(payload.deliveryAddress);
+}
+
+function getDefaultShipmentProcessStatus(payload) {
+  return isStorePickupPayload(payload) ? "\u5f85\u532f\u51fa" : "\u5f85\u5b89\u6392\u9806\u8c50";
+}
+
+function getShipmentBackgroundColor(value) {
+  const text = cleanText(value);
+
+  if (text.indexOf("7-11") !== -1) {
+    return "#e8f5e9";
+  }
+
+  if (text.indexOf("\u5168\u5bb6") !== -1) {
+    return "#e3f2fd";
+  }
+
+  if (text.indexOf("\u9806\u8c50") !== -1) {
+    return "#fff3e0";
+  }
+
+  return "#fff8ec";
 }
 
 function isSevenElevenPayload(payload) {
