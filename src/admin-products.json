@@ -243,6 +243,38 @@
       "supplierInfo": "攪拌咖啡商行"
     },
     {
+      "id": "ethiopia-yirgacheffe-banko-datatu-copy",
+      "status": "active",
+      "discountPercent": 0,
+      "excludeGlobalDiscount": false,
+      "excludeFreeShipping": false,
+      "category": "精品咖啡豆",
+      "name": "衣索比亞 耶加雪菲 沃卡村 班可果丁丁處理場 水洗 G1",
+      "roast": "淺烘焙",
+      "taste": "香草與白花的細緻香氣輕，入口是檸檬紅茶的明亮酸韻浮現，糖漬檸檬與鮮榨橘汁的酸質，酸甜感佳，醇厚，甜感飽滿，圓潤紮實，最具層次的果丁丁。",
+      "packageOptions": [
+        {
+          "label": "100g",
+          "price": 150
+        },
+        {
+          "label": "200g",
+          "price": 300
+        }
+      ],
+      "grindOptions": [
+        "咖啡原豆",
+        "3 磨粉 / 摩卡壺",
+        "8 磨粉 / 手沖（推薦）",
+        "9 磨粉 / 法壓"
+      ],
+      "weight": "精品小包裝",
+      "origin": "衣索比亞",
+      "storage": "請置於陰涼乾燥處，開封後請密封保存並盡早飲用。",
+      "supplierInfo": "攪拌咖啡商行",
+      "image": "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=900&q=80"
+    },
+    {
       "id": "colombia-hopes-estate-wine-sun",
       "status": "active",
       "category": "精品咖啡豆",

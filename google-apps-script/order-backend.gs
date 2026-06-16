@@ -57,6 +57,10 @@ const ORDER_HEADERS = [
   "\u8ce3\u8ca8\u4fbf\u532f\u51fa\u72c0\u614b",
   "\u914d\u9001\u65b9\u5f0f",
   "\u6536\u4ef6\u5730\u5740",
+  "\u7269\u6d41\u5206\u985e",
+  "7-11 \u53d6\u4ef6\u8cc7\u6599",
+  "\u5168\u5bb6\u53d6\u4ef6\u8cc7\u6599",
+  "\u9806\u8c50\u6536\u4ef6\u8cc7\u6599",
 ];
 
 const ORDER_COLUMN = {
@@ -66,6 +70,7 @@ const ORDER_COLUMN = {
   SHIPPED: "\u662f\u5426\u5df2\u51fa\u8ca8",
   MYSHIP_EXPORTED_AT: "\u8ce3\u8ca8\u4fbf\u532f\u51fa\u6642\u9593",
   MYSHIP_EXPORT_STATUS: "\u8ce3\u8ca8\u4fbf\u532f\u51fa\u72c0\u614b",
+  SHIPMENT_CATEGORY: "\u7269\u6d41\u5206\u985e",
 };
 
 const SHIPPED_STATUS_OPTIONS = ["\u672a\u51fa\u8ca8", "\u5df2\u51fa\u8ca8"];
@@ -220,18 +225,25 @@ function parsePayload(e) {
   }
 
   if (e.parameter && e.parameter.payload) {
-    return JSON.parse(e.parameter.payload);
+    return normalizeOrderPayload(JSON.parse(e.parameter.payload));
+  }
+
+  if (e.parameter && Object.keys(e.parameter).length > 0) {
+    return normalizeOrderPayload(e.parameter);
   }
 
   if (e.postData && e.postData.contents) {
     const contents = e.postData.contents;
 
     try {
-      return JSON.parse(contents);
+      return normalizeOrderPayload(JSON.parse(contents));
     } catch (error) {
       const params = parseFormEncoded(contents);
       if (params.payload) {
-        return JSON.parse(params.payload);
+        return normalizeOrderPayload(JSON.parse(params.payload));
+      }
+      if (Object.keys(params).length > 0) {
+        return normalizeOrderPayload(params);
       }
     }
   }
@@ -251,6 +263,94 @@ function parseFormEncoded(contents) {
 
     return params;
   }, {});
+}
+
+function normalizeOrderPayload(payload) {
+  if (!payload || typeof payload !== "object") {
+    return payload;
+  }
+
+  const normalized = Object.assign({}, payload);
+  const fieldMap = {
+    orderTime: ["\u8cb7\u5bb6\u4e0b\u8a02\u65e5\u671f", "\u6642\u9593\u6233\u8a18"],
+    recipient: ["\u53d6\u4ef6\u4eba\u59d3\u540d", "\u6536\u4ef6\u4eba\u59d3\u540d", "\u6536\u4ef6\u4eba"],
+    phone: ["\u53d6\u4ef6\u4eba\u624b\u6a5f", "\u6536\u4ef6\u4eba\u624b\u6a5f", "\u624b\u6a5f", "\u624b\u6a5f\u865f\u78bc"],
+    email: ["\u96fb\u5b50\u90f5\u4ef6\u5730\u5740", "Email", "email"],
+    shippingMethod: ["\u914d\u9001\u65b9\u5f0f", "\u53d6\u8ca8\u65b9\u5f0f"],
+    pickupMethod: ["\u53d6\u8ca8\u65b9\u5f0f", "\u914d\u9001\u65b9\u5f0f"],
+    pickupStore: ["\u53d6\u4ef6\u9580\u5e02", "\u8d85\u5546\u9580\u5e02", "\u5df2\u9078\u9580\u5e02"],
+    deliveryAddress: ["\u6536\u4ef6\u5730\u5740"],
+    taxId: ["\u7d71\u4e00\u7de8\u865f"],
+    companyTitle: ["\u516c\u53f8\u62ac\u982d"],
+    note: ["\u5099\u8a3b", "\u8a02\u55ae\u5099\u8a3b"],
+    items: ["\u5546\u54c1", "\u5546\u54c1\u660e\u7d30"],
+    itemSummary: ["\u5546\u54c1\u6458\u8981", "\u5546\u54c1"],
+    shippingFee: ["\u904b\u8cbb\u91d1\u984d", "\u904b\u8cbb", "\u914d\u9001\u904b\u8cbb"],
+    total: ["\u8a02\u55ae\u91d1\u984d", "\u7e3d\u91d1\u984d"],
+    totalNumber: ["\u8a02\u55ae\u91d1\u984d", "\u7e3d\u91d1\u984d"],
+    myshipRemark: ["\u5546\u54c1\u5099\u8a3b", "\u5099\u8a3b"],
+    socialAccount: ["\u5176\u4ed6\u8cc7\u8a0a(FB/LINE/IG\u5e33\u865f)", "\u5176\u4ed6\u8cc7\u8a0a"],
+  };
+
+  Object.keys(fieldMap).forEach((targetKey) => {
+    if (cleanText(normalized[targetKey])) return;
+
+    const sourceKey = fieldMap[targetKey].find((key) => cleanText(payload[key]));
+    if (sourceKey) {
+      normalized[targetKey] = payload[sourceKey];
+    }
+  });
+
+  if (!cleanText(normalized.shippingMethod) && cleanText(normalized.pickupMethod)) {
+    normalized.shippingMethod = normalized.pickupMethod;
+  }
+  if (!cleanText(normalized.pickupMethod) && cleanText(normalized.shippingMethod)) {
+    normalized.pickupMethod = normalized.shippingMethod;
+  }
+  if (!cleanText(normalized.itemSummary) && cleanText(normalized.items)) {
+    normalized.itemSummary = normalized.items;
+  }
+  if (!cleanText(normalized.myshipRemark)) {
+    normalized.myshipRemark = cleanText(normalized.itemSummary || normalized.items || normalized.note);
+  }
+
+  const store = parseStoreParts(normalized.pickupStore);
+  if (!cleanText(normalized.storeName) && store.storeName) {
+    normalized.storeName = store.storeName;
+  }
+  if (!cleanText(normalized.storeId) && store.storeId) {
+    normalized.storeId = store.storeId;
+  }
+  if (!cleanText(normalized.storeAddress) && store.storeAddress) {
+    normalized.storeAddress = store.storeAddress;
+  }
+  if (!cleanText(normalized.myshipRecipientName) && cleanText(normalized.recipient)) {
+    normalized.myshipRecipientName = normalized.recipient;
+  }
+  if (!cleanText(normalized.myshipRecipientPhone) && cleanText(normalized.phone)) {
+    normalized.myshipRecipientPhone = normalized.phone;
+  }
+  if (!cleanText(normalized.myshipStoreId) && cleanText(normalized.storeId)) {
+    normalized.myshipStoreId = normalized.storeId;
+  }
+  if (!cleanText(normalized.myshipStoreName) && cleanText(normalized.storeName)) {
+    normalized.myshipStoreName = normalized.storeName;
+  }
+  if (!cleanText(normalized.myshipStoreAddress) && cleanText(normalized.storeAddress)) {
+    normalized.myshipStoreAddress = normalized.storeAddress;
+  }
+
+  return normalized;
+}
+
+function parseStoreParts(value) {
+  const parts = cleanText(value).split(/\||\uFF5C/).map((part) => part.trim()).filter(Boolean);
+  const storeId = parts.find((part) => /^\d{6}$/.test(part)) || "";
+  const addressPattern = /[\u7e23\u5e02\u9109\u93ae\u5340\u8def\u8857\u5df7\u865f]/;
+  const storeName = parts.find((part) => part !== storeId && !addressPattern.test(part)) || parts[0] || "";
+  const storeAddress = parts.find((part) => addressPattern.test(part)) || "";
+
+  return { storeName, storeId, storeAddress };
 }
 
 function validatePayload(payload) {
@@ -316,6 +416,7 @@ function buildOrderRow(orderId, createdAt, payload) {
     "\u672a\u532f\u51fa",
     cleanText(payload.shippingMethod || payload.pickupMethod),
     cleanText(payload.deliveryAddress),
+    ...buildOrderShipmentLookupColumns(payload),
   ];
 }
 
@@ -354,6 +455,20 @@ function buildShipmentSortRow(orderId, createdAt, payload, shippedStatus, proces
     cleanText(processStatus || getDefaultShipmentProcessStatus(payload)),
     cleanText(payload.note),
     cleanText(payload.socialAccount),
+  ];
+}
+
+function buildOrderShipmentLookupColumns(payload) {
+  const carrier = getShipmentCarrier(payload);
+  const destination = getShipmentDestination(payload);
+  const storeId = getStoreId(payload);
+  const storeInfo = [destination, storeId].filter(Boolean).join(" / ");
+
+  return [
+    carrier,
+    carrier === "7-11" ? storeInfo : "",
+    carrier === "\u5168\u5bb6" ? storeInfo : "",
+    carrier === "\u9806\u8c50" ? destination : "",
   ];
 }
 
@@ -410,7 +525,7 @@ function rebuildShipmentPrintSheet() {
 
     let payload;
     try {
-      payload = JSON.parse(rawPayload);
+      payload = normalizeOrderPayload(JSON.parse(rawPayload));
     } catch (error) {
       return;
     }
@@ -466,7 +581,7 @@ function rebuildShipmentSortSheet() {
 
     let payload;
     try {
-      payload = JSON.parse(rawPayload);
+      payload = normalizeOrderPayload(JSON.parse(rawPayload));
     } catch (error) {
       return;
     }
@@ -510,7 +625,7 @@ function refreshSalesReports() {
 
     let payload;
     try {
-      payload = JSON.parse(rawPayload);
+      payload = normalizeOrderPayload(JSON.parse(rawPayload));
     } catch (error) {
       return;
     }
@@ -578,16 +693,63 @@ function refreshSalesReports() {
 }
 
 function rebuildAllReports() {
+  const shipmentLookupCount = backfillShipmentLookupColumns();
   const printCount = rebuildShipmentPrintSheet();
   const shipmentSortCount = rebuildShipmentSortSheet();
   const stats = refreshSalesReports();
 
   return {
+    shipmentLookupCount,
     printCount,
     shipmentSortCount,
     rankingCount: stats.rankingCount,
     monthlyCount: stats.monthlyCount,
   };
+}
+
+function backfillShipmentLookupColumns() {
+  const spreadsheet = getSpreadsheet();
+  const sheet = getOrdersSheet(spreadsheet);
+
+  if (!sheet || sheet.getLastRow() < 2) {
+    return 0;
+  }
+
+  const values = sheet.getDataRange().getValues();
+  const headers = values[0];
+  const rawPayloadIndex = headers.indexOf(ORDER_COLUMN.RAW_PAYLOAD);
+  const categoryIndex = ensureOrderColumn(sheet, headers, ORDER_COLUMN.SHIPMENT_CATEGORY);
+  const sevenElevenIndex = ensureOrderColumn(sheet, headers, "7-11 \u53d6\u4ef6\u8cc7\u6599");
+  const familyMartIndex = ensureOrderColumn(sheet, headers, "\u5168\u5bb6\u53d6\u4ef6\u8cc7\u6599");
+  const sfIndex = ensureOrderColumn(sheet, headers, "\u9806\u8c50\u6536\u4ef6\u8cc7\u6599");
+
+  if (rawPayloadIndex === -1) {
+    throw new Error("Orders sheet is missing raw_payload.");
+  }
+
+  let updatedCount = 0;
+  values.slice(1).forEach((row, rowIndex) => {
+    const rawPayload = row[rawPayloadIndex];
+    if (!rawPayload) return;
+
+    let payload;
+    try {
+      payload = normalizeOrderPayload(JSON.parse(rawPayload));
+    } catch (error) {
+      return;
+    }
+
+    const lookupColumns = buildOrderShipmentLookupColumns(payload);
+    const rowNumber = rowIndex + 2;
+    sheet.getRange(rowNumber, categoryIndex + 1).setValue(lookupColumns[0]);
+    sheet.getRange(rowNumber, sevenElevenIndex + 1).setValue(lookupColumns[1]);
+    sheet.getRange(rowNumber, familyMartIndex + 1).setValue(lookupColumns[2]);
+    sheet.getRange(rowNumber, sfIndex + 1).setValue(lookupColumns[3]);
+    updatedCount += 1;
+  });
+
+  applyOrderSheetFormatting(sheet);
+  return updatedCount;
 }
 
 function rebuildMyShipImportSheet() {
@@ -624,7 +786,12 @@ function rebuildMyShipImportSheet() {
     if (!rawPayload) return;
     if (cleanText(exportedAt)) return;
 
-    const payload = JSON.parse(rawPayload);
+    let payload;
+    try {
+      payload = normalizeOrderPayload(JSON.parse(rawPayload));
+    } catch (error) {
+      return;
+    }
     if (!isStorePickupPayload(payload)) return;
     const orderId = row[orderIdIndex] || createOrderId();
     const createdAt = row[createdAtIndex] || "";
@@ -701,11 +868,30 @@ function applyOrderSheetFormatting(sheet) {
 
   sheet.getRange(1, 1, 1, lastColumn).setFontWeight("bold").setBackground("#2a1a10").setFontColor("#fff8ec");
   const headers = sheet.getRange(1, 1, 1, lastColumn).getValues()[0];
+  applyShipmentCategoryDropdown(sheet, headers);
+  if (!sheet.getFilter()) {
+    sheet.getRange(1, 1, Math.max(lastRow, 1), lastColumn).createFilter();
+  }
+
   const shippingMethodIndex = headers.indexOf("\u914d\u9001\u65b9\u5f0f");
   if (shippingMethodIndex === -1 || lastRow < 2) return;
 
   const method = cleanText(sheet.getRange(lastRow, shippingMethodIndex + 1).getValue());
   sheet.getRange(lastRow, 1, 1, lastColumn).setBackground(getShipmentBackgroundColor(method));
+}
+
+function applyShipmentCategoryDropdown(sheet, headers) {
+  const categoryIndex = headers.indexOf(ORDER_COLUMN.SHIPMENT_CATEGORY);
+  if (categoryIndex === -1) return;
+
+  const maxRows = Math.max(sheet.getMaxRows() - 1, 1);
+  const rule = SpreadsheetApp
+    .newDataValidation()
+    .requireValueInList(["7-11", "\u5168\u5bb6", "\u9806\u8c50", "\u672a\u5206\u985e"], true)
+    .setAllowInvalid(false)
+    .build();
+
+  sheet.getRange(2, categoryIndex + 1, maxRows, 1).setDataValidation(rule);
 }
 
 function applyShipmentRowStyle(sheet, rowNumber, shipmentCategory) {
@@ -1329,21 +1515,44 @@ function getShippingMethod(payload) {
 }
 
 function getShipmentCategory(payload) {
-  const method = getShippingMethod(payload);
+  const carrier = getShipmentCarrier(payload);
 
-  if (method.indexOf("7-11") !== -1) {
+  if (carrier === "7-11") {
     return "7-11 \u8ce3\u8ca8\u4fbf";
   }
 
-  if (method.indexOf("\u5168\u5bb6") !== -1) {
+  if (carrier === "\u5168\u5bb6") {
     return "\u5168\u5bb6\u5e97\u5230\u5e97";
   }
 
-  if (method.indexOf("\u9806\u8c50") !== -1) {
+  if (carrier === "\u9806\u8c50") {
     return "\u9806\u8c50\u5feb\u905e\u8ca8\u5230\u4ed8\u6b3e";
   }
 
+  const method = getShippingMethod(payload);
   return method || "\u672a\u5206\u985e";
+}
+
+function getShipmentCarrier(payload) {
+  const text = [
+    getShippingMethod(payload),
+    payload.pickupStore,
+    payload.deliveryAddress,
+  ].map(cleanText).join(" ");
+
+  if (text.indexOf("7-11") !== -1 || text.indexOf("711") !== -1) {
+    return "7-11";
+  }
+
+  if (text.indexOf("\u5168\u5bb6") !== -1) {
+    return "\u5168\u5bb6";
+  }
+
+  if (text.indexOf("\u9806\u8c50") !== -1 || text.toLowerCase().indexOf("sf") !== -1) {
+    return "\u9806\u8c50";
+  }
+
+  return "\u672a\u5206\u985e";
 }
 
 function getShipmentActionLabel(payload) {
@@ -1411,11 +1620,11 @@ function getShipmentBackgroundColor(value) {
 }
 
 function isSevenElevenPayload(payload) {
-  return getShippingMethod(payload).indexOf("7-11") !== -1;
+  return getShipmentCarrier(payload) === "7-11";
 }
 
 function isStorePickupPayload(payload) {
-  return getShippingMethod(payload).indexOf("\u9806\u8c50") === -1;
+  return getShipmentCarrier(payload) !== "\u9806\u8c50";
 }
 
 function normalizePhone(value) {
@@ -1479,4 +1688,5 @@ function jsonResponse(data) {
     .createTextOutput(JSON.stringify(data))
     .setMimeType(ContentService.MimeType.JSON);
 }
+
 
