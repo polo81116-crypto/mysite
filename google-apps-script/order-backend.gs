@@ -68,8 +68,12 @@ const ORDER_COLUMN = {
   MYSHIP_EXPORT_STATUS: "\u8ce3\u8ca8\u4fbf\u532f\u51fa\u72c0\u614b",
 };
 
+const SHIPPED_STATUS_OPTIONS = ["\u672a\u51fa\u8ca8", "\u5df2\u51fa\u8ca8"];
+
 const SHIPMENT_SORT_HEADERS = [
-  "\u7269\u6d41\u5206\u985e",
+  "7-11 \u8ce3\u8ca8\u4fbf",
+  "\u5168\u5bb6\u5e97\u5230\u5e97",
+  "\u9806\u8c50\u5feb\u905e",
   "\u51fa\u8ca8\u8655\u7406",
   "\u8a02\u55ae\u7de8\u865f",
   "\u5efa\u7acb\u6642\u9593",
@@ -335,7 +339,7 @@ function buildShipmentPrintRow(orderId, createdAt, payload, shippedStatus, expor
 
 function buildShipmentSortRow(orderId, createdAt, payload, shippedStatus, processStatus) {
   return [
-    getShipmentCategory(payload),
+    ...buildShipmentMethodColumns(payload),
     getShipmentActionLabel(payload),
     cleanText(orderId),
     cleanText(createdAt),
@@ -662,6 +666,7 @@ function prepareShipmentPrintSheet(sheet) {
   sheet.setFrozenRows(1);
   sheet.getRange(1, 1, Math.max(sheet.getLastRow(), 1), PRINT_HEADERS.length).setWrap(true);
   sheet.getRange("A:M").setNumberFormat("@");
+  applyShippedStatusDropdown(sheet, PRINT_HEADERS);
 }
 
 function prepareShipmentSortSheet(sheet) {
@@ -669,9 +674,24 @@ function prepareShipmentSortSheet(sheet) {
   sheet.getRange(1, 1, Math.max(sheet.getLastRow(), 1), SHIPMENT_SORT_HEADERS.length).setWrap(true);
   sheet.getRange(1, 1, Math.max(sheet.getLastRow(), 1), SHIPMENT_SORT_HEADERS.length).setNumberFormat("@");
   sheet.getRange(1, 1, 1, SHIPMENT_SORT_HEADERS.length).setFontWeight("bold").setBackground("#2a1a10").setFontColor("#fff8ec");
+  applyShippedStatusDropdown(sheet, SHIPMENT_SORT_HEADERS);
   if (!sheet.getFilter()) {
     sheet.getRange(1, 1, Math.max(sheet.getLastRow(), 1), SHIPMENT_SORT_HEADERS.length).createFilter();
   }
+}
+
+function applyShippedStatusDropdown(sheet, headers) {
+  const shippedIndex = headers.indexOf(ORDER_COLUMN.SHIPPED);
+  if (shippedIndex === -1) return;
+
+  const maxRows = Math.max(sheet.getMaxRows() - 1, 1);
+  const rule = SpreadsheetApp
+    .newDataValidation()
+    .requireValueInList(SHIPPED_STATUS_OPTIONS, true)
+    .setAllowInvalid(false)
+    .build();
+
+  sheet.getRange(2, shippedIndex + 1, maxRows, 1).setDataValidation(rule);
 }
 
 function applyOrderSheetFormatting(sheet) {
@@ -1342,6 +1362,18 @@ function getShipmentActionLabel(payload) {
   }
 
   return "\u5f85\u78ba\u8a8d\u51fa\u8ca8\u65b9\u5f0f";
+}
+
+function buildShipmentMethodColumns(payload) {
+  const category = getShipmentCategory(payload);
+  const destination = getShipmentDestination(payload);
+  const label = [category, destination].filter(Boolean).join("\uff5c");
+
+  return [
+    category.indexOf("7-11") !== -1 ? label : "",
+    category.indexOf("\u5168\u5bb6") !== -1 ? label : "",
+    category.indexOf("\u9806\u8c50") !== -1 ? label : "",
+  ];
 }
 
 function getShipmentDestination(payload) {
