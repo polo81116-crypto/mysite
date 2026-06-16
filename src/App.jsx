@@ -7,6 +7,7 @@ import siteContent from "./site-content.json";
 const shopeeUrl = "https://shopee.tw/caobancoffee?categoryId=100629&entryPoint=ShopByPDP&itemId=49107641936&upstream=search";
 const orderApiUrl = "https://script.google.com/macros/s/AKfycbzfN28njwcJeZssEQV5HJnZ7Z9Z-dPmIVP0WNLBZNQz7VUG9VewI6hl29-0ivpJ_DiPQA/exec";
 const minimumCheckoutTotal = 100;
+const orderSubmitUiTimeoutMs = 4000;
 const sevenElevenStoresJsonUrl = `${import.meta.env.BASE_URL}stores.json`;
 const familyMartStoresJsonUrl = `${import.meta.env.BASE_URL}family-stores.json`;
 const coffeeReviewAwardImage = `${import.meta.env.BASE_URL}images/coffee-review-award.png`;
@@ -699,12 +700,16 @@ export default function CaobanCoffeeHomepage() {
       setOrderSubmitStatus("submitting");
       const formBody = new URLSearchParams();
       formBody.append("payload", JSON.stringify(buildOrderPayload()));
-      await fetch(orderApiUrl, {
+      const submitRequest = fetch(orderApiUrl, {
         method: "POST",
         mode: "no-cors",
         headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
         body: formBody.toString(),
       });
+      await Promise.race([
+        submitRequest,
+        new Promise((resolve) => window.setTimeout(resolve, orderSubmitUiTimeoutMs)),
+      ]);
       setOrderSubmitStatus("success");
     } catch {
       setOrderSubmitStatus("error");
