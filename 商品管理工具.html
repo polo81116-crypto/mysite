@@ -83,7 +83,7 @@
           <label class="full">商品圖片<input id="image" placeholder="例如 Imgea/ChatGPT Image 1.png 或 images/medium-dark-1lb.jpg" /></label>
           <label class="full">風味描述<textarea id="taste"></textarea></label>
           <label class="full">保存方式<textarea id="storage" placeholder="例如 請置於陰涼乾燥處，開封後請密封保存並盡早飲用。"></textarea></label>
-          <label class="full">負責廠商資訊<textarea id="supplierInfo" placeholder="例如 攪拌咖啡行"></textarea></label>
+          <label class="full">負責廠商資訊<textarea id="supplierInfo" placeholder="例如 攪拌咖啡商行"></textarea></label>
           <div class="full"><h3>規格與價格</h3><div id="options"></div><button id="addOption" class="secondary" style="margin-top: 10px">新增規格</button></div>
           <div class="full">
             <h3>研磨選項</h3>
@@ -151,7 +151,7 @@
       };
 
       function setMessage(text) { els.message.textContent = text; }
-      function blankProduct() { return { id: `product-${Date.now()}`, status: "active", discountPercent: 0, excludeGlobalDiscount: false, excludeFreeShipping: false, category: "", name: "", roast: "", taste: "", packageOptions: [{ label: "單包", price: 0 }], grindOptions: [], weight: "", origin: "", storage: "請置於陰涼乾燥處，開封後請密封保存並盡早飲用。", supplierInfo: "攪拌咖啡行", image: "Imgea/ChatGPT Image 1.png" }; }
+      function blankProduct() { return { id: `product-${Date.now()}`, status: "active", discountPercent: 0, excludeGlobalDiscount: false, excludeFreeShipping: false, category: "", name: "", roast: "", taste: "", packageOptions: [{ label: "單包", price: 0 }], grindOptions: [], weight: "", origin: "", storage: "請置於陰涼乾燥處，開封後請密封保存並盡早飲用。", supplierInfo: "攪拌咖啡商行", image: "Imgea/ChatGPT Image 1.png" }; }
       function statusText(status) { return { active: "上架", soldout: "售完", hidden: "下架" }[status] || status; }
       function normalizeData(input) { return { products: Array.isArray(input.products) ? input.products : [] }; }
 
@@ -214,7 +214,7 @@
 
       function fillForm(product) {
         els.formTitle.textContent = product.name || "商品內容";
-        els.id.value = product.id || ""; els.status.value = product.status || "active"; els.discountPercent.value = Number(product.discountPercent) || 0; els.excludeGlobalDiscount.checked = Boolean(product.excludeGlobalDiscount); els.excludeFreeShipping.checked = Boolean(product.excludeFreeShipping); els.category.value = product.category || ""; els.name.value = product.name || ""; els.roast.value = product.roast || ""; els.weight.value = product.weight || ""; els.origin.value = product.origin || ""; els.image.value = product.image || ""; els.taste.value = product.taste || ""; els.storage.value = product.storage || "請置於陰涼乾燥處，開封後請密封保存並盡早飲用。"; els.supplierInfo.value = product.supplierInfo || "攪拌咖啡行";
+        els.id.value = product.id || ""; els.status.value = product.status || "active"; els.discountPercent.value = Number(product.discountPercent) || 0; els.excludeGlobalDiscount.checked = Boolean(product.excludeGlobalDiscount); els.excludeFreeShipping.checked = Boolean(product.excludeFreeShipping); els.category.value = product.category || ""; els.name.value = product.name || ""; els.roast.value = product.roast || ""; els.weight.value = product.weight || ""; els.origin.value = product.origin || ""; els.image.value = product.image || ""; els.taste.value = product.taste || ""; els.storage.value = product.storage || "請置於陰涼乾燥處，開封後請密封保存並盡早飲用。"; els.supplierInfo.value = product.supplierInfo || "攪拌咖啡商行";
         renderOptions(product.packageOptions || []); renderGrinds(product.grindOptions || []); renderPreview();
       }
 

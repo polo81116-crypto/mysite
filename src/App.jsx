@@ -195,7 +195,7 @@ const products = (adminCatalog.products?.length ? adminCatalog.products : fallba
     grindOptions: product.grindOptions || [],
     origin: product.origin || "依商品標示為準",
     storage: product.storage || "請置於陰涼乾燥處，開封後請密封保存並盡早飲用。",
-    supplierInfo: product.supplierInfo || "攪拌咖啡行",
+    supplierInfo: product.supplierInfo || "攪拌咖啡商行",
   }));
 
 const productCategoryTabs = ["全部商品", ...new Set([...categories.map((category) => category.title), ...products.map((product) => product.category)])];
@@ -212,7 +212,7 @@ const infoSlides = (siteContent.infoSlides?.length ? siteContent.infoSlides : fa
 }));
 
 const storeLegalInfo = {
-  businessName: "攪拌咖啡行",
+  businessName: "攪拌咖啡商行",
   customerService: "請於訂單備註留下 LINE / IG / Email，客服會依訂單資訊與您聯繫。",
   privacy: "您填寫的姓名、電話、Email、取貨門市、收件地址、發票與備註資料，僅用於訂單處理、配送、付款確認、售後服務與依法保存交易紀錄。除配送、付款、系統服務或依法令要求外，不會任意提供第三人。",
   returns: "網路訂購商品依消費者保護法通訊交易規定辦理。咖啡屬食品，若商品已拆封、已研磨客製、因保存不當變質，可能不適用七日猶豫期退貨；若收到商品有瑕疵、破損或品項錯誤，請保留外箱與商品狀態並盡快聯繫客服。",
@@ -1088,7 +1088,7 @@ export default function CaobanCoffeeHomepage() {
           <a href="#store-info" className="hover:text-[#2a1a10]">退換貨說明</a>
           <a href="#store-info" className="hover:text-[#2a1a10]">配送付款</a>
         </div>
-        <p className="mt-4 text-xs tracking-[0.25em] text-[#8a603b]">© 攪拌咖啡行｜精品咖啡豆・咖啡器材・超商 貨運 專屬取貨方案</p>
+        <p className="mt-4 text-xs tracking-[0.25em] text-[#8a603b]">© 攪拌咖啡商行｜精品咖啡豆・咖啡器材・超商 貨運 專屬取貨方案</p>
       </footer>
     </main>
   );
