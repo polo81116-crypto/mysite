@@ -261,6 +261,16 @@ function discountedPrice(price, product) {
   return Math.round(price * (100 - discount) / 100);
 }
 
+function finalPackagePrice(packageOption, product) {
+  const salePrice = Number(packageOption?.salePrice);
+  if (Number.isFinite(salePrice) && salePrice >= 0 && salePrice < packageOption.price) return salePrice;
+  return discountedPrice(packageOption.price, product);
+}
+
+function packageIsOnSale(packageOption, product) {
+  return finalPackagePrice(packageOption, product) < packageOption.price;
+}
+
 function flavorTags(product) {
   const profile = `${product.name} ${product.taste}`;
   const tags = [
@@ -287,7 +297,7 @@ function readSavedCart() {
       if (!product || !packageOption || !Number.isInteger(savedItem.quantity) || savedItem.quantity <= 0) return [];
       const grindLabel = product.grindOptions.includes(savedItem.grindLabel) ? savedItem.grindLabel : product.grindOptions[0] || "不需研磨";
       const productDiscount = discountPercent(product);
-      return [{ ...product, cartId: makeCartId(product.id, packageOption.label, grindLabel), packageLabel: packageOption.label, grindLabel, price: discountedPrice(packageOption.price, product), originalPrice: packageOption.price, discountPercent: productDiscount, excludeGlobalDiscount: Boolean(product.excludeGlobalDiscount), excludeFreeShipping: Boolean(product.excludeFreeShipping), quantity: savedItem.quantity }];
+      return [{ ...product, cartId: makeCartId(product.id, packageOption.label, grindLabel), packageLabel: packageOption.label, grindLabel, price: finalPackagePrice(packageOption, product), originalPrice: packageOption.price, discountPercent: productDiscount, excludeGlobalDiscount: Boolean(product.excludeGlobalDiscount), excludeFreeShipping: Boolean(product.excludeFreeShipping), quantity: savedItem.quantity }];
     });
   } catch {
     return [];
@@ -396,6 +406,7 @@ console.assert(products.filter((product) => product.category === "Coffee Review�
 console.assert(products.some((product) => product.id === "shopee-medium-dark-half-lb" && product.weight === "半磅裝 / 227g"), "Half-pound commercial bean product should exist.");
 console.assert(products.filter((product) => product.category === "精品咖啡豆").length === 2, "Premium coffee bean category should contain two products.");
 console.assert(products.filter((product) => product.category === "配方豆專區").length === 2, "Formula blend category should contain two grouped products.");
+console.assert(products.find((product) => product.id === "formula-blend-series-copy")?.packageOptions[0]?.salePrice === 399, "炎之家配方 sale price should be 399.");
 console.assert(products.find((product) => product.id === "formula-blend-series")?.packageOptions.length === 4, "Formula blend grouped product should contain four options.");
 console.assert(products.find((product) => product.id === "formula-blend-series-half")?.packageOptions.length === 4, "Formula blend half-pound grouped product should contain four options.");
 console.assert(infoSlides.length === 3, "Info carousel should contain three slides.");
@@ -638,7 +649,7 @@ export default function CaobanCoffeeHomepage() {
     const selectedPackage = selectedPackages[product.id] || product.packageOptions[0];
     const selectedGrind = selectedGrinds[product.id] || "不需研磨";
     const cartId = makeCartId(product.id, selectedPackage.label, selectedGrind);
-    const finalPrice = discountedPrice(selectedPackage.price, product);
+    const finalPrice = finalPackagePrice(selectedPackage, product);
     const productDiscount = discountPercent(product);
     setCart((current) => {
       const exists = current.find((item) => item.cartId === cartId);
@@ -823,7 +834,7 @@ export default function CaobanCoffeeHomepage() {
                 <div className="min-w-0">
                   <p className="truncate text-xs font-bold md:text-sm">{item.name}</p>
                   <p className="mt-0.5 truncate text-xs text-[#66513f] md:mt-1">{item.packageLabel}</p>
-                  <div className="mt-0.5 flex flex-wrap gap-x-2 gap-y-0.5 text-xs md:mt-1 md:text-sm"><span className="text-[#66513f]">單價 {currency(item.price)}</span><span className="font-bold text-[#7a4c2b]">小計 {currency(item.price * item.quantity)}</span></div>
+                  <div className="mt-0.5 flex flex-wrap gap-x-2 gap-y-0.5 text-xs md:mt-1 md:text-sm">{item.originalPrice > item.price && <span className="text-[#66513f] line-through">原價 {currency(item.originalPrice)}</span>}<span className="text-[#66513f]">單價 {currency(item.price)}</span><span className="font-bold text-[#7a4c2b]">小計 {currency(item.price * item.quantity)}</span></div>
                 </div>
                 <div className="flex items-center gap-1">
                   <button
@@ -962,12 +973,14 @@ export default function CaobanCoffeeHomepage() {
                   const quantity = getCartQuantity(product.id);
                   const isSoldOut = product.status === "soldout";
                   const productDiscount = discountPercent(product);
-                  const selectedFinalPrice = discountedPrice(selectedPackage.price, product);
+                  const selectedFinalPrice = finalPackagePrice(selectedPackage, product);
+                  const hasSelectedPackageSale = packageIsOnSale(selectedPackage, product);
+                  const hasProductSale = product.packageOptions.some((option) => packageIsOnSale(option, product));
                   return (
                     <article key={product.id} className="grid gap-5 px-5 py-6 transition hover:bg-white/5 md:grid-cols-[180px_1.3fr_0.8fr_0.75fr_0.8fr] md:items-center md:px-6">
                       <img src={product.image} alt={product.name} className="h-56 w-full rounded-2xl bg-white object-contain p-2 shadow-lg md:h-52 md:w-[180px]" />
                       <div>
-                        <div className="mb-2 flex flex-wrap gap-2"><span className="inline-flex rounded-full bg-[#f3c178]/10 px-3 py-1 text-xs font-bold text-[#f3c178] md:hidden">{product.category}</span>{isSoldOut && <span className="inline-flex rounded-full bg-white px-3 py-1 text-xs font-bold text-[#8a3d2b]">售完</span>}</div>
+                        <div className="mb-2 flex flex-wrap gap-2"><span className="inline-flex rounded-full bg-[#f3c178]/10 px-3 py-1 text-xs font-bold text-[#f3c178] md:hidden">{product.category}</span>{hasProductSale && <span className="inline-flex rounded-full bg-[#ffcfca] px-3 py-1 text-xs font-black text-[#8a3d2b]">限時優惠</span>}{isSoldOut && <span className="inline-flex rounded-full bg-white px-3 py-1 text-xs font-bold text-[#8a3d2b]">售完</span>}</div>
                         <h3 className="text-xl font-bold">{product.name}</h3>
                         <p className="mt-2 text-sm leading-6 text-[#f3c178]">{product.taste}</p>
                         <div className="mt-3 flex flex-wrap gap-2" aria-label={`${product.name} 風味標籤`}>{flavorTags(product).map((tag) => <span key={tag} className="rounded-full border border-[#f3c178]/40 bg-[#f3c178]/10 px-3 py-1 text-xs font-bold text-[#f6d7a6]">{tag}</span>)}</div>
@@ -977,7 +990,7 @@ export default function CaobanCoffeeHomepage() {
                             <ul className="space-y-2 text-sm text-[#fff1df]">
                               {product.packageOptions.map((option) => (
                                 <li key={option.label} className={`flex cursor-pointer items-center justify-between gap-3 rounded-xl px-3 py-2 transition ${selectedPackage.label === option.label ? "bg-[#f3c178] text-[#2a1a10]" : "bg-white/5 hover:bg-white/10"}`} onClick={() => handlePackageChange(product.id, option.label)}>
-                                  <span>{option.label}</span><span className="shrink-0 font-bold">{currency(option.price)}</span>
+                                  <span>{option.label}</span><span className="shrink-0 font-bold">{packageIsOnSale(option, product) ? <><span className="mr-2 text-xs opacity-70 line-through">{currency(option.price)}</span><span>優惠 {currency(finalPackagePrice(option, product))}</span></> : currency(option.price)}</span>
                                 </li>
                               ))}
                             </ul>
@@ -987,7 +1000,7 @@ export default function CaobanCoffeeHomepage() {
                           <div>
                             <label className="mb-2 block text-xs font-bold tracking-[0.15em] text-[#dcc7ad]">{product.category === "濾掛咖啡" ? "一包" : product.weight.includes("半磅") ? "半磅 / 品項選單" : product.weight.includes("一磅") ? "一磅 / 品項選單" : "包裝 / 品項選單"}</label>
                             <select value={selectedPackage.label} onChange={(event) => handlePackageChange(product.id, event.target.value)} className="w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white outline-none transition focus:border-[#f3c178]">
-                              {product.packageOptions.map((option) => (<option key={option.label} value={option.label} className="text-black">{option.label}｜{currency(option.price)}</option>))}
+                              {product.packageOptions.map((option) => (<option key={option.label} value={option.label} className="text-black">{option.label}｜{packageIsOnSale(option, product) ? `優惠 ${currency(finalPackagePrice(option, product))}` : currency(option.price)}</option>))}
                             </select>
                           </div>
                           {product.grindOptions.length > 0 && (
@@ -1008,7 +1021,7 @@ export default function CaobanCoffeeHomepage() {
                         <p className="mt-1 text-xs">保存：{product.storage}</p>
                         <p className="mt-1 text-xs">負責廠商：{product.supplierInfo}</p>
                       </div>
-                      <div>{productDiscount > 0 && <p className="text-sm text-[#dcc7ad] line-through">{currency(selectedPackage.price)}</p>}<p className="text-2xl font-bold text-[#f3c178]">{currency(selectedFinalPrice)}</p>{productDiscount > 0 && <p className="mt-1 text-xs font-bold text-[#7CFFB2]">{productDiscount}% OFF</p>}<p className="mt-1 text-xs text-[#dcc7ad]">{selectedPackage.label}</p>{product.grindOptions.length > 0 && <p className="mt-1 text-xs text-[#dcc7ad]">{selectedGrind}</p>}</div>
+                      <div>{hasSelectedPackageSale && <p className="text-sm text-[#dcc7ad] line-through">原價 {currency(selectedPackage.price)}</p>}<p className="text-2xl font-black text-[#f3c178]">{hasSelectedPackageSale && <span className="mr-2 text-sm">優惠價</span>}{currency(selectedFinalPrice)}</p>{hasSelectedPackageSale && <p className="mt-1 text-xs font-black text-[#ffcfca]">{selectedPackage.salePrice ? "限時優惠，不再套用全館 9 折" : `${productDiscount}% OFF`}</p>}<p className="mt-1 text-xs text-[#dcc7ad]">{selectedPackage.label}</p>{product.grindOptions.length > 0 && <p className="mt-1 text-xs text-[#dcc7ad]">{selectedGrind}</p>}</div>
                       <div className="flex items-center justify-start gap-3 md:justify-end">
                         {isSoldOut ? (
                           <button type="button" disabled className="inline-flex cursor-not-allowed items-center justify-center rounded-full bg-white/30 px-5 py-3 font-bold text-white/70">售完</button>
@@ -1042,7 +1055,7 @@ export default function CaobanCoffeeHomepage() {
                 {cart.map((item) => (
                   <div key={item.cartId} className="grid gap-4 rounded-3xl bg-[#f6efe4] p-4 md:grid-cols-[96px_1fr_auto] md:items-center">
                     <img src={item.image} alt={item.name} className="h-24 w-24 rounded-2xl object-cover" />
-                    <div><h3 className="font-bold">{item.name}</h3><p className="mt-1 text-sm text-[#66513f]">{item.taste}</p><p className="mt-1 text-xs font-bold text-[#8a603b]">{item.packageLabel}</p><p className="mt-1 text-xs text-[#66513f]">{item.grindLabel}</p><div className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm"><span className="text-[#66513f]">單價 {currency(item.price)}</span><span className="font-bold text-[#7a4c2b]">小計 {currency(item.price * item.quantity)}</span></div></div>
+                    <div><h3 className="font-bold">{item.name}</h3><p className="mt-1 text-sm text-[#66513f]">{item.taste}</p><p className="mt-1 text-xs font-bold text-[#8a603b]">{item.packageLabel}</p><p className="mt-1 text-xs text-[#66513f]">{item.grindLabel}</p><div className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm">{item.originalPrice > item.price && <span className="text-[#66513f] line-through">原價 {currency(item.originalPrice)}</span>}<span className="text-[#66513f]">單價 {currency(item.price)}</span><span className="font-bold text-[#7a4c2b]">小計 {currency(item.price * item.quantity)}</span></div></div>
                     <div className="flex items-center gap-3"><button type="button" onClick={() => updateQuantity(item.cartId, item.quantity - 1)} className="rounded-full bg-white p-2 shadow-sm" aria-label="減少數量"><Minus className="h-4 w-4" /></button><span className="w-8 text-center font-bold">{item.quantity}</span><button type="button" onClick={() => updateQuantity(item.cartId, item.quantity + 1)} className="rounded-full bg-white p-2 shadow-sm" aria-label="增加數量"><Plus className="h-4 w-4" /></button><button type="button" onClick={() => updateQuantity(item.cartId, 0)} className="rounded-full bg-white p-2 text-[#8a3d2b] shadow-sm" aria-label="移除商品"><Trash2 className="h-4 w-4" /></button></div>
                   </div>
                 ))}

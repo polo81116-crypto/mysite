@@ -3,6 +3,7 @@
     {
       "id": "formula-blend-series-copy",
       "status": "active",
+      "excludeGlobalDiscount": true,
       "category": "商用優選豆",
       "name": "炎之家配方",
       "roast": "中深焙",
@@ -10,7 +11,8 @@
       "packageOptions": [
         {
           "label": "【中深】炎之家配方",
-          "price": 520
+          "price": 520,
+          "salePrice": 399
         }
       ],
       "grindOptions": [

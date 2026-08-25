@@ -34,7 +34,7 @@
       .badge.active { background: #dff0d8; color: #29652d; }
       .badge.soldout { background: #fff0c8; color: #805200; }
       .badge.hidden { background: #e9e5df; color: #5d5349; }
-      .option-row { display: grid; grid-template-columns: 1fr 110px 44px; gap: 8px; margin-top: 8px; }
+      .option-row { display: grid; grid-template-columns: 1fr 110px 130px 44px; gap: 8px; margin-top: 8px; }
       .grind-row { display: grid; grid-template-columns: 1fr 44px; gap: 8px; margin-top: 8px; }
       .option-row button, .grind-row button { margin-top: 6px; padding: 0; }
       .preview-card { overflow: hidden; border-radius: 12px; background: #2a1a10; color: #fff8ec; }
@@ -44,6 +44,7 @@
       .image-list { display: grid; gap: 8px; margin-top: 10px; }
       .image-choice { border: 1px solid #dccbb2; background: #fff; color: #261d14; text-align: left; }
       @media (max-width: 1040px) { main { grid-template-columns: 1fr; } }
+      @media (max-width: 640px) { .option-row { grid-template-columns: 1fr 1fr 44px; } .option-row input:first-child { grid-column: 1 / -1; } }
     </style>
   </head>
   <body>
@@ -72,7 +73,7 @@
         <div class="field-grid" style="margin-top: 14px">
           <label>上下架狀態<select id="status"><option value="active">上架</option><option value="soldout">售完</option><option value="hidden">下架</option></select></label>
           <label>商品 ID<input id="id" placeholder="例如 medium-dark-1lb" /></label>
-          <label>商品折扣％<input id="discountPercent" inputmode="numeric" placeholder="例如 10，未折扣填 0" /></label>
+          <label>商品折扣％<input id="discountPercent" inputmode="numeric" placeholder="例如 10，規格優惠價優先" /></label>
           <label><input id="excludeGlobalDiscount" type="checkbox" /> 特價商品不再套全館 9 折</label>
           <label><input id="excludeFreeShipping" type="checkbox" /> 不列入滿千免運門檻</label>
           <label>分類<input id="category" placeholder="例如 商用優選豆" /></label>
@@ -195,7 +196,7 @@
         options.forEach((option, index) => {
           const row = document.createElement("div");
           row.className = "option-row";
-          row.innerHTML = `<input data-option-label value="${option.label || ""}" placeholder="規格，例如 100g / 一磅" /><input data-option-price value="${Number(option.price) || 0}" inputmode="numeric" placeholder="價格" /><button type="button" class="danger" data-remove-option="${index}">×</button>`;
+          row.innerHTML = `<input data-option-label value="${option.label || ""}" placeholder="規格，例如 100g / 一磅" /><input data-option-price value="${Number(option.price) || 0}" inputmode="numeric" placeholder="原價" /><input data-option-sale-price value="${Number.isFinite(Number(option.salePrice)) ? Number(option.salePrice) : ""}" inputmode="numeric" placeholder="優惠價（可留空）" /><button type="button" class="danger" data-remove-option="${index}">×</button>`;
           els.options.append(row);
         });
       }
@@ -211,7 +212,7 @@
       }
 
       function readForm() {
-        const packageOptions = [...els.options.querySelectorAll(".option-row")].map((row) => ({ label: row.querySelector("[data-option-label]").value.trim(), price: Number(row.querySelector("[data-option-price]").value) || 0 })).filter((option) => option.label);
+        const packageOptions = [...els.options.querySelectorAll(".option-row")].map((row) => { const label = row.querySelector("[data-option-label]").value.trim(); const price = Number(row.querySelector("[data-option-price]").value) || 0; const saleInput = row.querySelector("[data-option-sale-price]").value.trim(); const salePrice = Number(saleInput); return { label, price, ...(saleInput && Number.isFinite(salePrice) && salePrice >= 0 && salePrice < price ? { salePrice } : {}) }; }).filter((option) => option.label);
         const grindOptions = [...els.grinds.querySelectorAll("[data-grind]")].map((input) => input.value.trim()).filter(Boolean);
         const discountPercent = Math.min(100, Math.max(0, Number(els.discountPercent.value) || 0));
         return { id: els.id.value.trim(), status: els.status.value, discountPercent, excludeGlobalDiscount: els.excludeGlobalDiscount.checked, excludeFreeShipping: els.excludeFreeShipping.checked, category: els.category.value.trim(), name: els.name.value.trim(), roast: els.roast.value.trim(), taste: els.taste.value.trim(), packageOptions: packageOptions.length ? packageOptions : [{ label: "單包", price: 0 }], grindOptions, weight: els.weight.value.trim(), origin: els.origin.value.trim(), storage: els.storage.value.trim(), supplierInfo: els.supplierInfo.value.trim(), image: els.image.value.trim() };
@@ -234,8 +235,9 @@
           const row = document.createElement("div");
           row.className = "price-row";
           const discount = Number(product.discountPercent) || 0;
-          const finalPrice = discount > 0 ? Math.round(option.price * (100 - discount) / 100) : option.price;
-          row.innerHTML = `<span>${option.label}</span><strong>${discount > 0 ? `$${option.price} -> $${finalPrice}` : `$${option.price}`}</strong>`;
+          const salePrice = Number(option.salePrice);
+          const finalPrice = Number.isFinite(salePrice) && salePrice >= 0 && salePrice < option.price ? salePrice : discount > 0 ? Math.round(option.price * (100 - discount) / 100) : option.price;
+          row.innerHTML = `<span>${option.label}</span><strong>${finalPrice < option.price ? `$${option.price} -> 優惠 $${finalPrice}` : `$${option.price}`}</strong>`;
           els.previewOptions.append(row);
         });
         if (product.excludeGlobalDiscount || product.excludeFreeShipping) {

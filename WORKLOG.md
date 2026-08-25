@@ -149,6 +149,7 @@ public/stores.json
 - Saved the pre-improvement release as Git tag `before-checkout-ux-2026-08-25`.
 - Improved checkout flow: store results appear only after entering a search term, cart and form drafts persist locally in the customer’s browser, and a four-step progress guide clarifies the order process.
 - Saved a second recovery tag, `before-product-discovery-mobile-cart-2026-08-25`, before adding product flavor tags, clearer floating-cart line totals, and a compact mobile cart launcher.
+- Added per-package sale-price support. 炎之家配方 now highlights original price $520 and fixed sale price $399; it is excluded from the extra sitewide 9% discount.
 
 ### Verification
 
