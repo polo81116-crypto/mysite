@@ -261,6 +261,18 @@ function discountedPrice(price, product) {
   return Math.round(price * (100 - discount) / 100);
 }
 
+function flavorTags(product) {
+  const profile = `${product.name} ${product.taste}`;
+  const tags = [
+    [/花香|茉莉|白花/, "花香"],
+    [/檸檬|柑橘|橘汁|果香|莓果/, "果香"],
+    [/堅果|可可|焦糖|太妃/, "甜感"],
+    [/酒香|發酵/, "酒香發酵"],
+    [/濃郁|厚實|醇厚/, "醇厚"],
+  ].filter(([pattern]) => pattern.test(profile)).map(([, label]) => label);
+  return [...new Set([...tags, product.roast])].filter(Boolean).slice(0, 3);
+}
+
 function makeCartId(productId, packageLabel, grindLabel = "不需研磨") {
   return `${productId}__${packageLabel}__${grindLabel}`;
 }
@@ -465,7 +477,7 @@ export default function CaobanCoffeeHomepage() {
   const [showOrderConfirm, setShowOrderConfirm] = useState(false);
   const [orderSubmitStatus, setOrderSubmitStatus] = useState("idle");
   const [checkoutErrors, setCheckoutErrors] = useState({});
-  const [isFloatingCartHidden, setIsFloatingCartHidden] = useState(false);
+  const [isFloatingCartHidden, setIsFloatingCartHidden] = useState(() => typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches);
 
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const cartSubtotal = useMemo(() => cart.reduce((sum, item) => sum + item.price * item.quantity, 0), [cart]);
@@ -771,11 +783,11 @@ export default function CaobanCoffeeHomepage() {
         <button
           type="button"
           onClick={() => setIsFloatingCartHidden(false)}
-          className="fixed bottom-3 right-3 z-40 inline-flex items-center rounded-full bg-[#2a1a10] px-4 py-3 text-sm font-bold text-white shadow-2xl transition hover:bg-[#4b2d1a] md:bottom-auto md:right-6 md:top-24"
+          className="fixed inset-x-3 bottom-3 z-40 inline-flex items-center justify-center rounded-full bg-[#2a1a10] px-4 py-3 text-sm font-bold text-white shadow-2xl transition hover:bg-[#4b2d1a] md:inset-x-auto md:bottom-auto md:right-6 md:top-24"
           aria-label="顯示已選購商品"
         >
           <ShoppingCart className="mr-2 h-4 w-4" />
-          {cartCount} 件｜{currency(cartTotal)}
+          {cartCount} 件｜總計 {currency(cartTotal)}<span className="ml-2 text-[#f3c178]">查看購物車</span>
         </button>
       )}
 
@@ -811,7 +823,7 @@ export default function CaobanCoffeeHomepage() {
                 <div className="min-w-0">
                   <p className="truncate text-xs font-bold md:text-sm">{item.name}</p>
                   <p className="mt-0.5 truncate text-xs text-[#66513f] md:mt-1">{item.packageLabel}</p>
-                  <p className="mt-0.5 text-xs font-bold text-[#7a4c2b] md:mt-1 md:text-sm">{currency(item.price * item.quantity)}</p>
+                  <div className="mt-0.5 flex flex-wrap gap-x-2 gap-y-0.5 text-xs md:mt-1 md:text-sm"><span className="text-[#66513f]">單價 {currency(item.price)}</span><span className="font-bold text-[#7a4c2b]">小計 {currency(item.price * item.quantity)}</span></div>
                 </div>
                 <div className="flex items-center gap-1">
                   <button
@@ -958,6 +970,7 @@ export default function CaobanCoffeeHomepage() {
                         <div className="mb-2 flex flex-wrap gap-2"><span className="inline-flex rounded-full bg-[#f3c178]/10 px-3 py-1 text-xs font-bold text-[#f3c178] md:hidden">{product.category}</span>{isSoldOut && <span className="inline-flex rounded-full bg-white px-3 py-1 text-xs font-bold text-[#8a3d2b]">售完</span>}</div>
                         <h3 className="text-xl font-bold">{product.name}</h3>
                         <p className="mt-2 text-sm leading-6 text-[#f3c178]">{product.taste}</p>
+                        <div className="mt-3 flex flex-wrap gap-2" aria-label={`${product.name} 風味標籤`}>{flavorTags(product).map((tag) => <span key={tag} className="rounded-full border border-[#f3c178]/40 bg-[#f3c178]/10 px-3 py-1 text-xs font-bold text-[#f6d7a6]">{tag}</span>)}</div>
                         <div className="mt-4 rounded-2xl border border-white/10 bg-black/10 p-4">
                           <p className="mb-3 text-xs font-bold tracking-[0.15em] text-[#dcc7ad]">各品項條列</p>
                           <div className="max-h-52 overflow-y-auto rounded-xl bg-white/5 p-3">
