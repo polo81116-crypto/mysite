@@ -155,6 +155,7 @@ public/stores.json
 - Added an auto-refreshing `今日待出貨` Google Sheet view. It shows only orders created today that are still unshipped, hides test orders, and groups the queue by carrier for daily fulfilment checks.
 - Updated `今日待出貨` so test orders are shown with a clear `測試訂單` label and light highlight, allowing the order flow to be verified without mistaking it for a formal shipment.
 - Added the Apps Script `訂單工具` menu: `刪除單一訂單` prompts for an order ID, safely removes its matching MyShip import row, deletes the source order, and rebuilds the shipment and sales views.
+- Added a display-only `系統日期（勿匯入）` column K to the MyShip staging sheet. The import records sort newest-first and receive alternating daily backgrounds; upload to MyShip must continue to use only the required A:J columns.
 
 ### Verification
 

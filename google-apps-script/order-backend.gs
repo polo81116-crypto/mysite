@@ -493,13 +493,12 @@ function appendMyShipImportRow(orderId, createdAt, payload) {
   const sheet = getOrCreateSheet(getSpreadsheet(), CONFIG.MYSHIP_SHEET_NAME, MYSHIP_HEADERS);
   prepareMyShipSheet(sheet);
 
-  // Keep each shipping day visually separate without changing MyShip's required A:J columns.
-  // A blank row is only added when the newly received order belongs to a different day.
-  appendMyShipDateSeparator(sheet, createdAt);
   const rowNumber = sheet.getLastRow() + 1;
   appendTextRow(sheet, buildMyShipImportRow(orderId, createdAt, payload), MYSHIP_HEADERS.length);
+  sheet.getRange(rowNumber, 11).setValue(formatMyShipSortDate(createdAt));
   // A cell note does not affect the MyShip import columns, but allows safe later deletion.
   sheet.getRange(rowNumber, 1).setNote("orderId:" + cleanText(orderId));
+  organizeMyShipImportSheet(sheet);
 }
 
 function appendShipmentPrintRow(orderId, createdAt, payload, shippedStatus, exportedAt) {
@@ -711,7 +710,15 @@ function onOpen() {
     .createMenu("\u8a02\u55ae\u5de5\u5177")
     .addItem("\u522a\u9664\u55ae\u4e00\u8a02\u55ae", "deleteOrderWithPrompt")
     .addItem("\u91cd\u6574\u4eca\u65e5\u5f85\u51fa\u8ca8", "refreshTodayPendingShipments")
+    .addItem("\u4f9d\u65e5\u671f\u6574\u7406\u8a02\u55ae\u532f\u5165", "organizeMyShipImport")
     .addToUi();
+}
+
+function organizeMyShipImport() {
+  const spreadsheet = getSpreadsheet();
+  const sheet = getOrCreateSheet(spreadsheet, CONFIG.MYSHIP_SHEET_NAME, MYSHIP_HEADERS);
+  prepareMyShipSheet(sheet);
+  return organizeMyShipImportSheet(sheet);
 }
 
 function deleteOrderWithPrompt() {
@@ -1034,18 +1041,44 @@ function buildMyShipImportRow(orderId, createdAt, payload) {
 function prepareMyShipSheet(sheet) {
   sheet.setFrozenRows(1);
   sheet.getRange("A:J").setNumberFormat("@");
+  sheet.getRange(1, 11).setValue("\u7cfb\u7d71\u65e5\u671f\uff08\u52ff\u532f\u5165\uff09");
+  sheet.getRange("K:K").setNumberFormat("@");
 }
 
-function appendMyShipDateSeparator(sheet, createdAt) {
+// Sort the import staging sheet for checking. MyShip's required columns A:J stay intact;
+// column K is an internal display-only date and must not be included in the upload.
+function organizeMyShipImportSheet(sheet) {
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return 0;
+
+  const range = sheet.getRange(2, 1, lastRow - 1, 11);
+  const values = range.getValues();
+  const systemDates = values.map((row) => {
+    const hasImportData = row.slice(0, MYSHIP_HEADERS.length).some((value) => cleanText(value));
+    return [hasImportData ? cleanText(row[10]) || formatMyShipSortDate(row[7]) : ""];
+  });
+
+  sheet.getRange(2, 11, lastRow - 1, 1).setValues(systemDates);
+  range.sort({ column: 11, ascending: false });
+  applyMyShipDateGroupStyle(sheet);
+  return values.filter((row) => row.slice(0, MYSHIP_HEADERS.length).some((value) => cleanText(value))).length;
+}
+
+function applyMyShipDateGroupStyle(sheet) {
   const lastRow = sheet.getLastRow();
   if (lastRow < 2) return;
 
-  const previousOrderDate = cleanText(sheet.getRange(lastRow, 8).getDisplayValue());
-  const currentOrderDate = formatMyShipDate(createdAt);
+  const dates = sheet.getRange(2, 11, lastRow - 1, 1).getDisplayValues().flat();
+  let groupIndex = 0;
+  let previousDate = "";
+  const backgrounds = dates.map((date) => {
+    if (date && date !== previousDate) groupIndex += 1;
+    previousDate = date;
+    const color = !date ? "#ffffff" : groupIndex % 2 === 0 ? "#fff8ec" : "#f4ead8";
+    return Array(11).fill(color);
+  });
 
-  if (previousOrderDate && previousOrderDate !== currentOrderDate) {
-    sheet.getRange(lastRow + 1, 1, 1, MYSHIP_HEADERS.length).clearContent();
-  }
+  sheet.getRange(2, 1, lastRow - 1, 11).setBackgrounds(backgrounds);
 }
 
 function prepareShipmentPrintSheet(sheet) {
@@ -1879,6 +1912,17 @@ function formatMyShipDate(value) {
   }
 
   return Utilities.formatDate(new Date(), "Asia/Taipei", "yyyy/M/d");
+}
+
+function formatMyShipSortDate(value) {
+  const dateText = formatMyShipDate(value);
+  const parts = dateText.split("/");
+
+  if (parts.length >= 3) {
+    return [parts[0], String(Number(parts[1])).padStart(2, "0"), String(Number(parts[2])).padStart(2, "0")].join("-");
+  }
+
+  return Utilities.formatDate(new Date(), "Asia/Taipei", "yyyy-MM-dd");
 }
 
 function truncateText(value, maxLength) {
