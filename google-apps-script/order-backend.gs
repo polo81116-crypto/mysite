@@ -212,6 +212,7 @@ function doPost(e) {
     } catch (reportError) {
       logError(reportError, e);
     }
+    sortAllOrderSheetsNewestFirst();
 
     sendOrderEmails(orderId, createdAt, payload);
 
@@ -711,6 +712,7 @@ function onOpen() {
     .addItem("\u522a\u9664\u55ae\u4e00\u8a02\u55ae", "deleteOrderWithPrompt")
     .addItem("\u91cd\u6574\u4eca\u65e5\u5f85\u51fa\u8ca8", "refreshTodayPendingShipments")
     .addItem("\u4f9d\u65e5\u671f\u6574\u7406\u8a02\u55ae\u532f\u5165", "organizeMyShipImport")
+    .addItem("\u4f9d\u65b0\u81f3\u820a\u6392\u5e8f\u51fa\u8ca8\u8cc7\u6599", "sortAllOrderSheetsNewestFirst")
     .addToUi();
 }
 
@@ -719,6 +721,34 @@ function organizeMyShipImport() {
   const sheet = getOrCreateSheet(spreadsheet, CONFIG.MYSHIP_SHEET_NAME, MYSHIP_HEADERS);
   prepareMyShipSheet(sheet);
   return organizeMyShipImportSheet(sheet);
+}
+
+function sortAllOrderSheetsNewestFirst() {
+  const spreadsheet = getSpreadsheet();
+  const ordersSheet = getOrdersSheet(spreadsheet);
+  const printSheet = getOrCreateSheet(spreadsheet, CONFIG.PRINT_SHEET_NAME, PRINT_HEADERS);
+  const sortSheet = getOrCreateSheet(spreadsheet, CONFIG.SHIPMENT_SORT_SHEET_NAME, SHIPMENT_SORT_HEADERS);
+
+  return {
+    orders: sortSheetByCreatedAtNewestFirst(ordersSheet, ORDER_COLUMN.CREATED_AT),
+    print: sortSheetByCreatedAtNewestFirst(printSheet, ORDER_COLUMN.CREATED_AT),
+    shipmentSort: sortSheetByCreatedAtNewestFirst(sortSheet, ORDER_COLUMN.CREATED_AT),
+  };
+}
+
+function sortSheetByCreatedAtNewestFirst(sheet, createdAtHeader) {
+  const lastRow = sheet.getLastRow();
+  const lastColumn = sheet.getLastColumn();
+  if (lastRow < 3 || lastColumn < 1) return Math.max(lastRow - 1, 0);
+
+  const headers = sheet.getRange(1, 1, 1, lastColumn).getValues()[0];
+  const createdAtColumn = headers.indexOf(createdAtHeader) + 1;
+  if (!createdAtColumn) {
+    throw new Error(sheet.getName() + " \u627e\u4e0d\u5230\u5efa\u7acb\u6642\u9593\u6b04\u4f4d\u3002");
+  }
+
+  sheet.getRange(2, 1, lastRow - 1, lastColumn).sort({ column: createdAtColumn, ascending: false });
+  return lastRow - 1;
 }
 
 function deleteOrderWithPrompt() {
