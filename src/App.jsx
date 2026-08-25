@@ -1071,7 +1071,7 @@ export default function CaobanCoffeeHomepage() {
               ))}
             </div>
             <p className="mt-3 text-sm text-[#fff1df]">{cart.length === 0 ? "先選擇商品加入購物車。" : !hasDeliveryDetails ? "下一步：選擇配送方式與取貨門市／收件地址。" : !hasRecipientDetails ? "下一步：填寫收件人、手機與 Email。" : "資料已備妥，請確認總計後送出訂單。"}</p>
-            <div className="mt-5 rounded-2xl border border-[#f3c178]/30 bg-[#f3c178]/10 p-4 text-[#fff1df]"><p className="text-sm font-bold text-[#f3c178]">優惠活動</p><ul className="mt-2 space-y-1 text-sm leading-7"><li>• 全館商品 9 折優惠</li><li>• 7-11 運費 38 元、全家運費 65 元、順豐運費 100 元</li><li>• 折扣後滿 1,000 元享免運</li><li>超商與順豐貨到付款皆可填寫，取貨或收件時再付款。</li></ul></div>
+            <div className="mt-5 rounded-2xl border border-[#f3c178]/30 bg-[#f3c178]/10 p-4 text-[#fff1df]"><p className="text-sm font-bold text-[#f3c178]">優惠活動</p><ul className="mt-2 space-y-1 text-sm leading-7"><li>• 全館商品 9 折優惠</li><li>• 7-11 運費 38 元、全家運費 65 元、順豐運費 100 元</li><li>• 折扣後滿 1,000 元享免運</li><li className="font-bold text-[#ffcfca]">• 超商寄件限重 5 公斤；超過請拆成多筆訂單，或改選順豐快遞。</li><li>超商與順豐貨到付款皆可填寫，取貨或收件時再付款。</li></ul></div>
             <div className="mt-8 space-y-4">
               {pickupMethodOptions.map((method) => (<button key={method} type="button" onClick={() => handlePickupMethodChange(method)} className={`flex w-full items-center justify-between rounded-2xl border px-5 py-4 text-left font-bold transition ${pickupMethod === method ? "border-[#f3c178] bg-[#f3c178] text-[#2a1a10]" : "border-white/20 bg-white/10 text-white hover:bg-white/15"}`}><span className="inline-flex items-center"><MapPin className="mr-2 h-5 w-5" />{method}</span><ChevronRight className="h-5 w-5" /></button>))}
             </div>
