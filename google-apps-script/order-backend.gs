@@ -18,6 +18,7 @@ const CONFIG = {
   LEGACY_ORDERS_SHEET_NAME: "Orders",
   PRINT_SHEET_NAME: "\u51fa\u8ca8\u55ae\u5217\u5370",
   SHIPMENT_SORT_SHEET_NAME: "\u51fa\u8ca8\u5206\u985e\u7e3d\u8868",
+  TODAY_SHIPMENTS_SHEET_NAME: "\u4eca\u65e5\u5f85\u51fa\u8ca8",
   SALES_RANKING_SHEET_NAME: "\u5546\u54c1\u92b7\u552e\u6392\u540d",
   MONTHLY_SALES_SHEET_NAME: "\u6708\u92b7\u660e\u7d30",
   MYSHIP_SHEET_NAME: "\u8a02\u55ae\u532f\u5165",
@@ -93,6 +94,20 @@ const SHIPMENT_SORT_HEADERS = [
   "\u532f\u51fa\u6216\u8655\u7406\u72c0\u614b",
   "\u8a02\u55ae\u5099\u8a3b",
   "\u5176\u4ed6\u8cc7\u8a0a",
+];
+
+const TODAY_SHIPMENTS_HEADERS = [
+  "\u51fa\u8ca8\u65e5\u671f",
+  "\u7269\u6d41\u65b9\u5f0f",
+  "\u8a02\u55ae\u7de8\u865f",
+  "\u5efa\u7acb\u6642\u9593",
+  "\u6536\u4ef6\u4eba",
+  "\u624b\u6a5f",
+  "\u9580\u5e02\u6216\u5730\u5740",
+  "\u5546\u54c1\u6458\u8981",
+  "\u7e3d\u91d1\u984d",
+  "\u8a02\u55ae\u5099\u8a3b",
+  "\u532f\u51fa\u6216\u8655\u7406\u72c0\u614b",
 ];
 
 const MYSHIP_HEADERS = [
@@ -189,6 +204,7 @@ function doPost(e) {
     }
     appendShipmentPrintRow(orderId, createdAt, payload, "\u672a\u51fa\u8ca8", exportedAt);
     appendShipmentSortRow(orderId, createdAt, payload, "\u672a\u51fa\u8ca8", exportedAt ? "\u5df2\u532f\u51fa" : "\u5f85\u8655\u7406");
+    refreshTodayPendingShipments();
     applyOrderSheetFormatting(sheet);
     try {
       refreshSalesReports();
@@ -598,6 +614,82 @@ function rebuildShipmentSortSheet() {
   });
 
   return sheet.getLastRow() - 1;
+}
+
+// Rebuild the operator-facing daily queue. This sheet is intentionally separate
+// from the MyShip import sheet so daily checking never changes the import format.
+function refreshTodayPendingShipments() {
+  const spreadsheet = getSpreadsheet();
+  const ordersSheet = getOrdersSheet(spreadsheet);
+  const sheet = getOrCreateSheet(spreadsheet, CONFIG.TODAY_SHIPMENTS_SHEET_NAME, TODAY_SHIPMENTS_HEADERS);
+
+  sheet.clearContents();
+  sheet.appendRow(TODAY_SHIPMENTS_HEADERS);
+  sheet.setFrozenRows(1);
+  sheet.getRange(1, 1, 1, TODAY_SHIPMENTS_HEADERS.length)
+    .setFontWeight("bold")
+    .setBackground("#2a1a10")
+    .setFontColor("#fff8ec");
+
+  if (!ordersSheet || ordersSheet.getLastRow() < 2) return 0;
+
+  const values = ordersSheet.getDataRange().getValues();
+  const headers = values[0];
+  const orderIdIndex = headers.indexOf(ORDER_COLUMN.ORDER_ID);
+  const createdAtIndex = headers.indexOf(ORDER_COLUMN.CREATED_AT);
+  const rawPayloadIndex = headers.indexOf(ORDER_COLUMN.RAW_PAYLOAD);
+  const shippedIndex = headers.indexOf(ORDER_COLUMN.SHIPPED);
+  const processStatusIndex = headers.indexOf(ORDER_COLUMN.MYSHIP_EXPORT_STATUS);
+  const today = formatMyShipDate(new Date());
+  const rows = [];
+
+  values.slice(1).forEach((row) => {
+    if (formatMyShipDate(row[createdAtIndex]) !== today) return;
+    if (cleanText(row[shippedIndex]) === "\u5df2\u51fa\u8ca8") return;
+
+    let payload;
+    try {
+      payload = normalizeOrderPayload(JSON.parse(row[rawPayloadIndex]));
+    } catch (error) {
+      return;
+    }
+    if (isTestOrder(row[orderIdIndex], payload)) return;
+
+    rows.push([
+      today,
+      getShipmentCategory(payload),
+      cleanText(row[orderIdIndex]),
+      cleanText(row[createdAtIndex]),
+      cleanText(payload.recipient),
+      cleanText(payload.phone),
+      getShipmentDestination(payload),
+      cleanText(payload.itemSummary || payload.items),
+      cleanText(payload.total || payload.totalNumber),
+      cleanText(payload.note),
+      cleanText(row[processStatusIndex] || getDefaultShipmentProcessStatus(payload)),
+    ]);
+  });
+
+  if (rows.length === 0) return 0;
+
+  rows.sort((left, right) => left[1].localeCompare(right[1], "zh-Hant") || left[3].localeCompare(right[3], "zh-Hant"));
+  sheet.getRange(2, 1, rows.length, TODAY_SHIPMENTS_HEADERS.length).setValues(rows);
+  sheet.getRange(1, 1, rows.length + 1, TODAY_SHIPMENTS_HEADERS.length).setWrap(true);
+  sheet.getRange(1, 1, rows.length + 1, TODAY_SHIPMENTS_HEADERS.length).setNumberFormat("@");
+  return rows.length;
+}
+
+function isTestOrder(orderId, payload) {
+  const testText = [
+    orderId,
+    payload.recipient,
+    payload.email,
+    payload.itemSummary,
+    payload.items,
+    payload.note,
+  ].map(cleanText).join(" ");
+
+  return /test|\u6e2c\u8a66/i.test(testText);
 }
 
 function refreshSalesReports() {

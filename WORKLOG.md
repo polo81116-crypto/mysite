@@ -152,6 +152,7 @@ public/stores.json
 - Added per-package sale-price support. 炎之家配方 now highlights original price $520 and fixed sale price $399; it is excluded from the extra sitewide 9% discount.
 - Added a prominent checkout reminder: convenience-store shipments are limited to 5 kg; heavier orders must be split or sent through SF Express.
 - Updated the Google Apps Script MyShip import export: when a new order is from a different day, it adds one blank row before that day’s first order. The required MyShip import columns remain unchanged, so daily shipments are easier to check without altering the import format.
+- Added an auto-refreshing `今日待出貨` Google Sheet view. It shows only orders created today that are still unshipped, hides test orders, and groups the queue by carrier for daily fulfilment checks.
 
 ### Verification
 
