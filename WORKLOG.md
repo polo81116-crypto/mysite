@@ -145,6 +145,7 @@ public/stores.json
   - 哥倫比亞 希望莊園 酒香日曬處理
   - 衣索比亞 耶加雪夫 班可 達達圖 G1 水洗
 - Clarified the product management tool and upload guide: “儲存回 JSON” updates the opened source file, while “下載 JSON” requires manually replacing `src/admin-products.json` before uploading.
+- Added a per-item cart subtotal (`單價 × 數量`) that refreshes immediately when customers change quantity.
 
 ### Verification
 
