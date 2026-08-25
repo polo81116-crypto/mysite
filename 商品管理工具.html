@@ -49,7 +49,7 @@
   <body>
     <header>
       <h1>商品管理工具</h1>
-      <p class="hint">開啟 `src/admin-products.json` 後即可新增、修改、上下架商品。圖片可填 `Imgea/ChatGPT Image 1.png` 這種路徑。</p>
+      <p class="hint">先按「開啟商品資料」選 `src/admin-products.json`，修改後按「儲存回 JSON」才會直接覆蓋原檔。若按「下載 JSON」，請把下載的 `admin-products.json` 覆蓋回 `src/admin-products.json`。</p>
       <div class="toolbar">
         <button id="openJson">開啟商品資料</button>
         <button id="saveJson">儲存回 JSON</button>
@@ -136,6 +136,7 @@
         "9 磨粉 / 法壓",
       ];
       let fileHandle = null;
+      let openedFileName = "";
       let data = structuredClone(defaultData);
       let selectedIndex = -1;
       let imageChoices = [...defaultImageChoices];
@@ -151,6 +152,10 @@
       };
 
       function setMessage(text) { els.message.textContent = text; }
+      function setOpenedFileMessage(action) {
+        const target = openedFileName || "src/admin-products.json";
+        setMessage(`${action} ${target}。完成商品更新後可執行一鍵上傳。`);
+      }
       function blankProduct() { return { id: `product-${Date.now()}`, status: "active", discountPercent: 0, excludeGlobalDiscount: false, excludeFreeShipping: false, category: "", name: "", roast: "", taste: "", packageOptions: [{ label: "單包", price: 0 }], grindOptions: [], weight: "", origin: "", storage: "請置於陰涼乾燥處，開封後請密封保存並盡早飲用。", supplierInfo: "攪拌咖啡商行", image: "Imgea/ChatGPT Image 1.png" }; }
       function statusText(status) { return { active: "上架", soldout: "售完", hidden: "下架" }[status] || status; }
       function normalizeData(input) { return { products: Array.isArray(input.products) ? input.products : [] }; }
@@ -286,7 +291,7 @@
           selectedIndex = data.products.length ? 0 : -1;
           renderList();
           fillForm(selectedIndex >= 0 ? data.products[selectedIndex] : blankProduct());
-          setMessage("已載入目前商品。若要直接儲存回原檔，請按「開啟商品資料」並選 src/admin-products.json。");
+          setMessage("已載入目前商品。若要直接儲存回原檔，請先按「開啟商品資料」並選 src/admin-products.json；只按「下載 JSON」不會自動更新網站原檔。");
         } catch {
           fillForm(blankProduct());
           setMessage("若左側沒有商品，請按「開啟商品資料」選擇 src/admin-products.json。");
@@ -297,9 +302,10 @@
         if (!window.showOpenFilePicker) { setMessage("請用新版 Chrome 或 Edge 開啟，才可直接讀寫檔案。"); return; }
         [fileHandle] = await window.showOpenFilePicker({ types: [{ description: "商品 JSON", accept: { "application/json": [".json"] } }] });
         const file = await fileHandle.getFile();
+        openedFileName = file.name;
         data = normalizeData(JSON.parse(await file.text()));
         selectedIndex = data.products.length ? 0 : -1;
-        renderList(); fillForm(selectedIndex >= 0 ? data.products[selectedIndex] : blankProduct()); setMessage(`已開啟 ${file.name}`);
+        renderList(); fillForm(selectedIndex >= 0 ? data.products[selectedIndex] : blankProduct()); setOpenedFileMessage("已開啟");
       }
 
       async function saveJson() {
@@ -309,9 +315,10 @@
           const writable = await fileHandle.createWritable();
           await writable.write(text);
           await writable.close();
-          setMessage("已儲存回 JSON。更新網站時請 commit 並 push 到 GitHub。");
+          setOpenedFileMessage("已儲存回");
           return;
         }
+        setMessage("尚未開啟 src/admin-products.json，無法直接覆蓋原檔。已改用下載 JSON，請把下載檔覆蓋到 src/admin-products.json。");
         downloadJson();
       }
 
@@ -321,7 +328,7 @@
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url; link.download = "admin-products.json"; link.click(); URL.revokeObjectURL(url);
-        setMessage("已下載 admin-products.json，請覆蓋 src/admin-products.json。");
+        setMessage("已下載 admin-products.json。這只是下載檔案，請把它覆蓋到 src/admin-products.json，網站才會讀到新商品。");
       }
 
       async function openImageFolder() {

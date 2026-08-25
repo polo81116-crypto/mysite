@@ -131,6 +131,30 @@ This file tracks project changes, deployment notes, and version updates.
 public/stores.json
 ```
 
+## 2026-08-25
+
+### Version
+
+- Version: product status and management-guide update
+- Updated by: Codex
+
+### Changes
+
+- Marked the following specialty coffee products as `hidden`, removing them from the storefront while retaining their records in the product management tool:
+  - 衣索比亞 耶加雪菲 沃卡村 班可果丁丁處理場 水洗 G1
+  - 哥倫比亞 希望莊園 酒香日曬處理
+  - 衣索比亞 耶加雪夫 班可 達達圖 G1 水洗
+- Clarified the product management tool and upload guide: “儲存回 JSON” updates the opened source file, while “下載 JSON” requires manually replacing `src/admin-products.json` before uploading.
+
+### Verification
+
+- Product JSON parse and target status check: passed.
+- `npm.cmd run build`: passed.
+
+### Deployment Notes
+
+- GitHub Pages deploys the updated storefront automatically after this change is pushed to `main`.
+
 ## 2026-06-16
 
 ### Version
