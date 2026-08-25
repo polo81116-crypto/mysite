@@ -244,7 +244,7 @@
     },
     {
       "id": "ethiopia-yirgacheffe-banko-datatu-copy",
-      "status": "active",
+      "status": "hidden",
       "discountPercent": 0,
       "excludeGlobalDiscount": false,
       "excludeFreeShipping": false,
@@ -276,7 +276,7 @@
     },
     {
       "id": "colombia-hopes-estate-wine-sun",
-      "status": "active",
+      "status": "hidden",
       "category": "精品咖啡豆",
       "name": "哥倫比亞 希望莊園 酒香日曬處理",
       "roast": "淺烘焙",
@@ -305,7 +305,7 @@
     },
     {
       "id": "ethiopia-yirgacheffe-banko-datatu",
-      "status": "active",
+      "status": "hidden",
       "category": "精品咖啡豆",
       "name": "衣索比亞 耶加雪夫 班可 達達圖 G1 水洗",
       "roast": "淺烘焙",
