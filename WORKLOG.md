@@ -151,8 +151,8 @@ public/stores.json
 - Saved a second recovery tag, `before-product-discovery-mobile-cart-2026-08-25`, before adding product flavor tags, clearer floating-cart line totals, and a compact mobile cart launcher.
 - Added per-package sale-price support. 炎之家配方 now highlights original price $520 and fixed sale price $399; it is excluded from the extra sitewide 9% discount.
 - Added a prominent checkout reminder: convenience-store shipments are limited to 5 kg; heavier orders must be split or sent through SF Express.
-- Updated the Google Apps Script MyShip import export: when a new order is from a different day, it adds one blank row before that day’s first order. The required MyShip import columns remain unchanged, so daily shipments are easier to check without altering the import format.
-- Added an auto-refreshing `今日待出貨` Google Sheet view. It shows only orders created today that are still unshipped, hides test orders, and groups the queue by carrier for daily fulfilment checks.
+- Updated the Google Apps Script MyShip import export while preserving its required A:J columns; each row now carries an internal order-ID note so a matching order can later be removed safely.
+- Added an auto-refreshing `今日待出貨` Google Sheet view. It shows only orders created today that are still unshipped and groups the queue by carrier for daily fulfilment checks.
 - Updated `今日待出貨` so test orders are shown with a clear `測試訂單` label and light highlight, allowing the order flow to be verified without mistaking it for a formal shipment.
 - Added the Apps Script `訂單工具` menu: `刪除單一訂單` prompts for an order ID, safely removes its matching MyShip import row, deletes the source order, and rebuilds the shipment and sales views.
 - Added a display-only `系統日期（勿匯入）` column K to the MyShip staging sheet. The import records sort newest-first and receive alternating daily backgrounds; upload to MyShip must continue to use only the required A:J columns.
@@ -167,6 +167,9 @@ public/stores.json
 ### Deployment Notes
 
 - GitHub Pages deploys the updated storefront automatically after this change is pushed to `main`.
+- Latest GitHub source commit for today’s work: `b8ce44e Rebuild shipment sheets before sorting`.
+- After updating Apps Script, run `refreshShipmentSheetsNewestFirst` once to rebuild `出貨單列印` and `出貨分類總表` in newest-first order. Future website orders run this refresh automatically.
+- The Apps Script file is stored in GitHub for version control, but its live Web App version must be updated separately by pasting the latest `google-apps-script/order-backend.gs`, saving, and updating the existing deployment.
 
 ## 2026-06-16
 
