@@ -8,6 +8,9 @@ const shopeeUrl = "https://shopee.tw/caobancoffee?categoryId=100629&entryPoint=S
 const orderApiUrl = "https://script.google.com/macros/s/AKfycbzfN28njwcJeZssEQV5HJnZ7Z9Z-dPmIVP0WNLBZNQz7VUG9VewI6hl29-0ivpJ_DiPQA/exec";
 const minimumCheckoutTotal = 100;
 const orderSubmitUiTimeoutMs = 4000;
+const cartStorageKey = "caoban-coffee-cart";
+const checkoutDraftStorageKey = "caoban-coffee-checkout-draft";
+const emptyCheckoutForm = { pickupStore: "", deliveryAddress: "", recipient: "", phone: "", email: "", taxId: "", companyTitle: "", note: "", socialAccount: "" };
 const sevenElevenStoresJsonUrl = `${import.meta.env.BASE_URL}stores.json`;
 const familyMartStoresJsonUrl = `${import.meta.env.BASE_URL}family-stores.json`;
 const coffeeReviewAwardImage = `${import.meta.env.BASE_URL}images/coffee-review-award.png`;
@@ -262,6 +265,33 @@ function makeCartId(productId, packageLabel, grindLabel = "不需研磨") {
   return `${productId}__${packageLabel}__${grindLabel}`;
 }
 
+function readSavedCart() {
+  try {
+    const savedCart = JSON.parse(localStorage.getItem(cartStorageKey) || "[]");
+    if (!Array.isArray(savedCart)) return [];
+    return savedCart.flatMap((savedItem) => {
+      const product = products.find((item) => item.id === savedItem?.id && item.status !== "hidden");
+      const packageOption = product?.packageOptions.find((option) => option.label === savedItem?.packageLabel);
+      if (!product || !packageOption || !Number.isInteger(savedItem.quantity) || savedItem.quantity <= 0) return [];
+      const grindLabel = product.grindOptions.includes(savedItem.grindLabel) ? savedItem.grindLabel : product.grindOptions[0] || "不需研磨";
+      const productDiscount = discountPercent(product);
+      return [{ ...product, cartId: makeCartId(product.id, packageOption.label, grindLabel), packageLabel: packageOption.label, grindLabel, price: discountedPrice(packageOption.price, product), originalPrice: packageOption.price, discountPercent: productDiscount, excludeGlobalDiscount: Boolean(product.excludeGlobalDiscount), excludeFreeShipping: Boolean(product.excludeFreeShipping), quantity: savedItem.quantity }];
+    });
+  } catch {
+    return [];
+  }
+}
+
+function readCheckoutDraft() {
+  try {
+    const draft = JSON.parse(localStorage.getItem(checkoutDraftStorageKey) || "{}");
+    if (!draft || typeof draft !== "object") return emptyCheckoutForm;
+    return Object.fromEntries(Object.keys(emptyCheckoutForm).map((field) => [field, typeof draft[field] === "string" ? draft[field] : ""]));
+  } catch {
+    return emptyCheckoutForm;
+  }
+}
+
 function buildOrderLineItems(cart) {
   return cart.map((item) => ({
     productId: item.id,
@@ -422,12 +452,12 @@ function CoffeeReviewAwardCard() {
 }
 
 export default function CaobanCoffeeHomepage() {
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState(readSavedCart);
   const [pickupMethod, setPickupMethod] = useState("7-11 賣貨便");
   const [selectedProductCategory, setSelectedProductCategory] = useState("全部商品");
   const [selectedPackages, setSelectedPackages] = useState(() => Object.fromEntries(products.map((product) => [product.id, product.packageOptions[0]])));
   const [selectedGrinds, setSelectedGrinds] = useState(() => Object.fromEntries(products.map((product) => [product.id, product.grindOptions[0] || "不需研磨"])));
-  const [checkoutForm, setCheckoutForm] = useState({ pickupStore: "", deliveryAddress: "", recipient: "", phone: "", email: "", taxId: "", companyTitle: "", note: "", socialAccount: "" });
+  const [checkoutForm, setCheckoutForm] = useState(readCheckoutDraft);
   const [currentInfoSlide, setCurrentInfoSlide] = useState(0);
   const [storeKeyword, setStoreKeyword] = useState("");
   const [remoteStores, setRemoteStores] = useState({});
@@ -456,6 +486,8 @@ export default function CaobanCoffeeHomepage() {
   const cartTotal = useMemo(() => discountedSubtotal + shippingFee, [discountedSubtotal, shippingFee]);
   const isCheckoutBelowMinimum = cart.length > 0 && cartTotal < minimumCheckoutTotal;
   const checkoutDisabled = cart.length === 0 || isCheckoutBelowMinimum;
+  const hasRecipientDetails = Boolean(checkoutForm.recipient.trim() && checkoutForm.phone.trim() && checkoutForm.email.trim());
+  const hasDeliveryDetails = isStorePickup(pickupMethod) ? Boolean(checkoutForm.pickupStore.trim()) : Boolean(checkoutForm.deliveryAddress.trim());
   const filteredProducts = selectedProductCategory === "全部商品" ? products : products.filter((product) => product.category === selectedProductCategory);
   const currentSlide = infoSlides[currentInfoSlide];
   const storeConfig = storeDataConfigs[pickupMethod] || null;
@@ -466,11 +498,27 @@ export default function CaobanCoffeeHomepage() {
   );
   const filteredStores = useMemo(() => {
     const keyword = storeKeyword.trim().toLowerCase();
-    if (!keyword) return storeSource.slice(0, 8);
+    if (!keyword) return [];
     return storeSource
       .filter((store) => `${store.name} ${store.id} ${store.city || ""} ${store.district || ""} ${store.address}`.toLowerCase().includes(keyword))
       .slice(0, 12);
   }, [storeKeyword, storeSource]);
+
+  useEffect(() => {
+    if (cart.length > 0) {
+      localStorage.setItem(cartStorageKey, JSON.stringify(cart));
+    } else {
+      localStorage.removeItem(cartStorageKey);
+    }
+  }, [cart]);
+
+  useEffect(() => {
+    if (Object.values(checkoutForm).some(Boolean)) {
+      localStorage.setItem(checkoutDraftStorageKey, JSON.stringify(checkoutForm));
+    } else {
+      localStorage.removeItem(checkoutDraftStorageKey);
+    }
+  }, [checkoutForm]);
 
   useEffect(() => {
     let isMounted = true;
@@ -614,7 +662,7 @@ export default function CaobanCoffeeHomepage() {
   function selectStore(store) {
     const storeText = `${store.name}｜${store.id}｜${store.address}`;
     handleCheckoutForm("pickupStore", storeText);
-    setStoreKeyword(`${store.name} ${store.address}`);
+    setStoreKeyword("");
   }
 
   function openOrderConfirm() {
@@ -690,6 +738,7 @@ export default function CaobanCoffeeHomepage() {
   function closeOrderComplete() {
     setShowOrderConfirm(false);
     setCart([]);
+    setCheckoutForm(emptyCheckoutForm);
     setOrderSubmitStatus("idle");
   }
 
@@ -990,6 +1039,12 @@ export default function CaobanCoffeeHomepage() {
 
           <aside className="rounded-[2rem] bg-[#8a603b] p-7 text-white shadow-xl md:p-10">
             <p className="text-sm font-bold tracking-[0.3em] text-[#f3c178]">CHECKOUT</p><h2 className="mt-2 text-3xl font-bold">超商取貨結帳</h2>
+            <div className="mt-5 grid grid-cols-4 gap-2" aria-label="結帳步驟">
+              {[{ label: "商品", done: cart.length > 0 }, { label: "配送", done: Boolean(pickupMethod) }, { label: "資料", done: hasRecipientDetails && hasDeliveryDetails }, { label: "確認", done: false }].map((step, index) => (
+                <div key={step.label} className={`rounded-xl px-2 py-2 text-center text-xs font-bold ${step.done ? "bg-[#f3c178] text-[#2a1a10]" : "bg-white/10 text-[#fff1df]"}`}><span className="mr-1 opacity-70">{index + 1}</span>{step.label}</div>
+              ))}
+            </div>
+            <p className="mt-3 text-sm text-[#fff1df]">{cart.length === 0 ? "先選擇商品加入購物車。" : !hasDeliveryDetails ? "下一步：選擇配送方式與取貨門市／收件地址。" : !hasRecipientDetails ? "下一步：填寫收件人、手機與 Email。" : "資料已備妥，請確認總計後送出訂單。"}</p>
             <div className="mt-5 rounded-2xl border border-[#f3c178]/30 bg-[#f3c178]/10 p-4 text-[#fff1df]"><p className="text-sm font-bold text-[#f3c178]">優惠活動</p><ul className="mt-2 space-y-1 text-sm leading-7"><li>• 全館商品 9 折優惠</li><li>• 7-11 運費 38 元、全家運費 65 元、順豐運費 100 元</li><li>• 折扣後滿 1,000 元享免運</li><li>超商與順豐貨到付款皆可填寫，取貨或收件時再付款。</li></ul></div>
             <div className="mt-8 space-y-4">
               {pickupMethodOptions.map((method) => (<button key={method} type="button" onClick={() => handlePickupMethodChange(method)} className={`flex w-full items-center justify-between rounded-2xl border px-5 py-4 text-left font-bold transition ${pickupMethod === method ? "border-[#f3c178] bg-[#f3c178] text-[#2a1a10]" : "border-white/20 bg-white/10 text-white hover:bg-white/15"}`}><span className="inline-flex items-center"><MapPin className="mr-2 h-5 w-5" />{method}</span><ChevronRight className="h-5 w-5" /></button>))}
@@ -1015,11 +1070,12 @@ export default function CaobanCoffeeHomepage() {
                   <div><p className="font-bold text-[#f3c178]">超商門市</p><p className="mt-1 text-xs leading-6 text-[#fff1df]">可輸入門市名稱、店號、城市或地址關鍵字，系統會搜尋目前選擇的超商門市資料並自動帶入地址。</p><p className="mt-1 text-xs leading-6 text-[#f3c178]">{storeDataStatus === "loading" ? "門市資料載入中…" : storeDataStatus === "ready" ? `已載入 ${loadedStores.length.toLocaleString("zh-TW")} 間${pickupMethod}門市資料` : storeDataStatus === "empty" ? `目前尚未匯入${pickupMethod}完整門市資料，請先手動填寫門市名稱、店號與地址。` : "目前使用備用門市清單，若查不到可改用更多關鍵字搜尋。"}</p></div>
                   <input type="text" placeholder={`搜尋${pickupMethod}門市名稱 / 店號 / 地址，例如：勤美、台中、西區`} value={storeKeyword} onChange={(event) => setStoreKeyword(event.target.value)} className="mt-4 w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-white placeholder:text-[#e8d7bf] outline-none" />
                   <div className="mt-3 max-h-56 space-y-2 overflow-y-auto rounded-2xl bg-black/10 p-3">
-                    {filteredStores.length === 0 ? (<p className="px-3 py-2 text-sm text-[#fff1df]">目前找不到符合的門市，請換店名、店號、路名或縣市關鍵字搜尋；若全家資料尚未匯入，也可以先在下方手動填寫。</p>) : filteredStores.map((store) => (<button key={store.id} type="button" onClick={() => selectStore(store)} className="w-full rounded-xl bg-white/10 px-4 py-3 text-left transition hover:bg-[#f3c178] hover:text-[#2a1a10]"><span className="block text-sm font-bold">{store.name}｜{store.id}</span><span className="mt-1 block text-xs leading-5">{store.address}</span></button>))}
+                    {!storeKeyword.trim() ? (<p className="px-3 py-2 text-sm text-[#fff1df]">請輸入店名、店號、路名或縣市關鍵字搜尋，結果最多顯示 12 間門市。</p>) : filteredStores.length === 0 ? (<p className="px-3 py-2 text-sm text-[#fff1df]">目前找不到符合的門市，請換店名、店號、路名或縣市關鍵字搜尋；若全家資料尚未匯入，也可以先在下方手動填寫。</p>) : filteredStores.map((store) => (<button key={store.id} type="button" onClick={() => selectStore(store)} className="w-full rounded-xl bg-white/10 px-4 py-3 text-left transition hover:bg-[#f3c178] hover:text-[#2a1a10]"><span className="block text-sm font-bold">{store.name}｜{store.id}</span><span className="mt-1 block text-xs leading-5">{store.address}</span></button>))}
                   </div>
                   <input type="text" required aria-invalid={Boolean(checkoutErrors.pickupStore)} placeholder="已選門市 / 店號 / 地址（必填）" value={checkoutForm.pickupStore} onChange={(event) => handleCheckoutForm("pickupStore", event.target.value)} className={`mt-3 w-full rounded-2xl border bg-white/10 px-4 py-3 text-white placeholder:text-[#e8d7bf] outline-none ${checkoutErrors.pickupStore ? "border-[#ffb4a8]" : "border-white/20"}`} />
                   {checkoutErrors.pickupStore && <p className="mt-2 text-sm font-bold text-[#ffcfca]">{checkoutErrors.pickupStore}</p>}
                 </div>}
+                <p className="text-xs leading-6 text-[#fff1df]">購物車與已填資料只會暫存在此裝置的瀏覽器中，送出訂單後會自動清除。</p>
                 <div className="rounded-2xl border border-white/15 bg-white/10 p-4"><p className="text-sm font-bold text-[#f3c178]">發票資訊</p><p className="mt-1 text-xs leading-6 text-[#fff1df]">目前是免用統一發票，有需要的請留下統一編號及抬頭，會隨貨附上。</p></div>
                 <div className="grid gap-4 md:grid-cols-2"><input type="text" placeholder="統一編號" value={checkoutForm.taxId} onChange={(event) => handleCheckoutForm("taxId", event.target.value)} className="w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-white placeholder:text-[#e8d7bf] outline-none" /><input type="text" placeholder="公司抬頭" value={checkoutForm.companyTitle} onChange={(event) => handleCheckoutForm("companyTitle", event.target.value)} className="w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-white placeholder:text-[#e8d7bf] outline-none" /></div>
                 <input type="text" placeholder="其他資訊（FB / LINE / IG 帳號，可留空）" value={checkoutForm.socialAccount} onChange={(event) => handleCheckoutForm("socialAccount", event.target.value)} className="w-full rounded-2xl border border-white/20 bg-white/10 px-4 py-3 text-white placeholder:text-[#e8d7bf] outline-none" />

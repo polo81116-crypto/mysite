@@ -146,6 +146,8 @@ public/stores.json
   - 衣索比亞 耶加雪夫 班可 達達圖 G1 水洗
 - Clarified the product management tool and upload guide: “儲存回 JSON” updates the opened source file, while “下載 JSON” requires manually replacing `src/admin-products.json` before uploading.
 - Added a per-item cart subtotal (`單價 × 數量`) that refreshes immediately when customers change quantity.
+- Saved the pre-improvement release as Git tag `before-checkout-ux-2026-08-25`.
+- Improved checkout flow: store results appear only after entering a search term, cart and form drafts persist locally in the customer’s browser, and a four-step progress guide clarifies the order process.
 
 ### Verification
 
