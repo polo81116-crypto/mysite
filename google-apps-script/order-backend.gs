@@ -108,6 +108,7 @@ const TODAY_SHIPMENTS_HEADERS = [
   "\u7e3d\u91d1\u984d",
   "\u8a02\u55ae\u5099\u8a3b",
   "\u532f\u51fa\u6216\u8655\u7406\u72c0\u614b",
+  "\u8a02\u55ae\u985e\u578b",
 ];
 
 const MYSHIP_HEADERS = [
@@ -495,7 +496,10 @@ function appendMyShipImportRow(orderId, createdAt, payload) {
   // Keep each shipping day visually separate without changing MyShip's required A:J columns.
   // A blank row is only added when the newly received order belongs to a different day.
   appendMyShipDateSeparator(sheet, createdAt);
+  const rowNumber = sheet.getLastRow() + 1;
   appendTextRow(sheet, buildMyShipImportRow(orderId, createdAt, payload), MYSHIP_HEADERS.length);
+  // A cell note does not affect the MyShip import columns, but allows safe later deletion.
+  sheet.getRange(rowNumber, 1).setNote("orderId:" + cleanText(orderId));
 }
 
 function appendShipmentPrintRow(orderId, createdAt, payload, shippedStatus, exportedAt) {
@@ -519,7 +523,11 @@ function rebuildShipmentPrintSheet() {
   const ordersSheet = getOrdersSheet(spreadsheet);
 
   if (!ordersSheet || ordersSheet.getLastRow() < 2) {
-    throw new Error("No orders found.");
+    const emptySheet = getOrCreateSheet(spreadsheet, CONFIG.PRINT_SHEET_NAME, PRINT_HEADERS);
+    emptySheet.clearContents();
+    emptySheet.appendRow(PRINT_HEADERS);
+    prepareShipmentPrintSheet(emptySheet);
+    return 0;
   }
 
   const values = ordersSheet.getDataRange().getValues();
@@ -653,7 +661,7 @@ function refreshTodayPendingShipments() {
     } catch (error) {
       return;
     }
-    if (isTestOrder(row[orderIdIndex], payload)) return;
+    const isTest = isTestOrder(row[orderIdIndex], payload);
 
     rows.push([
       today,
@@ -667,6 +675,7 @@ function refreshTodayPendingShipments() {
       cleanText(payload.total || payload.totalNumber),
       cleanText(payload.note),
       cleanText(row[processStatusIndex] || getDefaultShipmentProcessStatus(payload)),
+      isTest ? "\u6e2c\u8a66\u8a02\u55ae" : "\u6b63\u5f0f\u8a02\u55ae",
     ]);
   });
 
@@ -676,6 +685,11 @@ function refreshTodayPendingShipments() {
   sheet.getRange(2, 1, rows.length, TODAY_SHIPMENTS_HEADERS.length).setValues(rows);
   sheet.getRange(1, 1, rows.length + 1, TODAY_SHIPMENTS_HEADERS.length).setWrap(true);
   sheet.getRange(1, 1, rows.length + 1, TODAY_SHIPMENTS_HEADERS.length).setNumberFormat("@");
+  rows.forEach((row, index) => {
+    if (row[row.length - 1] === "\u6e2c\u8a66\u8a02\u55ae") {
+      sheet.getRange(index + 2, 1, 1, TODAY_SHIPMENTS_HEADERS.length).setBackground("#fff1d6");
+    }
+  });
   return rows.length;
 }
 
@@ -690,6 +704,103 @@ function isTestOrder(orderId, payload) {
   ].map(cleanText).join(" ");
 
   return /test|\u6e2c\u8a66/i.test(testText);
+}
+
+function onOpen() {
+  SpreadsheetApp.getUi()
+    .createMenu("\u8a02\u55ae\u5de5\u5177")
+    .addItem("\u522a\u9664\u55ae\u4e00\u8a02\u55ae", "deleteOrderWithPrompt")
+    .addItem("\u91cd\u6574\u4eca\u65e5\u5f85\u51fa\u8ca8", "refreshTodayPendingShipments")
+    .addToUi();
+}
+
+function deleteOrderWithPrompt() {
+  const ui = SpreadsheetApp.getUi();
+  const response = ui.prompt(
+    "\u522a\u9664\u55ae\u4e00\u8a02\u55ae",
+    "\u8acb\u8f38\u5165\u5b8c\u6574\u8a02\u55ae\u7de8\u865f\uff08\u522a\u9664\u5f8c\u7121\u6cd5\u81ea\u52d5\u5fa9\u539f\uff09\uff1a",
+    ui.ButtonSet.OK_CANCEL
+  );
+
+  if (response.getSelectedButton() !== ui.Button.OK) return;
+
+  try {
+    const result = deleteOrderById(response.getResponseText());
+    ui.alert("\u5df2\u522a\u9664\u8a02\u55ae", result.orderId + " \u5df2\u5f9e\u539f\u59cb\u8a02\u55ae\u8207\u76f8\u95dc\u51fa\u8ca8\u8cc7\u6599\u4e2d\u79fb\u9664\u3002", ui.ButtonSet.OK);
+  } catch (error) {
+    ui.alert("\u7121\u6cd5\u522a\u9664\u8a02\u55ae", error.message, ui.ButtonSet.OK);
+  }
+}
+
+function deleteOrderById(orderId) {
+  const normalizedOrderId = cleanText(orderId);
+  if (!normalizedOrderId) {
+    throw new Error("\u8acb\u8f38\u5165\u8a02\u55ae\u7de8\u865f\u3002");
+  }
+
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+
+  try {
+    const spreadsheet = getSpreadsheet();
+    const ordersSheet = getOrdersSheet(spreadsheet);
+    const values = ordersSheet.getDataRange().getValues();
+    const headers = values[0];
+    const orderIdIndex = headers.indexOf(ORDER_COLUMN.ORDER_ID);
+    const createdAtIndex = headers.indexOf(ORDER_COLUMN.CREATED_AT);
+    const rawPayloadIndex = headers.indexOf(ORDER_COLUMN.RAW_PAYLOAD);
+    const orderIndex = values.findIndex((row, index) => index > 0 && cleanText(row[orderIdIndex]) === normalizedOrderId);
+
+    if (orderIndex === -1) {
+      throw new Error("\u627e\u4e0d\u5230\u9019\u7b46\u8a02\u55ae\u7de8\u865f\u3002");
+    }
+
+    let payload;
+    try {
+      payload = normalizeOrderPayload(JSON.parse(values[orderIndex][rawPayloadIndex]));
+    } catch (error) {
+      throw new Error("\u8a02\u55ae\u539f\u59cb\u8cc7\u6599\u7121\u6cd5\u8b80\u53d6\uff0c\u5df2\u505c\u6b62\u522a\u9664\u3002");
+    }
+
+    const myShipSheet = spreadsheet.getSheetByName(CONFIG.MYSHIP_SHEET_NAME);
+    const myShipRows = myShipSheet
+      ? findMyShipOrderRows(myShipSheet, normalizedOrderId, values[orderIndex][createdAtIndex], payload)
+      : [];
+
+    if (myShipRows.length > 1) {
+      throw new Error("\u8cc7\u6599\u5339\u914d\u5230\u591a\u7b46\u8ce3\u8ca8\u4fbf\u532f\u5165\u8cc7\u6599\uff0c\u70ba\u907f\u514d\u8aa4\u522a\uff0c\u8acb\u5148\u806f\u7d61\u7ba1\u7406\u54e1\u8655\u7406\u3002");
+    }
+
+    if (myShipRows.length === 1) {
+      myShipSheet.deleteRow(myShipRows[0]);
+    }
+    ordersSheet.deleteRow(orderIndex + 1);
+
+    rebuildShipmentPrintSheet();
+    rebuildShipmentSortSheet();
+    refreshTodayPendingShipments();
+    refreshSalesReports();
+
+    return { orderId: normalizedOrderId };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function findMyShipOrderRows(sheet, orderId, createdAt, payload) {
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return [];
+
+  const values = sheet.getRange(2, 1, lastRow - 1, MYSHIP_HEADERS.length).getDisplayValues();
+  const notes = sheet.getRange(2, 1, lastRow - 1, 1).getNotes();
+  const expected = buildMyShipImportRow(orderId, createdAt, payload).map(cleanText);
+
+  return values.reduce((matchingRows, row, index) => {
+    const hasOrderNote = cleanText(notes[index][0]) === "orderId:" + orderId;
+    const hasExactValues = row.every((value, columnIndex) => cleanText(value) === expected[columnIndex]);
+    if (hasOrderNote || hasExactValues) matchingRows.push(index + 2);
+    return matchingRows;
+  }, []);
 }
 
 function refreshSalesReports() {

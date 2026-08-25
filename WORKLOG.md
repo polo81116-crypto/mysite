@@ -153,6 +153,8 @@ public/stores.json
 - Added a prominent checkout reminder: convenience-store shipments are limited to 5 kg; heavier orders must be split or sent through SF Express.
 - Updated the Google Apps Script MyShip import export: when a new order is from a different day, it adds one blank row before that day’s first order. The required MyShip import columns remain unchanged, so daily shipments are easier to check without altering the import format.
 - Added an auto-refreshing `今日待出貨` Google Sheet view. It shows only orders created today that are still unshipped, hides test orders, and groups the queue by carrier for daily fulfilment checks.
+- Updated `今日待出貨` so test orders are shown with a clear `測試訂單` label and light highlight, allowing the order flow to be verified without mistaking it for a formal shipment.
+- Added the Apps Script `訂單工具` menu: `刪除單一訂單` prompts for an order ID, safely removes its matching MyShip import row, deletes the source order, and rebuilds the shipment and sales views.
 
 ### Verification
 
