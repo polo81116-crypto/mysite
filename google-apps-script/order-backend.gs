@@ -475,6 +475,10 @@ function buildOrderShipmentLookupColumns(payload) {
 function appendMyShipImportRow(orderId, createdAt, payload) {
   const sheet = getOrCreateSheet(getSpreadsheet(), CONFIG.MYSHIP_SHEET_NAME, MYSHIP_HEADERS);
   prepareMyShipSheet(sheet);
+
+  // Keep each shipping day visually separate without changing MyShip's required A:J columns.
+  // A blank row is only added when the newly received order belongs to a different day.
+  appendMyShipDateSeparator(sheet, createdAt);
   appendTextRow(sheet, buildMyShipImportRow(orderId, createdAt, payload), MYSHIP_HEADERS.length);
 }
 
@@ -827,6 +831,18 @@ function buildMyShipImportRow(orderId, createdAt, payload) {
 function prepareMyShipSheet(sheet) {
   sheet.setFrozenRows(1);
   sheet.getRange("A:J").setNumberFormat("@");
+}
+
+function appendMyShipDateSeparator(sheet, createdAt) {
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return;
+
+  const previousOrderDate = cleanText(sheet.getRange(lastRow, 8).getDisplayValue());
+  const currentOrderDate = formatMyShipDate(createdAt);
+
+  if (previousOrderDate && previousOrderDate !== currentOrderDate) {
+    sheet.getRange(lastRow + 1, 1, 1, MYSHIP_HEADERS.length).clearContent();
+  }
 }
 
 function prepareShipmentPrintSheet(sheet) {

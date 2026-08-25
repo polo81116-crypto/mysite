@@ -151,6 +151,7 @@ public/stores.json
 - Saved a second recovery tag, `before-product-discovery-mobile-cart-2026-08-25`, before adding product flavor tags, clearer floating-cart line totals, and a compact mobile cart launcher.
 - Added per-package sale-price support. 炎之家配方 now highlights original price $520 and fixed sale price $399; it is excluded from the extra sitewide 9% discount.
 - Added a prominent checkout reminder: convenience-store shipments are limited to 5 kg; heavier orders must be split or sent through SF Express.
+- Updated the Google Apps Script MyShip import export: when a new order is from a different day, it adds one blank row before that day’s first order. The required MyShip import columns remain unchanged, so daily shipments are easier to check without altering the import format.
 
 ### Verification
 
