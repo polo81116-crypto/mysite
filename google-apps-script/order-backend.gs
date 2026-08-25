@@ -212,7 +212,7 @@ function doPost(e) {
     } catch (reportError) {
       logError(reportError, e);
     }
-    sortAllOrderSheetsNewestFirst();
+    refreshShipmentSheetsNewestFirst();
 
     sendOrderEmails(orderId, createdAt, payload);
 
@@ -713,6 +713,7 @@ function onOpen() {
     .addItem("\u91cd\u6574\u4eca\u65e5\u5f85\u51fa\u8ca8", "refreshTodayPendingShipments")
     .addItem("\u4f9d\u65e5\u671f\u6574\u7406\u8a02\u55ae\u532f\u5165", "organizeMyShipImport")
     .addItem("\u4f9d\u65b0\u81f3\u820a\u6392\u5e8f\u51fa\u8ca8\u8cc7\u6599", "sortAllOrderSheetsNewestFirst")
+    .addItem("\u91cd\u5efa\u51fa\u8ca8\u8cc7\u6599\uff08\u65b0\u81f3\u820a\uff09", "refreshShipmentSheetsNewestFirst")
     .addToUi();
 }
 
@@ -736,6 +737,18 @@ function sortAllOrderSheetsNewestFirst() {
   };
 }
 
+function refreshShipmentSheetsNewestFirst() {
+  const spreadsheet = getSpreadsheet();
+  const ordersSheet = getOrdersSheet(spreadsheet);
+
+  // Use the website order sheet as the single source of truth, then rebuild both
+  // operator sheets. This also fixes older rows that may have been outside a filter.
+  sortSheetByCreatedAtNewestFirst(ordersSheet, ORDER_COLUMN.CREATED_AT);
+  rebuildShipmentPrintSheet();
+  rebuildShipmentSortSheet();
+  return sortAllOrderSheetsNewestFirst();
+}
+
 function sortSheetByCreatedAtNewestFirst(sheet, createdAtHeader) {
   const lastRow = sheet.getLastRow();
   const lastColumn = sheet.getLastColumn();
@@ -747,7 +760,14 @@ function sortSheetByCreatedAtNewestFirst(sheet, createdAtHeader) {
     throw new Error(sheet.getName() + " \u627e\u4e0d\u5230\u5efa\u7acb\u6642\u9593\u6b04\u4f4d\u3002");
   }
 
+  const activeFilter = sheet.getFilter();
+  if (activeFilter) activeFilter.remove();
+
   sheet.getRange(2, 1, lastRow - 1, lastColumn).sort({ column: createdAtColumn, ascending: false });
+
+  if (sheet.getName() === CONFIG.SHIPMENT_SORT_SHEET_NAME) {
+    sheet.getRange(1, 1, lastRow, lastColumn).createFilter();
+  }
   return lastRow - 1;
 }
 

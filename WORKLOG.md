@@ -157,6 +157,7 @@ public/stores.json
 - Added the Apps Script `訂單工具` menu: `刪除單一訂單` prompts for an order ID, safely removes its matching MyShip import row, deletes the source order, and rebuilds the shipment and sales views.
 - Added a display-only `系統日期（勿匯入）` column K to the MyShip staging sheet. The import records sort newest-first and receive alternating daily backgrounds; upload to MyShip must continue to use only the required A:J columns.
 - Updated the website-order, shipment-print, and shipment-sort sheets to sort by `建立時間` newest-first automatically; the same sorting can be run manually from the `訂單工具` menu.
+- Strengthened shipment ordering by rebuilding `出貨單列印` and `出貨分類總表` from the website-order source before sorting, and by renewing the shipment-sheet filter after sorting so older data cannot remain out of order.
 
 ### Verification
 
