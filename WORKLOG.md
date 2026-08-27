@@ -158,6 +158,7 @@ public/stores.json
 - Added a display-only `系統日期（勿匯入）` column K to the MyShip staging sheet. The import records sort newest-first and receive alternating daily backgrounds; upload to MyShip must continue to use only the required A:J columns.
 - Updated the website-order, shipment-print, and shipment-sort sheets to sort by `建立時間` newest-first automatically; the same sorting can be run manually from the `訂單工具` menu.
 - Strengthened shipment ordering by rebuilding `出貨單列印` and `出貨分類總表` from the website-order source before sorting, and by renewing the shipment-sheet filter after sorting so older data cannot remain out of order.
+- Synced the `是否已出貨` field across `官網下單資料`, `出貨單列印`, and `出貨分類總表`: changing the status in either shipment sheet updates the other views and refreshes `今日待出貨` automatically.
 
 ### Verification
 

@@ -626,8 +626,8 @@ function rebuildShipmentSortSheet() {
 
 // Rebuild the operator-facing daily queue. This sheet is intentionally separate
 // from the MyShip import sheet so daily checking never changes the import format.
-function refreshTodayPendingShipments() {
-  const spreadsheet = getSpreadsheet();
+function refreshTodayPendingShipments(spreadsheetOverride) {
+  const spreadsheet = spreadsheetOverride || getSpreadsheet();
   const ordersSheet = getOrdersSheet(spreadsheet);
   const sheet = getOrCreateSheet(spreadsheet, CONFIG.TODAY_SHIPMENTS_SHEET_NAME, TODAY_SHIPMENTS_HEADERS);
 
@@ -715,6 +715,55 @@ function onOpen() {
     .addItem("\u4f9d\u65b0\u81f3\u820a\u6392\u5e8f\u51fa\u8ca8\u8cc7\u6599", "sortAllOrderSheetsNewestFirst")
     .addItem("\u91cd\u5efa\u51fa\u8ca8\u8cc7\u6599\uff08\u65b0\u81f3\u820a\uff09", "refreshShipmentSheetsNewestFirst")
     .addToUi();
+}
+
+function onEdit(e) {
+  if (!e || !e.range || e.range.getRow() < 2 || e.range.getNumRows() !== 1 || e.range.getNumColumns() !== 1) return;
+
+  const sheet = e.range.getSheet();
+  if (sheet.getName() !== CONFIG.PRINT_SHEET_NAME && sheet.getName() !== CONFIG.SHIPMENT_SORT_SHEET_NAME) return;
+
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getDisplayValues()[0];
+  const shippedColumn = headers.indexOf(ORDER_COLUMN.SHIPPED) + 1;
+  const orderIdColumn = headers.indexOf(ORDER_COLUMN.ORDER_ID) + 1;
+  if (!shippedColumn || !orderIdColumn || e.range.getColumn() !== shippedColumn) return;
+
+  const shippedStatus = cleanText(e.range.getDisplayValue());
+  if (SHIPPED_STATUS_OPTIONS.indexOf(shippedStatus) === -1) return;
+
+  const orderId = cleanText(sheet.getRange(e.range.getRow(), orderIdColumn).getDisplayValue());
+  if (!orderId) return;
+
+  syncShippedStatusAcrossSheets(e.source, orderId, shippedStatus);
+}
+
+function syncShippedStatusAcrossSheets(spreadsheet, orderId, shippedStatus) {
+  const sheets = [
+    spreadsheet.getSheetByName(CONFIG.ORDERS_SHEET_NAME),
+    spreadsheet.getSheetByName(CONFIG.PRINT_SHEET_NAME),
+    spreadsheet.getSheetByName(CONFIG.SHIPMENT_SORT_SHEET_NAME),
+  ].filter(Boolean);
+
+  sheets.forEach((sheet) => updateShippedStatusInSheet(sheet, orderId, shippedStatus));
+  refreshTodayPendingShipments(spreadsheet);
+}
+
+function updateShippedStatusInSheet(sheet, orderId, shippedStatus) {
+  const lastRow = sheet.getLastRow();
+  const lastColumn = sheet.getLastColumn();
+  if (lastRow < 2 || lastColumn < 1) return false;
+
+  const headers = sheet.getRange(1, 1, 1, lastColumn).getDisplayValues()[0];
+  const shippedColumn = headers.indexOf(ORDER_COLUMN.SHIPPED) + 1;
+  const orderIdColumn = headers.indexOf(ORDER_COLUMN.ORDER_ID) + 1;
+  if (!shippedColumn || !orderIdColumn) return false;
+
+  const orderIds = sheet.getRange(2, orderIdColumn, lastRow - 1, 1).getDisplayValues().flat();
+  const rowIndex = orderIds.findIndex((value) => cleanText(value) === orderId);
+  if (rowIndex === -1) return false;
+
+  sheet.getRange(rowIndex + 2, shippedColumn).setValue(shippedStatus);
+  return true;
 }
 
 function organizeMyShipImport() {
