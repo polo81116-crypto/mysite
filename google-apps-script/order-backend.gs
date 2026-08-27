@@ -62,6 +62,7 @@ const ORDER_HEADERS = [
   "7-11 \u53d6\u4ef6\u8cc7\u6599",
   "\u5168\u5bb6\u53d6\u4ef6\u8cc7\u6599",
   "\u9806\u8c50\u6536\u4ef6\u8cc7\u6599",
+  "\u767c\u7968\u865f\u78bc",
 ];
 
 const ORDER_COLUMN = {
@@ -72,6 +73,7 @@ const ORDER_COLUMN = {
   MYSHIP_EXPORTED_AT: "\u8ce3\u8ca8\u4fbf\u532f\u51fa\u6642\u9593",
   MYSHIP_EXPORT_STATUS: "\u8ce3\u8ca8\u4fbf\u532f\u51fa\u72c0\u614b",
   SHIPMENT_CATEGORY: "\u7269\u6d41\u5206\u985e",
+  INVOICE_NUMBER: "\u767c\u7968\u865f\u78bc",
 };
 
 const SHIPPED_STATUS_OPTIONS = ["\u672a\u51fa\u8ca8", "\u5df2\u51fa\u8ca8"];
@@ -435,6 +437,7 @@ function buildOrderRow(orderId, createdAt, payload) {
     cleanText(payload.shippingMethod || payload.pickupMethod),
     cleanText(payload.deliveryAddress),
     ...buildOrderShipmentLookupColumns(payload),
+    "",
   ];
 }
 
@@ -1522,6 +1525,10 @@ function ensureOrderSheetHeaders(sheet) {
   }
 
   sheet.getRange(1, 1, 1, ORDER_HEADERS.length).setValues([ORDER_HEADERS]);
+  const invoiceColumn = ORDER_HEADERS.indexOf(ORDER_COLUMN.INVOICE_NUMBER) + 1;
+  if (invoiceColumn) {
+    sheet.getRange(2, invoiceColumn, Math.max(sheet.getMaxRows() - 1, 1), 1).setNumberFormat("@");
+  }
   sheet.setFrozenRows(1);
 }
 

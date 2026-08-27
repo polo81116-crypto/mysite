@@ -159,6 +159,7 @@ public/stores.json
 - Updated the website-order, shipment-print, and shipment-sort sheets to sort by `建立時間` newest-first automatically; the same sorting can be run manually from the `訂單工具` menu.
 - Strengthened shipment ordering by rebuilding `出貨單列印` and `出貨分類總表` from the website-order source before sorting, and by renewing the shipment-sheet filter after sorting so older data cannot remain out of order.
 - Synced the `是否已出貨` field across `官網下單資料`, `出貨單列印`, and `出貨分類總表`: changing the status in either shipment sheet updates the other views and refreshes `今日待出貨` automatically.
+- Added a text-formatted `發票號碼` column to `官網下單資料`. New and existing orders keep this field blank until a future electronic-invoice service writes back the invoice number.
 
 ### Verification
 
