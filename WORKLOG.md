@@ -7,7 +7,7 @@ This file tracks project changes, deployment notes, and version updates.
 ### Brand Update
 
 - Renamed the customer-facing brand and legal business information to `豆之楓企業社`.
-- Added a new coffee-bean and maple-leaf SVG logo to the website header and replaced the browser favicon with the same visual identity.
+- Replaced the temporary website logo and browser favicon with the official 豆之楓企業社 logo provided by the business.
 - Updated product supplier information, product-management defaults, page copy, SEO metadata, social-sharing metadata, and structured store data to use the new name.
 - Preserved all ordering, checkout, shipping, and product behaviour.
 

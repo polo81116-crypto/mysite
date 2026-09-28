@@ -16,7 +16,7 @@ const familyMartStoresJsonUrl = `${import.meta.env.BASE_URL}family-stores.json`;
 const coffeeReviewAwardImage = `${import.meta.env.BASE_URL}images/coffee-review-award.png`;
 const mediumDarkOnePoundImage = `${import.meta.env.BASE_URL}images/medium-dark-1lb.jpg`;
 const mediumDarkHalfPoundImage = `${import.meta.env.BASE_URL}images/medium-dark-half-lb.jpg`;
-const brandLogoImage = `${import.meta.env.BASE_URL}images/douzhifeng-logo.svg`;
+const brandLogoImage = `${import.meta.env.BASE_URL}images/douzhifeng-logo.png`;
 
 function resolveAssetPath(path) {
   if (!path) return "";
@@ -886,7 +886,7 @@ export default function CaobanCoffeeHomepage() {
         <FloatingIcons />
         <nav className="relative z-10 mx-auto flex max-w-7xl items-center justify-between px-6 py-6">
           <div className="flex items-center gap-3">
-            <img src={brandLogoImage} alt="豆之楓企業社 LOGO" className="h-12 w-12" />
+            <img src={brandLogoImage} alt="豆之楓企業社 LOGO" className="h-20 w-20 rounded-xl bg-white object-contain p-1 shadow-lg" />
             <div>
               <p className="text-sm tracking-[0.28em] text-[#e8c89d]">DOU ZHI FENG COFFEE</p>
               <h1 className="text-xl font-semibold">豆之楓企業社</h1>
