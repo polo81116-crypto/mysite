@@ -1,4 +1,4 @@
-# 攪拌咖啡商行官網
+# 豆之楓企業社官網
 
 React + Vite 前台，部署到 GitHub Pages。訂單送到 Google Apps Script Web App，後台寫入 Google Sheet，並產生賣貨便匯入表、出貨列印表與銷售報表。
 

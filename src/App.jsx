@@ -16,6 +16,7 @@ const familyMartStoresJsonUrl = `${import.meta.env.BASE_URL}family-stores.json`;
 const coffeeReviewAwardImage = `${import.meta.env.BASE_URL}images/coffee-review-award.png`;
 const mediumDarkOnePoundImage = `${import.meta.env.BASE_URL}images/medium-dark-1lb.jpg`;
 const mediumDarkHalfPoundImage = `${import.meta.env.BASE_URL}images/medium-dark-half-lb.jpg`;
+const brandLogoImage = `${import.meta.env.BASE_URL}images/douzhifeng-logo.svg`;
 
 function resolveAssetPath(path) {
   if (!path) return "";
@@ -199,7 +200,7 @@ const products = (adminCatalog.products?.length ? adminCatalog.products : fallba
     grindOptions: product.grindOptions || [],
     origin: product.origin || "依商品標示為準",
     storage: product.storage || "請置於陰涼乾燥處，開封後請密封保存並盡早飲用。",
-    supplierInfo: product.supplierInfo || "攪拌咖啡商行",
+    supplierInfo: product.supplierInfo || "豆之楓企業社",
   }));
 
 const productCategoryTabs = ["全部商品", ...new Set([...categories.map((category) => category.title), ...products.map((product) => product.category)])];
@@ -216,7 +217,7 @@ const infoSlides = (siteContent.infoSlides?.length ? siteContent.infoSlides : fa
 }));
 
 const storeLegalInfo = {
-  businessName: "攪拌咖啡商行",
+  businessName: "豆之楓企業社",
   customerService: "請於訂單備註留下 LINE / IG / Email，客服會依訂單資訊與您聯繫。",
   privacy: "您填寫的姓名、電話、Email、取貨門市、收件地址、發票與備註資料，僅用於訂單處理、配送、付款確認、售後服務與依法保存交易紀錄。除配送、付款、系統服務或依法令要求外，不會任意提供第三人。",
   returns: "網路訂購商品依消費者保護法通訊交易規定辦理。咖啡屬食品，若商品已拆封、已研磨客製、因保存不當變質，可能不適用七日猶豫期退貨；若收到商品有瑕疵、破損或品項錯誤，請保留外箱與商品狀態並盡快聯繫客服。",
@@ -466,7 +467,7 @@ function CoffeeReviewAwardCard() {
         <div className="mt-10 rounded-[2rem] border border-white/10 bg-black/10 p-6 md:p-8">
           <p className="text-sm font-bold tracking-[0.3em] text-[#f3c178]">BRAND PHILOSOPHY</p>
           <h4 className="mt-4 text-2xl font-bold md:text-3xl">一杯咖啡，不只是提神，而是生活裡安定的節奏。</h4>
-          <p className="mt-5 leading-8 text-[#fff1df]">攪拌咖啡商行相信，真正好的咖啡，不一定遙不可及。我們將精品咖啡的品質與烘焙穩定性，帶進每一位日常喝咖啡的人生活裡。</p>
+          <p className="mt-5 leading-8 text-[#fff1df]">豆之楓企業社相信，真正好的咖啡，不一定遙不可及。我們將精品咖啡的品質與烘焙穩定性，帶進每一位日常喝咖啡的人生活裡。</p>
           <p className="mt-4 leading-8 text-[#fff1df]">從商用優選豆、精品配方，到 Coffee Review 高分評測豆款，我們堅持風味平衡、乾淨甜感與耐喝性，讓每一次沖煮都能感受到咖啡真正的溫度。</p>
         </div>
       </div>
@@ -884,9 +885,12 @@ export default function CaobanCoffeeHomepage() {
       <section className="relative overflow-hidden bg-gradient-to-br from-[#2a1a10] via-[#4b2d1a] to-[#8a603b] text-[#fff8ec]">
         <FloatingIcons />
         <nav className="relative z-10 mx-auto flex max-w-7xl items-center justify-between px-6 py-6">
-          <div>
-            <p className="text-sm tracking-[0.35em] text-[#e8c89d]">CAOBAN COFFEE</p>
-            <h1 className="text-xl font-semibold">攪拌咖啡商行</h1>
+          <div className="flex items-center gap-3">
+            <img src={brandLogoImage} alt="豆之楓企業社 LOGO" className="h-12 w-12" />
+            <div>
+              <p className="text-sm tracking-[0.28em] text-[#e8c89d]">DOU ZHI FENG COFFEE</p>
+              <h1 className="text-xl font-semibold">豆之楓企業社</h1>
+            </div>
           </div>
           <div className="hidden items-center gap-3 md:flex">
             <a href="#cart" className="inline-flex items-center rounded-full border border-white/20 px-5 py-2 text-sm font-semibold text-white"><ShoppingCart className="mr-2 h-4 w-4" /> 購物車 {cartCount}</a>
@@ -897,7 +901,7 @@ export default function CaobanCoffeeHomepage() {
           <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7 }}>
             <p className="mb-4 inline-flex rounded-full border border-[#f3c178]/40 px-4 py-2 text-sm text-[#f3c178]">超商 貨運 專屬取貨 方案</p>
             <h2 className="max-w-3xl text-4xl font-bold leading-tight md:text-6xl">未眠的夜裡，也值得一杯真正安定你的咖啡</h2>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-[#f8e7cf]">未眠，不只是深夜，而是每一位仍在為生活奔波的人。攪拌咖啡商行希望用一杯穩定、真實、有溫度的咖啡，陪伴每個還在努力前進的時刻。</p>
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-[#f8e7cf]">未眠，不只是深夜，而是每一位仍在為生活奔波的人。豆之楓企業社希望用一杯穩定、真實、有溫度的咖啡，陪伴每個還在努力前進的時刻。</p>
             <div className="mt-8 flex flex-col gap-4 sm:flex-row">
               <a href="#products" className="inline-flex items-center justify-center rounded-full bg-[#f3c178] px-7 py-4 font-bold text-[#2a1a10] shadow-xl transition hover:scale-105">開始選購 <ChevronRight className="ml-2 h-5 w-5" /></a>
               <a href="#cart" className="inline-flex items-center justify-center rounded-full border border-white/30 px-7 py-4 font-semibold text-white transition hover:bg-white/10">查看購物車</a>
@@ -917,7 +921,7 @@ export default function CaobanCoffeeHomepage() {
               <p className="text-sm font-bold tracking-[0.3em] text-[#8a603b]">COFFEE REVIEW AWARDS</p>
               <h2 className="mt-3 text-3xl font-bold md:text-5xl">Coffee Review 評鑑榮耀</h2>
               <p className="mt-6 text-lg leading-9 text-[#5c4531]">Coffee Review 是國際知名精品咖啡評測平台，能獲得 90 分以上，代表咖啡在甜感、乾淨度、平衡與層次表現上，已達國際精品等級。</p>
-              <p className="mt-5 text-lg leading-9 text-[#5c4531]">攪拌咖啡商行累積多次 93、94 高分評測肯定，我們不追求過度華麗，而是專注於每一次沖煮都能呈現穩定、耐喝、具有記憶點的風味。</p>
+              <p className="mt-5 text-lg leading-9 text-[#5c4531]">豆之楓企業社累積多次 93、94 高分評測肯定，我們不追求過度華麗，而是專注於每一次沖煮都能呈現穩定、耐喝、具有記憶點的風味。</p>
               <p className="mt-5 text-lg leading-9 text-[#5c4531]">希望讓更多人用合理價格，也能接觸真正具有國際精品水準的咖啡體驗。</p>
             </div>
             <CoffeeReviewAwardCard />
@@ -951,7 +955,7 @@ export default function CaobanCoffeeHomepage() {
             <div>
               <p className="text-sm font-bold tracking-[0.3em] text-[#f3c178]">COFFEE ORDER LIST</p>
               <h2 className="mt-3 text-3xl font-bold md:text-5xl">選擇咖啡豆</h2>
-              <p className="mt-4 max-w-2xl leading-7 text-[#dcc7ad]">我們相信，一杯真正好的咖啡，應該在第一口，就讓人記住。攪拌咖啡商行精選世界各地精品咖啡豆，從日常耐喝的中深焙，到具有花香、果韻與特殊發酵風味的精品豆款，皆以穩定烘焙與乾淨風味為核心。現在開始選購，挑選屬於你的風味。</p>
+              <p className="mt-4 max-w-2xl leading-7 text-[#dcc7ad]">我們相信，一杯真正好的咖啡，應該在第一口，就讓人記住。豆之楓企業社精選世界各地精品咖啡豆，從日常耐喝的中深焙，到具有花香、果韻與特殊發酵風味的精品豆款，皆以穩定烘焙與乾淨風味為核心。現在開始選購，挑選屬於你的風味。</p>
             </div>
             <div className="rounded-full bg-[#f3c178]/10 px-5 py-3 text-sm font-bold text-[#f3c178]">{cartCount} 件｜優惠後 {currency(cartTotal)}</div>
           </div>
@@ -1128,7 +1132,7 @@ export default function CaobanCoffeeHomepage() {
             <div className="mt-6 space-y-4">{cart.map((item) => (<div key={item.cartId} className="rounded-2xl bg-[#f6efe4] p-4"><div className="flex justify-between gap-4"><div><p className="font-bold">{item.name}</p><p className="mt-1 text-sm text-[#66513f]">{item.packageLabel}</p><p className="mt-1 text-sm text-[#66513f]">{item.grindLabel}</p></div><div className="text-right"><p className="font-bold">{currency(item.price)} × {item.quantity}</p><p className="mt-1 text-sm text-[#8a603b]">{currency(item.price * item.quantity)}</p></div></div></div>))}</div>
             <div className="mt-6 grid gap-4 md:grid-cols-2"><div className="rounded-2xl border border-[#dccbb2] bg-white p-5"><p className="font-bold text-[#8a603b]">收件資料</p><div className="mt-3 space-y-2 text-sm leading-6 text-[#5c4531]"><p>收件人：{checkoutForm.recipient || "尚未填寫"}</p><p>手機：{checkoutForm.phone || "尚未填寫"}</p><p>Email：{checkoutForm.email || "尚未填寫"}</p><p>配送方式：{pickupMethod}</p>{isStorePickup(pickupMethod) ? <p>取貨門市：{checkoutForm.pickupStore || "尚未選擇"}</p> : <p>收件地址：{checkoutForm.deliveryAddress || "尚未填寫"}</p>}<p className="mt-3 rounded-xl bg-[#f6efe4] px-3 py-2 text-xs font-bold text-[#8a603b]">{isStorePickup(pickupMethod) ? "超商取貨為貨到付款，取貨時再付款。" : "順豐快遞貨到付款，送達時再付款。"}</p></div></div><div className="rounded-2xl border border-[#dccbb2] bg-white p-5"><p className="font-bold text-[#8a603b]">發票與備註</p><div className="mt-3 space-y-2 text-sm leading-6 text-[#5c4531]"><p>統一編號：{checkoutForm.taxId || "無"}</p><p>公司抬頭：{checkoutForm.companyTitle || "無"}</p><p>備註：{checkoutForm.note || "無"}</p><p>其他資訊：{checkoutForm.socialAccount || "無"}</p></div></div></div>
             <div className="mt-6 rounded-2xl bg-[#2a1a10] p-5 text-white"><div className="flex justify-between text-sm text-[#fff1df]"><span>商品原價</span><span>{currency(cartSubtotal)}</span></div><div className="mt-3 flex justify-between text-sm font-bold text-[#7CFFB2]"><span>全館 9 折優惠</span><span>- {currency(globalDiscountAmount)}</span></div><div className="mt-3 flex justify-between text-sm text-[#fff1df]"><span>折扣後小計</span><span>{currency(discountedSubtotal)}</span></div><div className="mt-3 flex justify-between text-sm text-[#fff1df]"><span>配送運費</span><span>{shippingFee === 0 ? "免運" : currency(shippingFee)}</span></div><div className="mt-4 flex justify-between border-t border-white/20 pt-4 text-2xl font-bold"><span>總計</span><span>{currency(cartTotal)}</span></div></div>
-            {orderSubmitStatus === "success" && <div className="mt-6 rounded-[2rem] border border-[#b8d8ba] bg-[#e8f5e9] p-6 text-center text-[#2e7d32]"><p className="text-2xl font-black">訂單已順利送出</p><p className="mt-3 text-sm font-bold leading-7">感謝您把今天的咖啡時光交給攪拌咖啡商行。訂單明細將寄到您的 Email，我們也會同步收到通知並盡快為您安排出貨。</p><p className="mt-3 text-sm leading-7 text-[#3d6b40]">願這份咖啡，在抵達您手中時，剛好成為生活裡最舒服的一段香氣。</p></div>}
+            {orderSubmitStatus === "success" && <div className="mt-6 rounded-[2rem] border border-[#b8d8ba] bg-[#e8f5e9] p-6 text-center text-[#2e7d32]"><p className="text-2xl font-black">訂單已順利送出</p><p className="mt-3 text-sm font-bold leading-7">感謝您把今天的咖啡時光交給豆之楓企業社。訂單明細將寄到您的 Email，我們也會同步收到通知並盡快為您安排出貨。</p><p className="mt-3 text-sm leading-7 text-[#3d6b40]">願這份咖啡，在抵達您手中時，剛好成為生活裡最舒服的一段香氣。</p></div>}
             {orderSubmitStatus === "error" && <div className="mt-6 rounded-2xl bg-[#fff0f0] p-4 text-sm font-bold leading-7 text-[#9f2a2a]">訂單送出失敗，請稍後再試，或改用蝦皮商城下單。</div>}
             {orderSubmitStatus === "success" ? (
               <div className="mt-6 flex justify-center">
@@ -1175,7 +1179,7 @@ export default function CaobanCoffeeHomepage() {
           <a href="#store-info" className="hover:text-[#2a1a10]">退換貨說明</a>
           <a href="#store-info" className="hover:text-[#2a1a10]">配送付款</a>
         </div>
-        <p className="mt-4 text-xs tracking-[0.25em] text-[#8a603b]">© 攪拌咖啡商行｜精品咖啡豆・咖啡器材・超商 貨運 專屬取貨方案</p>
+        <p className="mt-4 text-xs tracking-[0.25em] text-[#8a603b]">© 豆之楓企業社｜精品咖啡豆・咖啡器材・超商 貨運 專屬取貨方案</p>
       </footer>
     </main>
   );
