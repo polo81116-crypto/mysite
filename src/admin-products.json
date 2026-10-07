@@ -355,6 +355,26 @@
       "origin": "依商品標示為準",
       "storage": "請置於陰涼乾燥處，開封後請密封保存並盡早飲用。",
       "supplierInfo": "豆之楓企業社"
+    },
+    {
+      "id": "blue-mountain-flavor-drip",
+      "status": "active",
+      "category": "濾掛咖啡",
+      "name": "藍山風味 濾掛咖啡",
+      "roast": "中深烘焙",
+      "taste": "柔順平衡、堅果可可、焦糖甜感",
+      "packageOptions": [
+        {
+          "label": "單包",
+          "price": 15
+        }
+      ],
+      "grindOptions": [],
+      "weight": "每包 / 10g",
+      "image": "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=900&q=80",
+      "origin": "依商品標示為準",
+      "storage": "請置於陰涼乾燥處，開封後請密封保存並盡早飲用。",
+      "supplierInfo": "豆之楓企業社"
     }
   ]
 }

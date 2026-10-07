@@ -15,6 +15,12 @@ This file tracks project changes, deployment notes, and version updates.
 
 - Pending production build after the brand asset update.
 
+## 2026-10-07
+
+### Product Update
+
+- Added `藍山風味 濾掛咖啡` under the drip-coffee category: single pack, 10 g, priced at $15.
+
 ## 2026-06-16
 
 ### Legal and Product Info Update
